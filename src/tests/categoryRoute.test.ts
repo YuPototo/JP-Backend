@@ -117,51 +117,54 @@ describe('GET /simpleTest', () => {
             displayName: '新标日',
         })
 
-        expect(categoriesOutput).toMatchObject([
-            {
-                key: 'study',
-                displayName: '学习',
-                subCategorySequence: ['studyMeta'],
-                subCategories: {
-                    studyMeta: [
-                        {
-                            key: 'newStandardJP',
-                            displayName: '新标日',
-                        },
-                        {
-                            key: 'other',
-                            displayName: '其他',
-                        },
-                    ],
+        // overal output
+        expect(res.body).toMatchObject({
+            categories: [
+                {
+                    key: 'study',
+                    displayName: '学习',
+                    subCategorySequence: ['studyMeta'],
+                    subCategories: {
+                        studyMeta: [
+                            {
+                                key: 'newStandardJP',
+                                displayName: '新标日',
+                            },
+                            {
+                                key: 'other',
+                                displayName: '其他',
+                            },
+                        ],
+                    },
                 },
-            },
-            {
-                key: 'jlpt',
-                displayName: 'JLPT',
-                subCategorySequence: ['jlptLevel', 'questionType'],
-                subCategories: {
-                    jlptLevel: [
-                        {
-                            key: 'n1',
-                            displayName: 'N1',
-                        },
-                        {
-                            key: 'n2',
-                            displayName: 'N2',
-                        },
-                    ],
-                    questionType: [
-                        {
-                            key: 'read',
-                            displayName: '阅读',
-                        },
-                        {
-                            key: 'words',
-                            displayName: '文字词汇',
-                        },
-                    ],
+                {
+                    key: 'jlpt',
+                    displayName: 'JLPT',
+                    subCategorySequence: ['jlptLevel', 'questionType'],
+                    subCategories: {
+                        jlptLevel: [
+                            {
+                                key: 'n1',
+                                displayName: 'N1',
+                            },
+                            {
+                                key: 'n2',
+                                displayName: 'N2',
+                            },
+                        ],
+                        questionType: [
+                            {
+                                key: 'read',
+                                displayName: '阅读',
+                            },
+                            {
+                                key: 'words',
+                                displayName: '文字词汇',
+                            },
+                        ],
+                    },
                 },
-            },
-        ])
+            ],
+        })
     })
 })
