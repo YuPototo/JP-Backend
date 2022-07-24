@@ -1,0 +1,36 @@
+import express, { Request, Response, NextFunction } from 'express'
+import type { Express } from 'express-serve-static-core'
+
+import cors from 'cors'
+import helmet from 'helmet'
+
+import { getErrorMessage } from '@/utils/errorHandler'
+import logger, { useLog } from '@/utils/logger'
+
+import testRouter from '@/routes/testRoute'
+
+const API_PREFIX = '/api/v1'
+
+export async function createApp(): Promise<Express> {
+    const app = express()
+
+    // middleware
+    app.enable('trust proxy') // 使用 nginx proxy 时要用
+    app.use(helmet()) // 若干开箱即用的安全措施
+    app.use(cors()) // 允许跨域访问
+    app.use(express.json()) // 保证 http request body 会被作为 json 传入
+    useLog(app)
+
+    // routes
+    app.use(`${API_PREFIX}`, testRouter)
+
+    // Error-handling middleware: 必须使用 4个 argument
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+        const errMessage = getErrorMessage(err)
+        logger.error(errMessage)
+        res.status(500).json({ message: errMessage })
+    })
+
+    return app
+}

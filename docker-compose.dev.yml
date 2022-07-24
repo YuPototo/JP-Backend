@@ -1,0 +1,16 @@
+version: '3.9'
+
+services:
+    mongo_test:
+        image: mongo
+        container_name: en_test_db
+        ports:
+            - 13300:27017
+
+    mongo_dev:
+        image: mongo
+        container_name: en_dev_db
+        volumes:
+            - /Users/qinyu/db/mongo/data:/data/db
+        ports:
+            - 27017:27017
