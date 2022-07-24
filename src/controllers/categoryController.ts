@@ -26,7 +26,7 @@ interface GetCategoryResponseData {
 export const getCategories: RequestHandler = async (req, res, next) => {
     let topCategories: ITopCategory[]
     try {
-        topCategories = await TopCategory.find()
+        topCategories = await TopCategory.find().sort({ weight: 'desc' })
     } catch (err) {
         next(err)
         return
@@ -49,7 +49,9 @@ export const getCategories: RequestHandler = async (req, res, next) => {
         })
 
         for (const metaType of topCategory.childrenMetaTypes) {
-            const subCategories = await SubCategory.find({ metaType })
+            const subCategories = await SubCategory.find({ metaType }).sort({
+                weight: 'desc',
+            })
 
             const categoryArray: BaseCategoryArray = subCategories.map(
                 (el) => ({

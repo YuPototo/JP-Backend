@@ -7,6 +7,7 @@ export interface ISubCategory extends Document {
     key: string
     displayName: string
     description: string
+    weight: number
 }
 
 const subCategorySchema = new Schema<ISubCategory>(
@@ -15,6 +16,7 @@ const subCategorySchema = new Schema<ISubCategory>(
         key: { type: String, required: true, unique: true },
         displayName: { type: String, required: true },
         description: { type: String, required: true },
+        weight: { type: Number, default: 0 },
     },
     { collection: COLLECTION_NAME }
 )
