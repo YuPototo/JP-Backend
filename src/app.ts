@@ -7,7 +7,6 @@ import helmet from 'helmet'
 import { getErrorMessage } from '@/utils/errorUtil/errorHandler'
 import logger, { useLog } from '@/utils/logger/logger'
 
-import testRouter from '@/routes/testRoute'
 import categoryRouter from '@/routes/categoryRoute'
 
 const API_PREFIX = '/api/v1'
@@ -23,7 +22,6 @@ export async function createApp(): Promise<Express> {
     useLog(app)
 
     // routes
-    app.use(`${API_PREFIX}`, testRouter)
     app.use(`${API_PREFIX}`, categoryRouter)
 
     // Error-handling middleware: 必须使用 4个 argument
