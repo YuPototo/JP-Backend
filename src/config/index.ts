@@ -35,6 +35,8 @@ interface Config {
         url: string
         autoIndex: boolean
     }
+
+    redisUrl: string
 }
 
 const config: Config = {
@@ -57,6 +59,8 @@ const config: Config = {
         url: parsedEnv.MONGO_URL as string,
         autoIndex: parsedEnv.MONGO_AUTO_INDEX as boolean,
     },
+
+    redisUrl: parsedEnv.REDIS_URL as string,
 }
 
 export default config

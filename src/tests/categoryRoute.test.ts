@@ -4,6 +4,7 @@ import { createApp } from '../app'
 import db from '../utils/db'
 import TopCategory from '../models/topCatgegory'
 import SubCategory from '../models/subCategory'
+import redisCache from '../utils/redis'
 
 let app: Express
 
@@ -17,7 +18,15 @@ let app: Express
         - questionType: read, words
 */
 
+/*
+    测试用例：
+        - 成功返回 category tree
+        - 成功缓存
+        - 会从 redis 里获取数据
+*/
+
 beforeAll(async () => {
+    await redisCache.open()
     await db.open()
     app = await createApp()
 
@@ -88,9 +97,59 @@ afterAll(async () => {
     await SubCategory.deleteMany()
     await TopCategory.deleteMany()
     await db.close()
+    await redisCache.close()
 })
 
-describe('GET /simpleTest', () => {
+describe('GET /categories', () => {
+    const expectedOuput = {
+        categories: [
+            {
+                key: 'study',
+                displayName: '学习',
+                subCategorySequence: ['studyMeta'],
+                subCategories: {
+                    studyMeta: [
+                        {
+                            key: 'newStandardJP',
+                            displayName: '新标日',
+                        },
+                        {
+                            key: 'other',
+                            displayName: '其他',
+                        },
+                    ],
+                },
+            },
+            {
+                key: 'jlpt',
+                displayName: 'JLPT',
+                subCategorySequence: ['jlptLevel', 'questionType'],
+                subCategories: {
+                    jlptLevel: [
+                        {
+                            key: 'n1',
+                            displayName: 'N1',
+                        },
+                        {
+                            key: 'n2',
+                            displayName: 'N2',
+                        },
+                    ],
+                    questionType: [
+                        {
+                            key: 'read',
+                            displayName: '阅读',
+                        },
+                        {
+                            key: 'words',
+                            displayName: '文字词汇',
+                        },
+                    ],
+                },
+            },
+        ],
+    }
+
     it('should return 200 with message', async () => {
         const res = await request(app).get('/api/v1/categories')
         expect(res.statusCode).toBe(200)
@@ -118,53 +177,25 @@ describe('GET /simpleTest', () => {
         })
 
         // overal output
-        expect(res.body).toMatchObject({
-            categories: [
-                {
-                    key: 'study',
-                    displayName: '学习',
-                    subCategorySequence: ['studyMeta'],
-                    subCategories: {
-                        studyMeta: [
-                            {
-                                key: 'newStandardJP',
-                                displayName: '新标日',
-                            },
-                            {
-                                key: 'other',
-                                displayName: '其他',
-                            },
-                        ],
-                    },
-                },
-                {
-                    key: 'jlpt',
-                    displayName: 'JLPT',
-                    subCategorySequence: ['jlptLevel', 'questionType'],
-                    subCategories: {
-                        jlptLevel: [
-                            {
-                                key: 'n1',
-                                displayName: 'N1',
-                            },
-                            {
-                                key: 'n2',
-                                displayName: 'N2',
-                            },
-                        ],
-                        questionType: [
-                            {
-                                key: 'read',
-                                displayName: '阅读',
-                            },
-                            {
-                                key: 'words',
-                                displayName: '文字词汇',
-                            },
-                        ],
-                    },
-                },
-            ],
-        })
+        expect(res.body).toMatchObject(expectedOuput)
+    })
+
+    it('should save cache to redis', async () => {
+        await request(app).get('/api/v1/categories')
+        const cacheData = await redisCache.get('categories')
+        expect(cacheData).toBe(JSON.stringify(expectedOuput))
+    })
+
+    it('should read from redis first', async () => {
+        await redisCache.del('categories')
+
+        const mockData = { categories: 'mock' }
+        await redisCache.set('categories', JSON.stringify(mockData), 1000)
+
+        const res = await request(app).get('/api/v1/categories')
+        expect(res.statusCode).toBe(200)
+        expect(res.body).toMatchObject(mockData)
+
+        await redisCache.del('categories')
     })
 })

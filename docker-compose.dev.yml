@@ -3,14 +3,26 @@ version: '3.9'
 services:
     mongo_test:
         image: mongo
-        container_name: en_test_db
+        container_name: jp_test_db
         ports:
             - 13300:27017
 
     mongo_dev:
         image: mongo
-        container_name: en_dev_db
+        container_name: jp_dev_db
         volumes:
             - /Users/qinyu/db/mongo/data:/data/db
         ports:
             - 27017:27017
+
+    redis_dev:
+        image: redis
+        container_name: jp_dev_redis
+        ports:
+            - 6379:6379
+
+    redis_test:
+        image: redis
+        container_name: jp_test_redis
+        ports:
+            - 6300:6379

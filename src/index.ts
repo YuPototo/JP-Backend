@@ -1,11 +1,17 @@
 import { createApp } from './app'
 import db from '@/utils/db'
+import redis from '@/utils/redis'
+
 import logger from '@/utils/logger'
 import { getErrorMessage } from './utils/errorHandler'
 
 import config from '@/config'
 
-db.open()
+redis
+    .open()
+    .then(() => {
+        db.open()
+    })
     .then(() => createApp())
     .then((app) => {
         app.listen(config.port, () => {

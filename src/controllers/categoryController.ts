@@ -1,6 +1,8 @@
+import type { RequestHandler } from 'express'
 import TopCategory, { ITopCategory } from '@/models/topCatgegory'
 import SubCategory from '@/models/subCategory'
-import type { RequestHandler } from 'express'
+import redisCache from '@/utils/redis'
+import logger from '@/utils/logger'
 
 /** API: 获取所有分类 */
 interface BaseCategory {
@@ -25,6 +27,20 @@ interface GetCategoryResponseData {
 
 export const getCategories: RequestHandler = async (req, res, next) => {
     let topCategories: ITopCategory[]
+
+    // get from redis
+    try {
+        const cache = await redisCache.get('categories')
+        if (cache) {
+            logger.info('Redis: get categories from cache')
+            const cacheData = JSON.parse(cache) as GetCategoryResponseData
+            return res.json(cacheData)
+        }
+    } catch (err) {
+        logger.error(err)
+    }
+
+    // find top category
     try {
         topCategories = await TopCategory.find().sort({ weight: 'desc' })
     } catch (err) {
@@ -37,6 +53,7 @@ export const getCategories: RequestHandler = async (req, res, next) => {
         return
     }
 
+    // generate category ouput
     const categories: TopCategoryOutput[] = []
 
     for (let index = 0; index < topCategories.length; index++) {
@@ -68,6 +85,13 @@ export const getCategories: RequestHandler = async (req, res, next) => {
     }
 
     const responseData: GetCategoryResponseData = { categories }
-
     res.json(responseData)
+
+    // save to redis
+    try {
+        const cacheData = JSON.stringify(responseData)
+        await redisCache.set('categories', cacheData, 7200) // 保存2小时
+    } catch (err) {
+        logger.error(err)
+    }
 }
