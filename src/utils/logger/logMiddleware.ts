@@ -1,8 +1,8 @@
 import morgan from 'morgan'
 import morganBody from 'morgan-body'
 
-import config from '@/config'
-import logger from './index'
+import config from '@/config/config'
+import logger from './logger'
 
 import type { Express } from 'express-serve-static-core'
 

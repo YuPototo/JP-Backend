@@ -1,8 +1,8 @@
 import type { RequestHandler } from 'express'
 import TopCategory, { ITopCategory } from '@/models/topCatgegory'
 import SubCategory from '@/models/subCategory'
-import redisCache from '@/utils/redis'
-import logger from '@/utils/logger'
+import redisCache from '@/utils/redis/cacheSingleton'
+import logger from '@/utils/logger/logger'
 
 /** API: 获取所有分类 */
 interface BaseCategory {
@@ -90,7 +90,7 @@ export const getCategories: RequestHandler = async (req, res, next) => {
     // save to redis
     try {
         const cacheData = JSON.stringify(responseData)
-        await redisCache.set('categories', cacheData, 7200) // 保存2小时
+        await redisCache.set('categories', cacheData, 86400) // save for 24 hours
     } catch (err) {
         logger.error(err)
     }

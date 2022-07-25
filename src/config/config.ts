@@ -1,7 +1,7 @@
 import dotenvExtended from 'dotenv-extended'
 import dotenvParseVariables from 'dotenv-parse-variables'
 
-import type { LogLevel } from '@/utils/logger'
+import type { LogLevel } from '@/utils/logger/logger'
 
 const env = dotenvExtended.load({
     path: process.env.ENV_FILE,

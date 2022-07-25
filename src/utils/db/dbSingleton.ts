@@ -1,7 +1,7 @@
 import mongoose from 'mongoose'
-import config from '@/config'
-import logger from '@/utils/logger'
-import { getErrorMessage } from '@/utils/errorHandler'
+import config from '@/config/config'
+import logger from '@/utils/logger/logger'
+import { getErrorMessage } from '@/utils/errorUtil/errorHandler'
 
 const option = {
     useNewUrlParser: true,

@@ -4,8 +4,8 @@ import type { Express } from 'express-serve-static-core'
 import cors from 'cors'
 import helmet from 'helmet'
 
-import { getErrorMessage } from '@/utils/errorHandler'
-import logger, { useLog } from '@/utils/logger'
+import { getErrorMessage } from '@/utils/errorUtil/errorHandler'
+import logger, { useLog } from '@/utils/logger/logger'
 
 import testRouter from '@/routes/testRoute'
 import categoryRouter from '@/routes/categoryRoute'

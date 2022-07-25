@@ -1,6 +1,6 @@
 import { createClient, RedisClientType } from 'redis'
-import config from '@/config'
-import logger from '@/utils/logger'
+import config from '@/config/config'
+import logger from '@/utils/logger/logger'
 
 class RedisCache {
     private static _instance: RedisCache

@@ -1,7 +1,7 @@
 import request from 'supertest'
 import { Express } from 'express-serve-static-core'
 import { createApp } from '../app'
-import db from '../utils/db'
+import db from '../utils/db/dbSingleton'
 
 let app: Express
 

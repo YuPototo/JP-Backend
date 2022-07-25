@@ -1,10 +1,10 @@
 import request from 'supertest'
 import { Express } from 'express-serve-static-core'
 import { createApp } from '../app'
-import db from '../utils/db'
+import db from '../utils/db/dbSingleton'
 import TopCategory from '../models/topCatgegory'
 import SubCategory from '../models/subCategory'
-import redisCache from '../utils/redis'
+import redisCache from '../utils/redis/cacheSingleton'
 
 let app: Express
 

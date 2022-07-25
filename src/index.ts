@@ -1,11 +1,11 @@
 import { createApp } from './app'
-import db from '@/utils/db'
-import redis from '@/utils/redis'
+import db from '@/utils/db/dbSingleton'
+import redis from '@/utils/redis/cacheSingleton'
 
-import logger from '@/utils/logger'
-import { getErrorMessage } from './utils/errorHandler'
+import logger from '@/utils/logger/logger'
+import { getErrorMessage } from './utils/errorUtil/errorHandler'
 
-import config from '@/config'
+import config from '@/config/config'
 
 redis
     .open()

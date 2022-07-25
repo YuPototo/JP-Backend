@@ -1,4 +1,4 @@
-import { isErrorWithMessage, toErrorWithMessage } from './index'
+import { isErrorWithMessage, toErrorWithMessage } from './errorHandler'
 
 describe('isErrorWithMessage()', () => {
     it('should return false when arg is not object', () => {
