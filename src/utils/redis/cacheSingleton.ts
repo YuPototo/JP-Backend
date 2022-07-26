@@ -20,7 +20,11 @@ class RedisCache {
 
     public open(): Promise<void> {
         return new Promise((resolve) => {
-            this._client = createClient({ url: config.redisUrl })
+            this._client = createClient({
+                url: config.redisUrl,
+                //  todo: retry_strategy
+            })
+
             const client = this._client
 
             client.connect().then(() => {
