@@ -2,63 +2,33 @@ import { Schema, Document, model, Model } from 'mongoose'
 
 const COLLECTION_NAME = 'book'
 
-export interface IChildCategory {
-    metaType: string
-    keys: string[]
+interface IBookCategory extends Document {
+    key: string
+    description?: string // 用于辅助理解
+    child?: IBookCategory
 }
 
-const bookChildCategorySchema = new Schema(
+const bookCategorySchema = new Schema<IBookCategory>(
     {
-        metaType: { type: String, required: true },
-        keys: { type: [String] },
+        key: { type: String, required: true },
+        description: { type: String },
     },
     { _id: false }
 )
 
-// toJSON method
-bookChildCategorySchema.set('toJSON', {
-    transform: function (doc, ret) {
-        ret[`${doc.metaType}`] = doc.keys
-        delete ret.metaType
-        delete ret.keys
-    },
-})
-
-export interface IBookCatgory extends Document {
-    topKey: string
-    children: IChildCategory[]
-}
-
-const bookCategorySchema = new Schema<IBookCatgory>(
-    {
-        topKey: { type: String },
-        children: [bookChildCategorySchema],
-    },
-    { _id: false }
-)
-
-// toJSON method
-bookCategorySchema.set('toJSON', {
-    transform: function (doc: IBookCatgory, ret) {
-        const childrenObj = {}
-        for (const child of doc.children) {
-            Object.assign(childrenObj, {
-                [`${child.metaType}`]: child.keys,
-            })
-        }
-        ret.children = childrenObj
-    },
+bookCategorySchema.add({
+    child: bookCategorySchema,
 })
 
 export interface IBook extends Document {
     title: string
-    categories: IBookCatgory[]
+    category: IBookCategory
 }
 
 const bookSchema = new Schema<IBook>(
     {
         title: { type: String, required: true },
-        categories: [bookCategorySchema],
+        category: { type: bookCategorySchema, required: true },
     },
     { collection: COLLECTION_NAME }
 )
@@ -67,17 +37,7 @@ const bookSchema = new Schema<IBook>(
 bookSchema.set('toJSON', {
     transform: function (doc: IBook, ret) {
         ret.id = ret._id.toString()
-        ret.topCategories = doc.categories.map((el) => el.topKey)
 
-        const childCategoriesObj = {}
-        for (const category of ret.categories) {
-            Object.assign(childCategoriesObj, {
-                [`${category.topKey}`]: category.children,
-            })
-        }
-
-        ret.childCategories = childCategoriesObj
-        delete ret.categories
         delete ret.__v
         delete ret._id
     },
