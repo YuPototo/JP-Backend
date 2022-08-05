@@ -16,10 +16,8 @@ const env = dotenvExtended.load({
 const parsedEnv = dotenvParseVariables(env)
 
 interface Config {
-    assetDomain: string
+    cdnDomain: string
     port: number
-
-    adminSecret: string // 临时方案
 
     logger: {
         morgan: boolean
@@ -40,11 +38,9 @@ interface Config {
 }
 
 const config: Config = {
-    assetDomain: parsedEnv.ASSET_DOMAIN as string,
+    cdnDomain: parsedEnv.CDN_DOMAIN as string,
 
     port: parsedEnv.PORT as number,
-
-    adminSecret: parsedEnv.ADMIN_SECRET as string,
 
     logger: {
         morgan: parsedEnv.MORGAN_LOGGER as boolean,
