@@ -7,6 +7,10 @@ import { getErrorMessage } from './utils/errorUtil/errorHandler'
 
 import config from '@/config/config'
 
+import Section from '@/models/section'
+import Chapter from '@/models/chapter'
+import Book from '@/models/book'
+
 redis
     .open()
     .then(() => {
@@ -17,6 +21,12 @@ redis
         app.listen(config.port, () => {
             logger.info(`Listening on http://localhost:${config.port}`)
         })
+    })
+    .then(() => {
+        // hack: create schema in this way
+        Book.findOne()
+        Section.findOne()
+        Chapter.findOne()
     })
     .catch((err) => {
         logger.error(getErrorMessage(err))

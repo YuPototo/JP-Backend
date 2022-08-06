@@ -7,6 +7,7 @@ beforeAll(async () => {
 })
 
 afterAll(async () => {
+    await Book.deleteMany()
     await db.close()
 })
 

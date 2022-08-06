@@ -1,6 +1,6 @@
 import config from '@/config/config'
 import { addCdnDomain } from '@/utils/staticAssets'
-import { Schema, Document, model, Model } from 'mongoose'
+import { Schema, Document, model, Model, Types } from 'mongoose'
 
 const COLLECTION_NAME = 'book'
 
@@ -31,6 +31,7 @@ export interface IBook extends Document {
     weight: number
     hidden: boolean
     category: IBookCategory
+    sections: [Types.ObjectId]
 }
 
 const bookSchema = new Schema<IBook>(
@@ -41,11 +42,14 @@ const bookSchema = new Schema<IBook>(
         weight: { type: Number, default: 0 },
         hidden: { type: Boolean, default: false },
         category: { type: bookCategorySchema, required: true },
+        sections: {
+            type: [{ type: Schema.Types.ObjectId, ref: 'Section' }],
+            required: true,
+        },
     },
     { collection: COLLECTION_NAME }
 )
 
-// toJSON method
 bookSchema.set('toJSON', {
     transform: function (doc: IBook, ret) {
         ret.id = ret._id.toString()
