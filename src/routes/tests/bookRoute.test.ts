@@ -1,11 +1,11 @@
 import request from 'supertest'
 import { Express } from 'express-serve-static-core'
 
-import { createApp } from '../app'
-import db from '../utils/db/dbSingleton'
-import Book from '../models/book'
-import Section from '../models/section'
-import Chapter from '../models/chapter'
+import { createApp } from '../../app'
+import db from '../../utils/db/dbSingleton'
+import Book from '../../models/book'
+import Section from '../../models/section'
+import Chapter from '../../models/chapter'
 
 // test setup
 

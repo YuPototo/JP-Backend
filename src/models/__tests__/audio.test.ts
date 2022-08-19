@@ -37,7 +37,6 @@ describe('Audio model', () => {
         expect(audioDoc?.toJSON()).toMatchObject({
             id: expect.any(String),
             key: expect.any(String),
-            transcription: '',
         })
     })
 

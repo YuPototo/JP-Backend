@@ -1,10 +1,10 @@
 import request from 'supertest'
 import { Express } from 'express-serve-static-core'
 
-import { createApp } from '../app'
-import db from '../utils/db/dbSingleton'
-import Chapter from '../models/chapter'
-import QuestionSet from '../models/questionSet'
+import { createApp } from '../../app'
+import db from '../../utils/db/dbSingleton'
+import Chapter from '../../models/chapter'
+import QuestionSet from '../../models/questionSet'
 
 // test setup
 const minimalQuestionSet = {

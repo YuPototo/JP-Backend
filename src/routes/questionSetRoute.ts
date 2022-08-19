@@ -1,8 +1,8 @@
 import { Router } from 'express'
-import { getBooks } from '@/controllers/bookController'
+import { getQuestionSet } from '@/controllers/questionSetController'
 
 const router = Router()
 
-router.route('/questionSets/:id').get(getBooks)
+router.route('/questionSets/:questionSetId').get(getQuestionSet)
 
 export default router

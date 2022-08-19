@@ -13,7 +13,7 @@ export interface IAudio extends Document {
 const audioSchema = new Schema<IAudio>(
     {
         key: { type: String, required: true },
-        transcription: { type: String, default: '' },
+        transcription: { type: String },
     },
     { collection: COLLECTION_NAME }
 )

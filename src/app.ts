@@ -10,6 +10,7 @@ import logger, { useLog } from '@/utils/logger/logger'
 import categoryRouter from '@/routes/categoryRoute'
 import bookRouter from '@/routes/bookRoute'
 import chapterRouter from '@/routes/chapterRoute'
+import questionSetRouter from '@/routes/questionSetRoute'
 
 const API_PREFIX = '/api/v1'
 
@@ -27,6 +28,7 @@ export async function createApp(): Promise<Express> {
     app.use(`${API_PREFIX}`, bookRouter)
     app.use(`${API_PREFIX}`, categoryRouter)
     app.use(`${API_PREFIX}`, chapterRouter)
+    app.use(`${API_PREFIX}`, questionSetRouter)
 
     // Error-handling middleware: 必须使用 4个 argument
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
