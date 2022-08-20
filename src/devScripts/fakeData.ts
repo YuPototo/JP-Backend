@@ -1,9 +1,9 @@
 import Section from '@/models/section'
 import Chapter from '@/models/chapter'
 import Book from '@/models/book'
-import QuestionSet from '@/models/questionSet'
 import Audio from '@/models/audio'
 import logger from '@/utils/logger/logger'
+import { addQuestionSets } from './fakeQuestionSet'
 
 export default async function addFakeData() {
     logger.warn('add data: this script can only be ran at dev environment')
@@ -183,10 +183,12 @@ async function addChapters() {
         {
             _id: '62ee08ee3ca7977c375aabec',
             title: 'chapter 1.1',
+            desc: 'this is desc',
             questionSets: [
                 '62ff846994d4a5032e425e3e',
                 '62ff846994d4a5032e425e31',
                 '62ff846994d4a5032e425e32',
+                '62ff846994d4a5032e425e30',
             ],
         },
         {
@@ -204,62 +206,12 @@ async function addChapters() {
     ])
 }
 
-// questionSets
-async function addQuestionSets() {
-    await QuestionSet.insertMany([
-        {
-            _id: '62ff846994d4a5032e425e3e',
-            body: 'question set 1',
-            explanation: 'question set expalanation 1',
-            questions: [
-                {
-                    options: ['1', '2'],
-                    answer: 1,
-                },
-            ],
-        },
-        {
-            _id: '62ff846994d4a5032e425e31',
-            body: 'question set 2',
-            explanation: 'question set expalanation 2',
-            questions: [
-                {
-                    options: ['1', '2'],
-                    answer: 1,
-                },
-            ],
-        },
-        {
-            _id: '62ff846994d4a5032e425e32',
-            body: 'question set 3',
-            explanation: 'question set expalanation 3',
-            questions: [
-                {
-                    options: ['1', '2'],
-                    answer: 1,
-                },
-            ],
-        },
-        {
-            _id: '62ff846994d4a5032e425e30',
-            body: 'some audio question set',
-            questions: [
-                {
-                    options: ['1', '2'],
-                    answer: 1,
-                },
-            ],
-            audio: '62ff846994d4a5032e425e22',
-        },
-    ])
-}
-
 // audios
 async function addAudios() {
     await Audio.insertMany([
         {
             _id: '62ff846994d4a5032e425e22',
-            key: 'test_audio_key',
+            key: 'audios/60fa250387373_2018_12_n5_1.mp3',
         },
     ])
 }

@@ -11,6 +11,7 @@ import Section from '@/models/section'
 import Chapter from '@/models/chapter'
 import Book from '@/models/book'
 import QuestionSet from './models/questionSet'
+import Audio from './models/questionSet'
 import addFakeData from './devScripts/fakeData'
 
 redis
@@ -30,8 +31,9 @@ redis
         Section.findOne()
         Chapter.findOne()
         QuestionSet.findOne()
+        Audio.findOne()
 
-        // todo: delete rest code
+        //  todo: delete rest code
         addFakeData()
     })
     .catch((err) => {

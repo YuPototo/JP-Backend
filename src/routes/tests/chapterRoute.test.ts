@@ -70,7 +70,6 @@ describe('GET /chapters/:chapterId', () => {
         expect(res.body.chapter).toMatchObject({
             id: chapterId,
             title: 'test chapter',
-            desc: '',
             questionSets: [questionSetOneId, questionSetTwoId],
         })
     })
