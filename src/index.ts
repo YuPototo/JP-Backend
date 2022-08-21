@@ -30,8 +30,8 @@ redis
         Book.findOne()
         Section.findOne()
         Chapter.findOne()
-        QuestionSet.findOne()
         Audio.findOne()
+        QuestionSet.findOne()
 
         //  todo: delete rest code
         addFakeData()

@@ -194,14 +194,17 @@ async function addChapters() {
         {
             _id: '62ee08f73ca7977c375aabf1',
             title: 'chapter 1.2',
+            questionSets: ['62ff846994d4a5032e425e3e'],
         },
         {
             _id: '62ee08fe3ca7977c375aabf8',
             title: 'chapter 2.1',
+            questionSets: ['62ff846994d4a5032e425e3e'],
         },
         {
             _id: '62ee09043ca7977c375aabfb',
             title: 'chapter 2.2',
+            questionSets: ['62ff846994d4a5032e425e3e'],
         },
     ])
 }
