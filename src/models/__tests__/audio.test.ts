@@ -16,6 +16,7 @@ describe('Audio model', () => {
         const audio = new Audio({
             key: 'audio_key',
             transcription: 'audio_transcription',
+            title: 'title',
         })
         await audio.save()
 
@@ -30,6 +31,7 @@ describe('Audio model', () => {
     it('should save data when trnascription is missing', async () => {
         const audio = new Audio({
             key: 'audio_key',
+            title: 'title',
         })
         await audio.save()
 
@@ -44,6 +46,7 @@ describe('Audio model', () => {
         const audio = new Audio({
             key: 'audio_key',
             transcription: 'audio_transcription',
+            title: 'title',
         })
         await audio.save()
 

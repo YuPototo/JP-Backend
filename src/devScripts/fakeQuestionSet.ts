@@ -243,6 +243,104 @@ function addQuestionFour(id: string) {
     }
 }
 
+function addQuestion5(id: string) {
+    const bodyData = [
+        {
+            type: 'paragraph',
+            children: [
+                {
+                    text: '这是又一道听力题',
+                },
+            ],
+        },
+    ]
+
+    const explanationData = [
+        {
+            type: 'paragraph',
+            children: [
+                {
+                    text: '这是一个简单的解析。',
+                },
+            ],
+        },
+    ]
+
+    const optionOne = [
+        {
+            text: '这是第一个选项。',
+        },
+    ]
+
+    const optionTwo = [
+        {
+            text: '这是第二个选项。',
+        },
+    ]
+
+    return {
+        _id: id,
+        body: JSON.stringify(bodyData),
+        explanation: JSON.stringify(explanationData),
+        questions: [
+            {
+                options: [JSON.stringify(optionOne), JSON.stringify(optionTwo)],
+                answer: 1,
+            },
+        ],
+        audio: '62ff846994d4a5032e425992',
+    }
+}
+
+function addQuestion6(id: string) {
+    const bodyData = [
+        {
+            type: 'paragraph',
+            children: [
+                {
+                    text: '这道听力题的听力资源是肯定找不到的',
+                },
+            ],
+        },
+    ]
+
+    const explanationData = [
+        {
+            type: 'paragraph',
+            children: [
+                {
+                    text: '这是一个简单的解析。',
+                },
+            ],
+        },
+    ]
+
+    const optionOne = [
+        {
+            text: '这是第一个选项。',
+        },
+    ]
+
+    const optionTwo = [
+        {
+            text: '这是第二个选项。',
+        },
+    ]
+
+    return {
+        _id: id,
+        body: JSON.stringify(bodyData),
+        explanation: JSON.stringify(explanationData),
+        questions: [
+            {
+                options: [JSON.stringify(optionOne), JSON.stringify(optionTwo)],
+                answer: 1,
+            },
+        ],
+        audio: '62ff846994d4a5032e425882',
+    }
+}
+
 // questionSets
 export async function addQuestionSets() {
     await QuestionSet.insertMany([
@@ -250,5 +348,7 @@ export async function addQuestionSets() {
         addQuestionSetTwo('62ff846994d4a5032e425e31'),
         addQuestionSetThree('62ff846994d4a5032e425e32'),
         addQuestionFour('62ff846994d4a5032e425e30'),
+        addQuestion5('62ff846994d4a5032e425111'),
+        addQuestion6('62ff846994d4a5032e428888'),
     ])
 }

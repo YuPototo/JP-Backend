@@ -7,12 +7,14 @@ const COLLECTION_NAME = 'audio'
 // Book
 export interface IAudio extends Document {
     key: string
+    title: string
     transcription: string
 }
 
 const audioSchema = new Schema<IAudio>(
     {
         key: { type: String, required: true },
+        title: { type: String, required: true },
         transcription: { type: String },
     },
     { collection: COLLECTION_NAME }

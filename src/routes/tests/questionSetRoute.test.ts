@@ -56,7 +56,7 @@ describe('GET /questionSets/:questionSetId', () => {
     })
 
     it('should return audio url if question set has audio field', async () => {
-        const audio = new Audio({ key: 'test_key' })
+        const audio = new Audio({ key: 'test_key', title: 'test_title' })
         await audio.save()
         const audioQuestionSetData = Object.assign(minimalQuestionSet, {
             audio: audio._id.toString(),
@@ -73,6 +73,7 @@ describe('GET /questionSets/:questionSetId', () => {
         expect(res.body.questionSet).toHaveProperty('audio')
         expect(res.body.questionSet.audio).toMatchObject({
             key: 'https://cdn.test.com/test_key',
+            title: 'test_title',
         })
     })
 })

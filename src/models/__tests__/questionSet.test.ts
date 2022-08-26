@@ -101,6 +101,7 @@ describe('Create questionSet model', () => {
     it('should populate audio field', async () => {
         const audio = new Audio({
             key: 'audio_key',
+            title: 'title',
         })
         await audio.save()
 

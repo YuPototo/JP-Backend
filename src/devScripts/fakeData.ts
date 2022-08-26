@@ -193,8 +193,12 @@ async function addChapters() {
         },
         {
             _id: '62ee08f73ca7977c375aabf1',
-            title: 'chapter 1.2',
-            questionSets: ['62ff846994d4a5032e425e3e'],
+            title: '1.2 听力',
+            questionSets: [
+                '62ff846994d4a5032e425e30',
+                '62ff846994d4a5032e425111',
+                '62ff846994d4a5032e428888',
+            ],
         },
         {
             _id: '62ee08fe3ca7977c375aabf8',
@@ -215,6 +219,20 @@ async function addAudios() {
         {
             _id: '62ff846994d4a5032e425e22',
             key: 'audios/60fa250387373_2018_12_n5_1.mp3',
+            title: '60fa250387373_2018_12_n5_1',
+            transcription: 'This is transcription',
+        },
+        {
+            _id: '62ff846994d4a5032e425992',
+            key: 'audios/291370d3ec546a17cfa6404b66e2c4dd.mp3',
+            title: '291370d3ec546a17cfa6404b66e2c4dd',
+            transcription: 'This is transcription 22',
+        },
+        {
+            _id: '62ff846994d4a5032e425882',
+            key: 'not_exist.mp3',
+            title: '这个资源时找不到的',
+            transcription: 'not exist',
         },
     ])
 }
