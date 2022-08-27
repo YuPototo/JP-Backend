@@ -7,11 +7,6 @@ import { getErrorMessage } from './utils/errorUtil/errorHandler'
 
 import config from '@/config/config'
 
-import Section from '@/models/section'
-import Chapter from '@/models/chapter'
-import Book from '@/models/book'
-import QuestionSet from './models/questionSet'
-import Audio from './models/questionSet'
 import addFakeData from './devScripts/fakeData'
 
 redis
@@ -26,15 +21,8 @@ redis
         })
     })
     .then(() => {
-        // hack: create schema in this way
-        Book.findOne()
-        Section.findOne()
-        Chapter.findOne()
-        Audio.findOne()
-        QuestionSet.findOne()
-
-        //  todo: delete rest code
-        addFakeData()
+        //  todo: add fake data
+        // addFakeData()
     })
     .catch((err) => {
         logger.error(getErrorMessage(err))

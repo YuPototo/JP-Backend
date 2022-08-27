@@ -1,18 +1,18 @@
 import Section from '@/models/section'
 import Chapter from '@/models/chapter'
 import Book from '@/models/book'
-import Audio from '@/models/audio'
 import logger from '@/utils/logger/logger'
 import { addQuestionSets } from './fakeQuestionSet'
+import { addAudios } from './fakeAudios'
 
 export default async function addFakeData() {
     logger.warn('add data: this script can only be ran at dev environment')
 
-    await addBooks()
-    await addSections()
-    await addChapters()
-    await addQuestionSets()
     await addAudios()
+    await addQuestionSets()
+    await addChapters()
+    await addSections()
+    await addBooks()
 }
 
 // books
@@ -20,10 +20,27 @@ async function addBooks() {
     await Book.insertMany([
         {
             _id: '62e50da955ecc53ba31029aa',
+            title: '做题测试册子',
+            category: {
+                key: 'jlpt',
+                child: {
+                    key: 'n1',
+                    child: {
+                        key: 'words',
+                    },
+                },
+            },
+            desc: '用于测试 category data',
+            weight: 0,
+            cover: 'images/cover/00ae607469909838ea532adc673af925.jpg',
+            hidden: false,
+            sections: ['62ee096e3ca7977c375aac33', '62ee098f3ca7977c375aac40'],
+        },
+        {
+            _id: '62e50da955ecc53ba31119aa',
             title: 'N1 阅读',
             category: {
                 key: 'jlpt',
-                description: 'JLPT 能力考',
                 child: {
                     key: 'n1',
                     child: {
@@ -31,11 +48,11 @@ async function addBooks() {
                     },
                 },
             },
-            desc: 'desc todo',
+            desc: '用于测试 category data',
             weight: 0,
             cover: 'images/cover/00ae607469909838ea532adc673af925.jpg',
             hidden: false,
-            sections: ['62ee096e3ca7977c375aac33', '62ee098f3ca7977c375aac40'],
+            sections: [],
         },
         {
             _id: '62e50dc889b2f6746e1d4c45',
@@ -49,7 +66,7 @@ async function addBooks() {
                     },
                 },
             },
-            desc: 'desc todo',
+            desc: '用于测试 category 选择',
             weight: 0,
             cover: 'images/cover/00ae607469909838ea532adc673af925.jpg',
             hidden: false,
@@ -66,7 +83,7 @@ async function addBooks() {
                     },
                 },
             },
-            desc: 'desc todo',
+            desc: '用于测试 category 选择',
             weight: 0,
             cover: 'images/cover/00ae607469909838ea532adc673af925.jpg',
             hidden: false,
@@ -83,7 +100,7 @@ async function addBooks() {
                     },
                 },
             },
-            desc: 'desc todo',
+            desc: '用于测试 category 选择',
             weight: 0,
             cover: 'images/cover/00ae607469909838ea532adc673af925.jpg',
             hidden: false,
@@ -117,7 +134,7 @@ async function addBooks() {
                     },
                 },
             },
-            desc: 'desc todo',
+            desc: '用于测试 category 选择',
             weight: 0,
             cover: 'images/cover/00ae607469909838ea532adc673af925.jpg',
             hidden: false,
@@ -135,7 +152,7 @@ async function addBooks() {
                     },
                 },
             },
-            desc: 'desc todo',
+            desc: '用于测试 category 选择',
             weight: 0,
             cover: 'images/cover/00ae607469909838ea532adc673af925.jpg',
             hidden: false,
@@ -153,8 +170,8 @@ async function addBooks() {
                     },
                 },
             },
-            desc: 'desc todo',
-            weight: 0,
+            desc: '用于测试隐藏',
+            weight: 100,
             cover: 'images/cover/00ae607469909838ea532adc673af925.jpg',
             hidden: true,
         },
@@ -171,8 +188,12 @@ async function addSections() {
         },
         {
             _id: '62ee096e3ca7977c375aac33',
-            title: 'section 1',
-            chapters: ['62ee08ee3ca7977c375aabec', '62ee08f73ca7977c375aabf1'],
+            title: 'section 1：题目测试',
+            chapters: [
+                '62ee08ee3ca7977c375aabec',
+                '62ee08f73ca7977c375aabf1',
+                '62ee08f73ca7977c375aabaa',
+            ],
         },
     ])
 }
@@ -182,7 +203,7 @@ async function addChapters() {
     await Chapter.insertMany([
         {
             _id: '62ee08ee3ca7977c375aabec',
-            title: 'chapter 1.1',
+            title: 'chapter 1.1：题目的前后转换',
             desc: 'this is desc',
             questionSets: [
                 '62ff846994d4a5032e425e3e',
@@ -193,7 +214,16 @@ async function addChapters() {
         },
         {
             _id: '62ee08f73ca7977c375aabf1',
-            title: '1.2 听力',
+            title: '1.2 富文本渲染测试',
+            questionSets: [
+                '62ff846994d4a50321428881',
+                '62ff846994d4a50321428882',
+                '62ff846994d4a50321428772',
+            ],
+        },
+        {
+            _id: '62ee08f73ca7977c375aabaa',
+            title: '1.3 听力测试',
             questionSets: [
                 '62ff846994d4a5032e425e30',
                 '62ff846994d4a5032e425111',
@@ -209,30 +239,6 @@ async function addChapters() {
             _id: '62ee09043ca7977c375aabfb',
             title: 'chapter 2.2',
             questionSets: ['62ff846994d4a5032e425e3e'],
-        },
-    ])
-}
-
-// audios
-async function addAudios() {
-    await Audio.insertMany([
-        {
-            _id: '62ff846994d4a5032e425e22',
-            key: 'audios/60fa250387373_2018_12_n5_1.mp3',
-            title: '60fa250387373_2018_12_n5_1',
-            transcription: 'This is transcription',
-        },
-        {
-            _id: '62ff846994d4a5032e425992',
-            key: 'audios/291370d3ec546a17cfa6404b66e2c4dd.mp3',
-            title: '291370d3ec546a17cfa6404b66e2c4dd',
-            transcription: 'This is transcription 22',
-        },
-        {
-            _id: '62ff846994d4a5032e425882',
-            key: 'not_exist.mp3',
-            title: '这个资源时找不到的',
-            transcription: 'not exist',
         },
     ])
 }

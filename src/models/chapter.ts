@@ -24,9 +24,9 @@ chapterSchema.set('toJSON', {
     },
 })
 
-export type ChapterModel = Model<IChapter>
+export type ChapterModelType = Model<IChapter>
 
-export const Chapter: ChapterModel = model<IChapter, ChapterModel>(
+export const Chapter = model<IChapter, ChapterModelType>(
     'Chapter',
     chapterSchema
 )

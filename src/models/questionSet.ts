@@ -1,5 +1,7 @@
 import { Schema, Document, model, Model } from 'mongoose'
 
+import './audio' // 引入 audio，否则不会运行 audio schema 的创建，因为我还没有在其他地方使用 audio
+
 interface IQuestion extends Document {
     body?: string
     explanation?: string

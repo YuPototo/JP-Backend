@@ -2,6 +2,8 @@ import config from '@/config/config'
 import { addCdnDomain } from '@/utils/staticAssets'
 import { Schema, Document, model, Model, Types } from 'mongoose'
 
+import './section' // 引入 section, 否则不会 section schema 的创建，因为我还没有在其他地方使用 audio
+
 const COLLECTION_NAME = 'book'
 
 // BookCategory

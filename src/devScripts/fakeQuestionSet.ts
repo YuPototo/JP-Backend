@@ -1,6 +1,6 @@
 import QuestionSet from '@/models/questionSet'
 
-function addQuestionSetOne(id: string) {
+function addQuestionSet1(id: string) {
     const bodyData = [
         {
             type: 'paragraph',
@@ -31,7 +31,7 @@ function addQuestionSetOne(id: string) {
 
     const optionTwo = [
         {
-            text: '这是第二个选项。',
+            text: '这是第二个选项。（正确）',
         },
     ]
 
@@ -48,13 +48,13 @@ function addQuestionSetOne(id: string) {
     }
 }
 
-function addQuestionSetTwo(id: string) {
+function addQuestionSet2(id: string) {
     const bodyData = [
         {
             type: 'paragraph',
             children: [
                 {
-                    text: '这是 question set 的 body。这是一个简单的题目。',
+                    text: '这是 question set 的 body。这题有2个 questions',
                 },
             ],
         },
@@ -101,7 +101,7 @@ function addQuestionSetTwo(id: string) {
 
     const option_1_2 = [
         {
-            text: '这是第1题第二个选项。',
+            text: '这是第1题第二个选项。（正确答案）',
         },
     ]
 
@@ -114,7 +114,7 @@ function addQuestionSetTwo(id: string) {
 
     const option_2_1 = [
         {
-            text: '这是第2题第一个选项。',
+            text: '这是第2题第一个选项。（正确答案）',
         },
     ]
 
@@ -137,37 +137,29 @@ function addQuestionSetTwo(id: string) {
     }
 }
 
-function addQuestionSetThree(id: string) {
+// 这题有图片
+function addQuestionSet3(id: string) {
     const bodyData = [
         {
             type: 'paragraph',
             children: [
                 {
-                    text: '这是 question set 的 body。这个题目会有图片出现在 question set body 和选项。',
+                    text: '这是 question set 的 body。这个题目会有图片出现在 question set body 和选项',
                 },
             ],
         },
         {
             type: 'image',
+            alt: '',
             src: 'https://picsum.photos/200/300',
             children: [{ text: '' }],
-        },
-    ]
-
-    const explanationData = [
-        {
-            type: 'paragraph',
-            children: [
-                {
-                    text: '这是一个简单的解析。',
-                },
-            ],
         },
     ]
 
     const optionOne = [
         {
             type: 'image',
+            alt: '',
             src: 'https://picsum.photos/200/300',
             children: [{ text: '' }],
         },
@@ -176,6 +168,7 @@ function addQuestionSetThree(id: string) {
     const optionTwo = [
         {
             type: 'image',
+            alt: '',
             src: 'https://picsum.photos/200/300',
             children: [{ text: '' }],
         },
@@ -184,7 +177,6 @@ function addQuestionSetThree(id: string) {
     return {
         _id: id,
         body: JSON.stringify(bodyData),
-        explanation: JSON.stringify(explanationData),
         questions: [
             {
                 options: [JSON.stringify(optionOne), JSON.stringify(optionTwo)],
@@ -194,7 +186,8 @@ function addQuestionSetThree(id: string) {
     }
 }
 
-function addQuestionFour(id: string) {
+// 这是一道听力题
+function addQuestionSet4(id: string) {
     const bodyData = [
         {
             type: 'paragraph',
@@ -243,7 +236,8 @@ function addQuestionFour(id: string) {
     }
 }
 
-function addQuestion5(id: string) {
+// 这是又一道听力题
+function addQuestionSet5(id: string) {
     const bodyData = [
         {
             type: 'paragraph',
@@ -292,7 +286,8 @@ function addQuestion5(id: string) {
     }
 }
 
-function addQuestion6(id: string) {
+// 这道听力题的听力资源是肯定找不到的
+function addQuestionSet6(id: string) {
     const bodyData = [
         {
             type: 'paragraph',
@@ -341,14 +336,203 @@ function addQuestion6(id: string) {
     }
 }
 
+// 富文本：加粗、下划线、空格和假名提示
+function addQuestionSet7(id: string) {
+    const bodyData = [
+        {
+            type: 'paragraph',
+            children: [
+                {
+                    text: '这是',
+                },
+                {
+                    text: '加粗',
+                    bold: true,
+                },
+            ],
+        },
+        {
+            type: 'paragraph',
+            children: [
+                {
+                    text: '这是',
+                },
+                {
+                    text: '下划线',
+                    underline: true,
+                },
+            ],
+        },
+        {
+            type: 'paragraph',
+            children: [
+                {
+                    text: '这是',
+                },
+                {
+                    text: '加粗和下划线下划线',
+                    underline: true,
+                    bold: true,
+                },
+            ],
+        },
+        {
+            type: 'paragraph',
+            children: [
+                {
+                    text: '这是空格',
+                },
+                { type: 'filler', children: [{ text: '' }] },
+            ],
+        },
+        {
+            type: 'paragraph',
+            children: [
+                { text: '假名提示：' },
+                {
+                    type: 'tip',
+                    tip: '这是 tip',
+                    children: [{ text: '这是文本' }],
+                },
+            ],
+        },
+    ]
+
+    const optionOne = [
+        {
+            text: '这是第一个选项。',
+        },
+    ]
+
+    const optionTwo = [
+        {
+            text: '这是第二个选项。（正确）',
+        },
+    ]
+
+    return {
+        _id: id,
+        body: JSON.stringify(bodyData),
+        questions: [
+            {
+                options: [JSON.stringify(optionOne), JSON.stringify(optionTwo)],
+                answer: 1,
+            },
+        ],
+    }
+}
+
+// 富文本：图片
+function addQuestionSet8(id: string) {
+    const bodyData = [
+        {
+            type: 'paragraph',
+            children: [
+                {
+                    text: '这个题目会有图片，出现在 question set body 和选项和解析',
+                },
+            ],
+        },
+        {
+            type: 'image',
+            alt: '某个图片',
+            src: 'https://picsum.photos/250/300',
+            children: [{ text: '' }],
+        },
+    ]
+
+    const explanationData = [
+        {
+            type: 'paragraph',
+            children: [
+                {
+                    text: '这是一个简单的解析。下面也有图片链接是不存在的。',
+                },
+                {
+                    type: 'image',
+                    alt: '解析图片',
+                    src: 'https://assets.riyu.love/images/not_exist.jpg',
+                    children: [{ text: '' }],
+                },
+            ],
+        },
+    ]
+
+    const optionOne = [
+        {
+            type: 'image',
+            alt: '选项1图片',
+            src: 'https://picsum.photos/200/200',
+            children: [{ text: '' }],
+        },
+    ]
+
+    const optionTwo = [
+        {
+            type: 'image',
+            alt: '选项2图片',
+            src: 'https://picsum.photos/200/210',
+            children: [{ text: '' }],
+        },
+    ]
+
+    return {
+        _id: id,
+        body: JSON.stringify(bodyData),
+        explanation: JSON.stringify(explanationData),
+        questions: [
+            {
+                options: [JSON.stringify(optionOne), JSON.stringify(optionTwo)],
+                answer: 1,
+            },
+        ],
+    }
+}
+
+// 富文本：无法解析的文本
+function addQuestionSet9(id: string) {
+    const bodyData = [
+        {
+            type: 'paragraph',
+            children: [
+                {
+                    text: '这题的选项会出现 rich text parse 错误',
+                },
+            ],
+        },
+    ]
+
+    const optionOne = [
+        {
+            tex: '这是第一个选项。',
+        },
+    ]
+
+    const optionTwo = 'some bad string'
+
+    return {
+        _id: id,
+        body: JSON.stringify(bodyData),
+        questions: [
+            {
+                options: [JSON.stringify(optionOne), optionTwo],
+                answer: 1,
+            },
+        ],
+    }
+}
+
 // questionSets
 export async function addQuestionSets() {
     await QuestionSet.insertMany([
-        addQuestionSetOne('62ff846994d4a5032e425e3e'),
-        addQuestionSetTwo('62ff846994d4a5032e425e31'),
-        addQuestionSetThree('62ff846994d4a5032e425e32'),
-        addQuestionFour('62ff846994d4a5032e425e30'),
-        addQuestion5('62ff846994d4a5032e425111'),
-        addQuestion6('62ff846994d4a5032e428888'),
+        addQuestionSet1('62ff846994d4a5032e425e3e'),
+        addQuestionSet2('62ff846994d4a5032e425e31'),
+        addQuestionSet3('62ff846994d4a5032e425e32'),
+        addQuestionSet4('62ff846994d4a5032e425e30'),
+        addQuestionSet5('62ff846994d4a5032e425111'),
+        addQuestionSet6('62ff846994d4a5032e428888'),
+        addQuestionSet7('62ff846994d4a50321428881'),
+        addQuestionSet8('62ff846994d4a50321428882'),
+        addQuestionSet9('62ff846994d4a50321428772'),
     ])
 }
