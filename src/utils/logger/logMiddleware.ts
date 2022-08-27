@@ -24,7 +24,7 @@ function useMorgan(app: Express) {
                     logger.http(msgWithoutNewline)
                 },
             },
-        })
+        }),
     )
 }
 

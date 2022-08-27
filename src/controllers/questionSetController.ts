@@ -14,7 +14,7 @@ export const getQuestionSet: RequestHandler = async (req, res, next) => {
     let questionSet: IQuestionSet | null
     try {
         questionSet = await QuestionSet.findById(questionSetId).populate(
-            'audio'
+            'audio',
         )
     } catch (err) {
         next(err)

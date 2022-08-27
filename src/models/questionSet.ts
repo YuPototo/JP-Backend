@@ -21,7 +21,7 @@ const questionSchema = new Schema<IQuestion>(
         },
         answer: { type: Number, required: true },
     },
-    { _id: false }
+    { _id: false },
 )
 
 export interface IQuestionSet extends Document {
@@ -46,7 +46,7 @@ const questionSetSchema = new Schema<IQuestionSet>(
             ref: 'Audio',
         },
     },
-    { collection: 'questionSet' }
+    { collection: 'questionSet' },
 )
 
 questionSetSchema.set('toJSON', {

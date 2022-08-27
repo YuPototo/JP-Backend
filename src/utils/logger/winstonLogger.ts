@@ -15,7 +15,7 @@ export type LogLevel =
 
 const stringifyObj = (
     info: winston.Logform.TransformableInfo,
-    indent?: number
+    indent?: number,
 ) => {
     if (info.message.constructor === Object) {
         info.message = JSON.stringify(info.message, null, indent)
@@ -50,7 +50,7 @@ const consoleFormat = winston.format.combine(
     winston.format.splat(),
     winston.format.simple(),
     winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss.SSS' }),
-    prettyJson(4)
+    prettyJson(4),
 )
 
 const errorLogFormat = winston.format.combine(
@@ -58,7 +58,7 @@ const errorLogFormat = winston.format.combine(
     winston.format.splat(),
     winston.format.simple(),
     winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss.SSS' }),
-    prettyJson()
+    prettyJson(),
 )
 
 const httpLogFormat = winston.format.combine(
@@ -67,7 +67,7 @@ const httpLogFormat = winston.format.combine(
     winston.format.splat(),
     winston.format.simple(),
     winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss.SSS' }),
-    toCsvFormat
+    toCsvFormat,
 )
 
 const infoFormat = winston.format.combine(
@@ -76,7 +76,7 @@ const infoFormat = winston.format.combine(
     winston.format.splat(),
     winston.format.simple(),
     winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss.SSS' }),
-    toCsvFormat
+    toCsvFormat,
 )
 
 // transports

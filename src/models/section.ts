@@ -12,7 +12,7 @@ const sectionSchema = new Schema<ISection>(
             type: [{ type: Schema.Types.ObjectId, ref: 'Chapter' }],
         },
     },
-    { collection: 'section' }
+    { collection: 'section' },
 )
 
 sectionSchema.set('toJSON', {
@@ -28,7 +28,7 @@ export type SectionModel = Model<ISection>
 
 export const Section: SectionModel = model<ISection, SectionModel>(
     'Section',
-    sectionSchema
+    sectionSchema,
 )
 
 export default Section

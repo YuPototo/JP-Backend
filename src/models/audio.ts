@@ -17,7 +17,7 @@ const audioSchema = new Schema<IAudio>(
         title: { type: String, required: true },
         transcription: { type: String },
     },
-    { collection: COLLECTION_NAME }
+    { collection: COLLECTION_NAME },
 )
 
 audioSchema.set('toJSON', {

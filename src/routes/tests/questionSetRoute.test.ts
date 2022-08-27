@@ -49,7 +49,7 @@ describe('GET /questionSets/:questionSetId', () => {
 
     it('should return 200 and and needed info', async () => {
         const res = await request(app).get(
-            `/api/v1/questionSets/${questionSetId}`
+            `/api/v1/questionSets/${questionSetId}`,
         )
         expect(res.statusCode).toBe(200)
         expect(res.body).toHaveProperty('questionSet')
@@ -67,7 +67,7 @@ describe('GET /questionSets/:questionSetId', () => {
         const questionSetId = questionSet._id.toString()
 
         const res = await request(app).get(
-            `/api/v1/questionSets/${questionSetId}`
+            `/api/v1/questionSets/${questionSetId}`,
         )
         expect(res.statusCode).toBe(200)
         expect(res.body.questionSet).toHaveProperty('audio')

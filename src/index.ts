@@ -7,7 +7,7 @@ import { getErrorMessage } from './utils/errorUtil/errorHandler'
 
 import config from '@/config/config'
 
-import addFakeData from './devScripts/fakeData'
+// import addFakeData from './devScripts/fakeData'
 
 redis
     .open()

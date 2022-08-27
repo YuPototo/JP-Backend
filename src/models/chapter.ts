@@ -12,7 +12,7 @@ const chapterSchema = new Schema<IChapter>(
         desc: { type: String },
         questionSets: [{ type: Schema.Types.ObjectId, ref: 'QuestionSet' }],
     },
-    { collection: 'chapter' }
+    { collection: 'chapter' },
 )
 
 chapterSchema.set('toJSON', {
@@ -28,7 +28,7 @@ export type ChapterModelType = Model<IChapter>
 
 export const Chapter = model<IChapter, ChapterModelType>(
     'Chapter',
-    chapterSchema
+    chapterSchema,
 )
 
 export default Chapter

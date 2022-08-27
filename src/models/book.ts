@@ -18,7 +18,7 @@ const bookCategorySchema = new Schema<IBookCategory>(
         key: { type: String, required: true },
         description: { type: String },
     },
-    { _id: false }
+    { _id: false },
 )
 
 bookCategorySchema.add({
@@ -49,7 +49,7 @@ const bookSchema = new Schema<IBook>(
             required: true,
         },
     },
-    { collection: COLLECTION_NAME }
+    { collection: COLLECTION_NAME },
 )
 
 bookSchema.set('toJSON', {
