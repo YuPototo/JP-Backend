@@ -16,6 +16,8 @@ const env = dotenvExtended.load({
 const parsedEnv = dotenvParseVariables(env)
 
 interface Config {
+    appSecret: string
+    jwtExpireDays: string
     cdnDomain: string
     port: number
 
@@ -35,11 +37,25 @@ interface Config {
     }
 
     redisUrl: string
+
+    // 小程序
+    wxMiniApp: {
+        id: string
+        secret: string
+    }
+
+    // 网页应用：微信开放平台
+    wxWebApp: {
+        id: string
+        secret: string
+    }
 }
 
 const config: Config = {
-    cdnDomain: parsedEnv.CDN_DOMAIN as string,
+    appSecret: parsedEnv.APP_SECRET as string,
+    jwtExpireDays: parsedEnv.JWT_EXPIRE_DAYS as string,
 
+    cdnDomain: parsedEnv.CDN_DOMAIN as string,
     port: parsedEnv.PORT as number,
 
     logger: {
@@ -57,6 +73,16 @@ const config: Config = {
     },
 
     redisUrl: parsedEnv.REDIS_URL as string,
+
+    wxMiniApp: {
+        id: parsedEnv.WX_MINI_APP_ID as string,
+        secret: parsedEnv.WX_MINI_APP_SECRET as string,
+    },
+
+    wxWebApp: {
+        id: parsedEnv.WX_WEB_APP_ID as string,
+        secret: parsedEnv.WX_WEB_APP_SECRET as string,
+    },
 }
 
 export default config

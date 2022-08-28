@@ -5,6 +5,8 @@ import logger from '@/utils/logger/logger'
 import { addQuestionSets } from './fakeQuestionSet'
 import { addAudios } from './fakeAudios'
 
+// todo：不要在 index.ts 里调用这个文件
+
 export default async function addFakeData() {
     logger.warn('add data: this script can only be ran at dev environment')
 
