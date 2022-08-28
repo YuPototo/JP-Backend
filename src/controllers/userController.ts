@@ -80,7 +80,3 @@ export const wxLoginHandler: RequestHandler = async (req, res, next) => {
 
     return res.status(201).json({ token })
 }
-
-export const wxWebLoginHandler: RequestHandler = async (req, res, next) => {
-    res.status(201).json()
-}
