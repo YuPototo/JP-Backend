@@ -12,6 +12,7 @@ import bookRouter from '@/routes/bookRoute'
 import chapterRouter from '@/routes/chapterRoute'
 import questionSetRouter from '@/routes/questionSetRoute'
 import userRouter from '@/routes/userRoute'
+import { addReqMetaData } from './utils/logger/winstonLogger'
 
 const API_PREFIX = '/api/v1'
 
@@ -36,7 +37,7 @@ export async function createApp(): Promise<Express> {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
         const errMessage = getErrorMessage(err)
-        logger.error(errMessage)
+        logger.error(errMessage, addReqMetaData(req))
         res.status(500).json({ message: errMessage })
     })
 

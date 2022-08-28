@@ -26,7 +26,7 @@
         "forceConsistentCasingInFileNames": true, // 默认配置，不修改
 
         /* Completeness */
-        "skipLibCheck": true // 默认配置，不修改
+        "skipLibCheck": true, // 默认配置，不修改    
     },
     /* ignore */
     "exclude": ["**/*.test.ts"]

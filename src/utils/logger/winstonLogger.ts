@@ -2,6 +2,7 @@
 import winston from 'winston'
 import DailyRotateFile from 'winston-daily-rotate-file'
 import config from '@/config/config'
+import type { Request } from 'express-serve-static-core'
 
 export type LogLevel =
     | 'silent'
@@ -31,18 +32,18 @@ const prettyJson = (indent?: number) =>
         }`
     })
 
-const toCsvFormat = winston.format.printf((info) => {
-    info = stringifyObj(info)
-    return `${info.timestamp},${info.level},${info.message}`
-})
-
-const logByLevel = (level: LogLevel) =>
+const selectLevel = (level: LogLevel) =>
     winston.format((info) => {
         if (info.level !== level) {
             return false
         }
         return info
     })
+
+const toCsvFormat = winston.format.printf((info) => {
+    info = stringifyObj(info)
+    return `${info.timestamp},${info.level},${info.message}`
+})
 
 const consoleFormat = winston.format.combine(
     winston.format.colorize(),
@@ -54,50 +55,42 @@ const consoleFormat = winston.format.combine(
 )
 
 const errorLogFormat = winston.format.combine(
-    winston.format.prettyPrint(),
-    winston.format.splat(),
-    winston.format.simple(),
-    winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss.SSS' }),
-    prettyJson(),
+    selectLevel('error')(),
+    winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss ZZ ddd' }),
+    winston.format.json(),
 )
 
+const combinedFormat = winston.format.combine(
+    winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss ZZ ddd' }),
+    winston.format.json(),
+)
+
+// http Log: 使用 csv 格式
 const httpLogFormat = winston.format.combine(
-    logByLevel('http')(),
-    winston.format.prettyPrint(),
-    winston.format.splat(),
-    winston.format.simple(),
-    winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss.SSS' }),
-    toCsvFormat,
-)
-
-const infoFormat = winston.format.combine(
-    logByLevel('info')(),
-    winston.format.prettyPrint(),
-    winston.format.splat(),
-    winston.format.simple(),
-    winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss.SSS' }),
+    selectLevel('http')(),
+    winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss ZZ ddd' }),
     toCsvFormat,
 )
 
 // transports
+const combinedTransports: DailyRotateFile = new DailyRotateFile({
+    format: combinedFormat,
+    dirname: config.logger.combinedLogDir,
+    filename: 'combined_%DATE%.log',
+    datePattern: 'YYYYMMDD',
+    maxSize: '20m',
+    maxFiles: 20,
+    level: 'http',
+})
+
 const httpTransport: DailyRotateFile = new DailyRotateFile({
     format: httpLogFormat,
     dirname: config.logger.httpLogDir,
     filename: 'http_%DATE%.log',
     datePattern: 'YYYYMMDD',
     maxSize: '20m',
-    maxFiles: '30d',
-    level: 'http',
-})
-
-const infoTransport: DailyRotateFile = new DailyRotateFile({
-    format: infoFormat,
-    dirname: config.logger.infoLogDir,
-    filename: 'info_%DATE%.log',
-    datePattern: 'YYYY_ww',
-    maxSize: '20m',
-    maxFiles: '8',
-    level: 'info',
+    maxFiles: 20,
+    level: 'http', // 这里表示 http 以上，但是在 httpLogFormat 里筛选了
 })
 
 const errorTransport: DailyRotateFile = new DailyRotateFile({
@@ -106,25 +99,23 @@ const errorTransport: DailyRotateFile = new DailyRotateFile({
     filename: 'error_%DATE%.log',
     datePattern: 'YYYY_ww',
     maxSize: '20m',
-    maxFiles: '8',
+    maxFiles: 8,
     level: 'error',
 })
 
 const transports = [
     new winston.transports.Console({ format: consoleFormat }),
-    errorTransport,
     httpTransport,
-    infoTransport,
+    combinedTransports,
+    errorTransport,
 ]
 
-const level =
-    config.logger.loggerLevel === 'silent'
-        ? undefined
-        : config.logger.loggerLevel
-
 export const logger = winston.createLogger({
-    level,
+    level: config.logger.loggerLevel,
     silent: config.logger.loggerLevel === 'silent',
-    defaultMeta: { service: 'express_mongo' },
     transports,
 })
+
+export const addReqMetaData = (req: Request) => {
+    return { id: req.id, url: req.url }
+}

@@ -2,6 +2,8 @@ import isMongoId from 'validator/lib/isMongoId'
 
 import type { RequestHandler } from 'express'
 import Book, { IBook } from '@/models/book'
+import { logger } from '@/utils/logger/winstonLogger'
+import { addReqMetaData } from '@/utils/logger/winstonLogger'
 
 export const getBooks: RequestHandler = async (req, res, next) => {
     try {
@@ -16,7 +18,8 @@ export const getBookContent: RequestHandler = async (req, res, next) => {
     const bookId = req.params.id
 
     if (!isMongoId(bookId)) {
-        res.status(400).json({ message: 'id 不是合法的 mongo id' })
+        res.status(400).json({ message: 'id 不是合法的 mongoId' })
+        logger.error(`id 不是合法的 mongoId ${bookId} `, addReqMetaData(req))
         return
     }
 
@@ -32,7 +35,8 @@ export const getBookContent: RequestHandler = async (req, res, next) => {
     }
 
     if (!book) {
-        res.status(404).json({ message: '找不到册子' })
+        res.status(404).json({ message: `找不到练习册 ${bookId}` })
+        logger.error(`找不到练习册 ${bookId}`, addReqMetaData(req))
         return
     }
 
