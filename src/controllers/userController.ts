@@ -15,7 +15,10 @@ function isValidPlatform(maybePlatform: string): maybePlatform is Platform {
 }
 
 export const wxLoginHandler: RequestHandler = async (req, res, next) => {
-    logger.info('开始微信用户创建的请求', addReqMetaData(req))
+    logger.info(
+        `开始微信用户创建的请求, loginCode: ${req.body.loginCode}`,
+        addReqMetaData(req),
+    )
 
     const { loginPlatform } = req.params
     const { loginCode } = req.body
@@ -47,7 +50,7 @@ export const wxLoginHandler: RequestHandler = async (req, res, next) => {
         }
     } catch (err) {
         const errorMessage = getErrorMessage(err)
-        const message = `获取 union id 失败: ${errorMessage}`
+        const message = `平台 ${loginPlatform} - 获取 union id 失败: ${errorMessage}`
         logger.error(message, addReqMetaData(req))
         return res.status(500).json({ message })
     }
@@ -80,5 +83,5 @@ export const wxLoginHandler: RequestHandler = async (req, res, next) => {
         return next(err)
     }
 
-    return res.status(201).json({ token })
+    return res.status(201).json({ token, user })
 }

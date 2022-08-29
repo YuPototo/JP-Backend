@@ -49,8 +49,9 @@ userSchema.statics.createNewUser = async function (wxUnionId: string) {
 /* Instance Methods */
 userSchema.set('toJSON', {
     transform: function (doc: IUser, ret) {
-        ret.id = ret._id.toString()
-
+        delete ret.wxUnionId
+        delete ret.createdAt
+        delete ret.updatedAt
         delete ret.__v
         delete ret._id
     },

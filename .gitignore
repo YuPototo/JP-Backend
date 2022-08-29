@@ -12,8 +12,6 @@ docker.env
 
 .DS_Store
 
-# vscode
-.vscode
 
 # logs
 logs

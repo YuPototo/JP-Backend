@@ -1,0 +1,33 @@
+{
+    "workbench.colorCustomizations": {
+        "activityBar.activeBackground": "#d6a1d8",
+        "activityBar.activeBorder": "#9a5ac5",
+        "activityBar.background": "#d6a1d8",
+        "activityBar.foreground": "#15202b",
+        "activityBar.inactiveForeground": "#15202b99",
+        "activityBarBadge.background": "#716e2f",
+        "activityBarBadge.foreground": "#e7e7e7",
+        "sash.hoverBorder": "#d6a1d8",
+        "statusBar.background": "#c67dc9",
+        "statusBar.foreground": "#15202b",
+        "statusBarItem.hoverBackground": "#b659ba",
+        "statusBarItem.remoteBackground": "#c67dc9",
+        "statusBarItem.remoteForeground": "#15202b",
+        "titleBar.activeBackground": "#c67dc9",
+        "titleBar.activeForeground": "#15202b",
+        "titleBar.inactiveBackground": "#c67dc999",
+        "titleBar.inactiveForeground": "#15202b99",
+        "commandCenter.border": "#15202b99"
+    },
+    "peacock.color": "#c67dc9",
+
+    /**
+    * Jest 插件
+    */
+    // 只在 test 文件保存时重新运行测试
+    "jest.autoRun": {
+        "watch": false,
+        "onSave":  "test-file",
+     },
+    "jest.jestCommandLine": "yarn test",
+}

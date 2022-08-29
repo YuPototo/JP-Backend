@@ -121,3 +121,13 @@ describe('static method generate token()', () => {
         expect(userFound).not.toBeNull()
     })
 })
+
+describe('json()', () => {
+    let user: IUser
+
+    it('should return display id', async () => {
+        user = new User({ wxUnionId: 'wxUnionId', displayId: 'displayId' })
+        await user.save()
+        expect(user.toJSON()).toEqual({ displayId: 'displayId' })
+    })
+})

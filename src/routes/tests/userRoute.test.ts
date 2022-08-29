@@ -96,6 +96,23 @@ describe('微信登录：小程序 ', () => {
         expect(response.body.message).toMatch(/获取 union id 失败/)
         expect(response.body.message).toMatch(/some error/)
     })
+
+    it('should return user info', async () => {
+        mock.mockImplementation(() => Promise.resolve('wxUnionId'))
+
+        const loginCode = 'loginCode'
+        const res = await request(app)
+            .post('/api/v1/users/login/wx/miniApp')
+            .send({ loginCode })
+        expect(res.status).toBe(201)
+        expect(res.body.user).toBeDefined()
+
+        expect(res.body.user).toMatchObject({
+            displayId: expect.any(String),
+        })
+
+        expect(res.body.user).not.toHaveProperty('wxUnionId')
+    })
 })
 
 describe('微信登录：网页版', () => {
