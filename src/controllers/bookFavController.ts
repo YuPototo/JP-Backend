@@ -20,9 +20,8 @@ export const addBookFav: RequestHandler = async (req, res, next) => {
         return res.status(201).json({ message: 'success' })
     } catch (err) {
         if (err instanceof MongoError && err.code === 11000) {
-            const message = `重复的收藏记录 ${bookId}`
-            logger.error(message, addReqMetaData(req))
-            return res.status(500).json({ message })
+            logger.warn('已经有这条书籍收藏记录了', addReqMetaData(req))
+            return res.status(201).json({ message: 'success' })
         } else {
             return next(err)
         }

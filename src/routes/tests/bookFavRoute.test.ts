@@ -50,7 +50,7 @@ describe('addBookFav', () => {
         )
     })
 
-    it('should return 500 if duplicated records created', async () => {
+    it('should return 201 if book record exists', async () => {
         const bookId = await testUtils.createOneBook()
         const res = await request(app)
             .post(`/api/v1/bookFav/${bookId}`)
@@ -62,8 +62,7 @@ describe('addBookFav', () => {
             .post(`/api/v1/bookFav/${bookId}`)
             .set('Authorization', `Bearer ${token}`)
 
-        expect(res2.status).toBe(500)
-        expect(res2.body.message).toMatch(`重复的收藏记录 ${bookId}`)
+        expect(res2.status).toBe(201)
     })
 
     it('should return 201 if record created', async () => {
@@ -144,7 +143,7 @@ describe('getBookFavs', () => {
     })
 })
 
-describe.only('isBookFav', () => {
+describe('isBookFav', () => {
     it('should require auth', async () => {
         const res = await request(app).get('/api/v1/bookFav/some_book_id')
         expect(res.status).toBe(401)
