@@ -5,6 +5,7 @@ import config from '@/config/config'
 import User from '@/models/user'
 import logger from '@/utils/logger/logger'
 import { getErrorMessage } from '@/utils/errorUtil/errorHandler'
+import redis from '@/utils/redis/redisSingleton'
 
 export const getAuthToken = (authHeader: string | undefined) => {
     if (!authHeader) {
@@ -40,11 +41,22 @@ export const decipferToken = (token: string) => {
 
     const id = decoded['id']
 
-    return id
+    if (typeof id !== 'string') {
+        throw new Error('payload.id 不是 string')
+    }
+
+    // number of seconds since the epoch
+    const exp = decoded['exp']
+
+    if (typeof exp !== 'number') {
+        throw new Error('payload.exp 不是 number')
+    }
+
+    return { id, exp }
 }
 
 /**
- * tech debt: no tests for this middleware
+ * ! tech debt: no tests for this middleware
  */
 export const auth: RequestHandler = async (req, res, next) => {
     let token: string
@@ -60,34 +72,60 @@ export const auth: RequestHandler = async (req, res, next) => {
         return
     }
 
-    let userId: string
+    let cacheUserId: string | null
     try {
-        userId = decipferToken(token)
+        cacheUserId = await redis.get(token)
     } catch (err) {
-        if (err instanceof JsonWebTokenError) {
-            res.status(401).send({ message: err.message })
-            return
-        } else if (err instanceof TokenExpiredError) {
-            res.status(401).send({ message: err.message })
-            return
-        } else {
-            logger.error('unknown auth error')
-            next(err)
-            return
+        logger.error('Auth middleware: Redis erorr ' + getErrorMessage(err))
+        cacheUserId = null
+    }
+
+    let userId: string
+    if (cacheUserId) {
+        userId = cacheUserId
+    } else {
+        try {
+            const { id, exp } = decipferToken(token)
+            userId = id
+            saveTokenToRedis(token, userId, exp)
+        } catch (err) {
+            if (err instanceof JsonWebTokenError) {
+                res.status(401).send({ message: err.message })
+                return
+            } else if (err instanceof TokenExpiredError) {
+                res.status(401).send({ message: err.message })
+                return
+            } else {
+                logger.error('unknown auth error')
+                next(err)
+                return
+            }
         }
     }
 
     try {
         const user = await User.findById(userId)
         if (!user) {
-            logger.error('Auth middleware，用户找不到：${userId}')
+            logger.error(`Auth middleware，用户找不到：${userId}`)
             res.status(401).send({ message: '用户不存在' })
             return
         }
         req.user = user
         next()
     } catch (err) {
-        next(err)
-        return
+        return next(err)
     }
+}
+
+const saveTokenToRedis = async (token: string, userId: string, exp: number) => {
+    try {
+        await redis.set(token, userId, secondsTillExpire(exp))
+    } catch (err) {
+        logger.error('Auth middleware: Redis erorr ' + getErrorMessage(err))
+    }
+}
+
+const secondsTillExpire = (exp: number) => {
+    const now = Math.floor(Date.now() / 1000)
+    return exp - now
 }

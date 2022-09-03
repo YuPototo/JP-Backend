@@ -1,3 +1,5 @@
+// todo: test redis cache
+
 import request from 'supertest'
 import { Express } from 'express-serve-static-core'
 

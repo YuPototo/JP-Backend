@@ -1,6 +1,6 @@
 import { createApp } from './app'
 import db from '@/utils/db/dbSingleton'
-import redis from '@/utils/redis/cacheSingleton'
+import redis from '@/utils/redis/redisSingleton'
 
 import logger from '@/utils/logger/logger'
 import { getErrorMessage } from './utils/errorUtil/errorHandler'
