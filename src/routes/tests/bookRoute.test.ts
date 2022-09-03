@@ -169,14 +169,14 @@ describe('GET book contents', () => {
         const id = 'abc'
         const res = await request(app).get(`/api/v1/books/${id}/contents`)
         expect(res.statusCode).toBe(400)
-        expect(res.body.message).toBe('id 不是合法的 mongo id')
+        expect(res.body.message).toBe('id 不是合法的 mongoId')
     })
 
     it('should return 404, when book is not found', async () => {
         const id = '61502602e94950fbe7a0075d'
         const res = await request(app).get(`/api/v1/books/${id}/contents`)
         expect(res.statusCode).toBe(404)
-        expect(res.body.message).toBe('找不到册子')
+        expect(res.body.message).toMatch(/找不到练习册/)
     })
 
     it('should return 200 and book content', async () => {

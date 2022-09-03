@@ -2,7 +2,6 @@ import User, { IUser } from '../user'
 import config from '../../config/config'
 import db from '../../utils/db/dbSingleton'
 import jwt from 'jsonwebtoken'
-import { ObjectId } from 'mongodb'
 
 beforeAll(async () => {
     await db.open()
