@@ -1,6 +1,9 @@
 import { Schema, Document, model, Model } from 'mongoose'
 
 import './audio' // 引入 audio，否则不会运行 audio schema 的创建，因为我还没有在其他地方使用 audio
+import { SchemaNames } from './schemaNames'
+
+const COLLECTION_NAME = 'questionSet'
 
 interface IQuestion extends Document {
     body?: string
@@ -43,10 +46,10 @@ const questionSetSchema = new Schema<IQuestionSet>(
         },
         audio: {
             type: Schema.Types.ObjectId,
-            ref: 'Audio',
+            ref: SchemaNames.Audio,
         },
     },
-    { collection: 'questionSet' },
+    { collection: COLLECTION_NAME },
 )
 
 questionSetSchema.set('toJSON', {
@@ -63,6 +66,6 @@ export type QuestionSetModel = Model<IQuestionSet>
 export const QuestionSet: QuestionSetModel = model<
     IQuestionSet,
     QuestionSetModel
->('QuestionSet', questionSetSchema)
+>(SchemaNames.QuestionSet, questionSetSchema)
 
 export default QuestionSet

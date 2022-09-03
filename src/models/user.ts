@@ -2,6 +2,7 @@ import { Schema, Document, model, Model } from 'mongoose'
 import jwt from 'jsonwebtoken'
 
 import config from '@/config/config'
+import { SchemaNames } from './schemaNames'
 
 const COLLECTION_NAME = 'user'
 
@@ -65,7 +66,7 @@ userSchema.methods.createToken = function () {
     return token
 }
 
-export const User = model<IUser, UserModel>('User', userSchema)
+export const User = model<IUser, UserModel>(SchemaNames.User, userSchema)
 
 export default User
 

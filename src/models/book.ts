@@ -1,8 +1,9 @@
 import config from '@/config/config'
 import { addCdnDomain } from '@/utils/staticAssets'
 import { Schema, Document, model, Model, Types } from 'mongoose'
+import { SchemaNames } from './schemaNames'
 
-import './section' // 引入 section, 否则不会 section schema 的创建，因为我还没有在其他地方使用 audio
+import './section' // 引入 section, 否则不会有 section schema 的创建，因为我还没有在其他地方使用 section
 
 const COLLECTION_NAME = 'book'
 
@@ -45,7 +46,7 @@ const bookSchema = new Schema<IBook>(
         hidden: { type: Boolean, default: false },
         category: { type: bookCategorySchema, required: true },
         sections: {
-            type: [{ type: Schema.Types.ObjectId, ref: 'Section' }],
+            type: [{ type: Schema.Types.ObjectId, ref: SchemaNames.Section }],
             required: true,
         },
     },
@@ -64,6 +65,6 @@ bookSchema.set('toJSON', {
 
 export type BookModelType = Model<IBook>
 
-export const Book = model<IBook, BookModelType>('Book', bookSchema)
+export const Book = model<IBook, BookModelType>(SchemaNames.Book, bookSchema)
 
 export default Book

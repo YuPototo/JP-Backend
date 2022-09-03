@@ -1,6 +1,7 @@
 import config from '@/config/config'
 import { addCdnDomain } from '@/utils/staticAssets'
 import { Schema, Document, model, Model } from 'mongoose'
+import { SchemaNames } from './schemaNames'
 
 const COLLECTION_NAME = 'audio'
 
@@ -32,6 +33,9 @@ audioSchema.set('toJSON', {
 
 export type AudioModelType = Model<IAudio>
 
-export const Audio = model<IAudio, AudioModelType>('Audio', audioSchema)
+export const Audio = model<IAudio, AudioModelType>(
+    SchemaNames.Audio,
+    audioSchema,
+)
 
 export default Audio

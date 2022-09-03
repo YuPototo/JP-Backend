@@ -1,4 +1,7 @@
 import { Schema, Document, model, Model, Types } from 'mongoose'
+import { SchemaNames } from './schemaNames'
+
+const COLLECTION_NAME = 'section'
 
 export interface ISection extends Document {
     title: string
@@ -9,10 +12,10 @@ const sectionSchema = new Schema<ISection>(
     {
         title: { type: String, required: true },
         chapters: {
-            type: [{ type: Schema.Types.ObjectId, ref: 'Chapter' }],
+            type: [{ type: Schema.Types.ObjectId, ref: SchemaNames.Chapter }],
         },
     },
-    { collection: 'section' },
+    { collection: COLLECTION_NAME },
 )
 
 sectionSchema.set('toJSON', {
@@ -27,7 +30,7 @@ sectionSchema.set('toJSON', {
 export type SectionModel = Model<ISection>
 
 export const Section: SectionModel = model<ISection, SectionModel>(
-    'Section',
+    SchemaNames.Section,
     sectionSchema,
 )
 

@@ -1,4 +1,7 @@
 import { Schema, Document, model, Model } from 'mongoose'
+import { SchemaNames } from './schemaNames'
+
+const COLLECTION_NAME = 'chapter'
 
 export interface IChapter extends Document {
     title: string
@@ -10,9 +13,11 @@ const chapterSchema = new Schema<IChapter>(
     {
         title: { type: String, required: true },
         desc: { type: String },
-        questionSets: [{ type: Schema.Types.ObjectId, ref: 'QuestionSet' }],
+        questionSets: [
+            { type: Schema.Types.ObjectId, ref: SchemaNames.QuestionSet },
+        ],
     },
-    { collection: 'chapter' },
+    { collection: COLLECTION_NAME },
 )
 
 chapterSchema.set('toJSON', {
@@ -27,7 +32,7 @@ chapterSchema.set('toJSON', {
 export type ChapterModelType = Model<IChapter>
 
 export const Chapter = model<IChapter, ChapterModelType>(
-    'Chapter',
+    SchemaNames.Chapter,
     chapterSchema,
 )
 
