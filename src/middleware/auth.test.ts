@@ -31,19 +31,25 @@ describe('decipferToken', () => {
     })
 
     it('should throw error when jwt payload does not have id property', () => {
-        const token = jwt.sign({ name: 'some_name' }, config.appSecret)
+        const token = jwt.sign({ name: 'some_name' }, config.appSecret, {
+            expiresIn: config.jwtExpireDays,
+        })
         expect(() => decipferToken(token)).toThrow(
             /jwt payload 里没有 id property/,
         )
     })
 
     it('should return id when token is valid', () => {
-        const token = jwt.sign({ id: 'some_id' }, config.appSecret)
-        expect(decipferToken(token)).toBe('some_id')
+        const token = jwt.sign({ id: 'some_id' }, config.appSecret, {
+            expiresIn: config.jwtExpireDays,
+        })
+        expect(decipferToken(token).id).toBe('some_id')
     })
 
     it('should throw JsonWebTokenError when token is invalid', () => {
-        const token = jwt.sign({ id: '123' }, 'some_secret')
+        const token = jwt.sign({ id: '123' }, 'other_token', {
+            expiresIn: config.jwtExpireDays,
+        })
         expect(() => decipferToken(token)).toThrow(JsonWebTokenError)
     })
 
