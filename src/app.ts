@@ -13,6 +13,8 @@ import chapterRouter from '@/routes/chapterRoute'
 import questionSetRouter from '@/routes/questionSetRoute'
 import userRouter from '@/routes/userRoute'
 import bookFavRouter from '@/routes/bookFavRoute'
+import chapterDoneRouter from '@/routes/chapterDoneRoute'
+
 import { addReqMetaData } from './utils/logger/winstonLogger'
 
 const API_PREFIX = '/api/v1'
@@ -34,6 +36,7 @@ export async function createApp(): Promise<Express> {
     app.use(`${API_PREFIX}`, questionSetRouter)
     app.use(`${API_PREFIX}`, userRouter)
     app.use(`${API_PREFIX}`, bookFavRouter)
+    app.use(`${API_PREFIX}`, chapterDoneRouter)
 
     // Error-handling middleware: 必须使用 4个 argument
     // eslint-disable-next-line @typescript-eslint/no-unused-vars

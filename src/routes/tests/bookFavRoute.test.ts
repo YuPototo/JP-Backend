@@ -12,8 +12,8 @@ let token: string
 beforeAll(async () => {
     await db.open()
     app = await createApp()
-    await testUtils.createOneBook()
-    const userId = await testUtils.createOneUser()
+    await testUtils.createBook()
+    const userId = await testUtils.createUser()
     token = await testUtils.createToken(userId)
 })
 
@@ -51,7 +51,7 @@ describe('addBookFav', () => {
     })
 
     it('should return 201 if book record exists', async () => {
-        const bookId = await testUtils.createOneBook()
+        const bookId = await testUtils.createBook()
         const res = await request(app)
             .post(`/api/v1/bookFav/${bookId}`)
             .set('Authorization', `Bearer ${token}`)
@@ -66,7 +66,7 @@ describe('addBookFav', () => {
     })
 
     it('should return 201 if record created', async () => {
-        const bookId = await testUtils.createOneBook()
+        const bookId = await testUtils.createBook()
         const res = await request(app)
             .post(`/api/v1/bookFav/${bookId}`)
             .set('Authorization', `Bearer ${token}`)
@@ -90,7 +90,7 @@ describe('deleteBookFav', () => {
     })
 
     it('should delete a record', async () => {
-        const bookId = await testUtils.createOneBook()
+        const bookId = await testUtils.createBook()
         await request(app)
             .post(`/api/v1/bookFav/${bookId}`)
             .set('Authorization', `Bearer ${token}`)
@@ -124,8 +124,8 @@ describe('getBookFavs', () => {
     })
 
     it('should return favourited book ids - 2 books', async () => {
-        const bookId1 = await testUtils.createOneBook()
-        const bookId2 = await testUtils.createOneBook()
+        const bookId1 = await testUtils.createBook()
+        const bookId2 = await testUtils.createBook()
         await request(app)
             .post(`/api/v1/bookFav/${bookId1}`)
             .set('Authorization', `Bearer ${token}`)
@@ -158,7 +158,7 @@ describe('isBookFav', () => {
     })
 
     it('should return true is book is favourited', async () => {
-        const bookId = await testUtils.createOneBook()
+        const bookId = await testUtils.createBook()
         await request(app)
             .post(`/api/v1/bookFav/${bookId}`)
             .set('Authorization', `Bearer ${token}`)
@@ -173,7 +173,7 @@ describe('isBookFav', () => {
     })
 
     it('should return false is book is not favourited', async () => {
-        const bookId = await testUtils.createOneBook()
+        const bookId = await testUtils.createBook()
 
         const res = await request(app)
             .get(`/api/v1/bookFav/${bookId}`)

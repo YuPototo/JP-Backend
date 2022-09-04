@@ -8,8 +8,8 @@ let bookId: string
 
 beforeAll(async () => {
     await db.open()
-    userId = await testUtils.createOneUser()
-    bookId = await testUtils.createOneBook()
+    userId = await testUtils.createUser()
+    bookId = await testUtils.createBook()
 })
 
 afterAll(async () => {

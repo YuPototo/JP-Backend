@@ -1,8 +1,10 @@
 import UserModel from '../../models/user'
 import BookModel from '../../models/book'
 import BookFavModel from '../../models/bookFav'
+import ChapterDone from '../../models/chapterDone'
+import ChapterModel from '@/models/chapter'
 
-const createOneUser = async (): Promise<string> => {
+const createUser = async (): Promise<string> => {
     const displayId = '123'
     const wxUnionId = 'wxUnionId'
     const user = new UserModel({ displayId, wxUnionId })
@@ -10,7 +12,7 @@ const createOneUser = async (): Promise<string> => {
     return user.id
 }
 
-const createOneBook = async (): Promise<string> => {
+const createBook = async (): Promise<string> => {
     const book = new BookModel({
         title: 'test book',
         cover: 'cover_key',
@@ -18,6 +20,14 @@ const createOneBook = async (): Promise<string> => {
     })
     await book.save()
     return book.id
+}
+
+const createChapter = async (): Promise<string> => {
+    const chapter = new ChapterModel({
+        title: 'test chapter',
+    })
+    await chapter.save()
+    return chapter.id
 }
 
 const createToken = async (userId: string): Promise<string> => {
@@ -33,13 +43,15 @@ const cleanDatabase = async () => {
     await BookModel.deleteMany()
     await UserModel.deleteMany()
     await BookFavModel.deleteMany()
+    await ChapterDone.deleteMany()
 }
 
 const testUtils = {
-    createOneUser,
-    createOneBook,
+    createUser,
+    createBook,
     createToken,
     cleanDatabase,
+    createChapter,
 }
 
 export default testUtils
