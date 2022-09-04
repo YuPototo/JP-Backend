@@ -1,7 +1,7 @@
 import isMongoId from 'validator/lib/isMongoId'
 
 import type { RequestHandler } from 'express'
-import QuestionSet, { IQuestionSet } from '@/models/questionSet'
+import QuestionSetModel, { IQuestionSetDoc } from '@/models/questionSet'
 import logger from '@/utils/logger/logger'
 import { addReqMetaData } from '@/utils/logger/winstonLogger'
 
@@ -17,9 +17,9 @@ export const getQuestionSet: RequestHandler = async (req, res, next) => {
         return
     }
 
-    let questionSet: IQuestionSet | null
+    let questionSet: IQuestionSetDoc | null
     try {
-        questionSet = await QuestionSet.findById(questionSetId).populate(
+        questionSet = await QuestionSetModel.findById(questionSetId).populate(
             'audio',
         )
     } catch (err) {

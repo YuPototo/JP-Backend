@@ -1,7 +1,7 @@
 import isMongoId from 'validator/lib/isMongoId'
 
 import type { RequestHandler } from 'express'
-import Chapter, { IChapter } from '@/models/chapter'
+import ChapterModel, { IChapterDoc } from '@/models/chapter'
 import logger from '@/utils/logger/logger'
 import { addReqMetaData } from '@/utils/logger/winstonLogger'
 
@@ -17,9 +17,9 @@ export const getChapter: RequestHandler = async (req, res, next) => {
         return
     }
 
-    let chapter: IChapter | null
+    let chapter: IChapterDoc | null
     try {
-        chapter = await Chapter.findById(chapterId)
+        chapter = await ChapterModel.findById(chapterId)
     } catch (err) {
         next(err)
         return

@@ -5,14 +5,17 @@ import { SchemaNames } from './schemaNames'
 
 const COLLECTION_NAME = 'audio'
 
-// Book
-export interface IAudio extends Document {
+/* interface */
+export interface IAudioDoc extends Document {
     key: string
     title: string
     transcription: string
 }
 
-const audioSchema = new Schema<IAudio>(
+export type IAudioModel = Model<IAudioDoc>
+
+/* schema */
+const audioSchema = new Schema<IAudioDoc>(
     {
         key: { type: String, required: true },
         title: { type: String, required: true },
@@ -22,7 +25,7 @@ const audioSchema = new Schema<IAudio>(
 )
 
 audioSchema.set('toJSON', {
-    transform: function (doc: IAudio, ret) {
+    transform: function (doc: IAudioDoc, ret) {
         ret.id = ret._id.toString()
         ret.key = addCdnDomain(config.cdnDomain, doc.key)
 
@@ -31,11 +34,10 @@ audioSchema.set('toJSON', {
     },
 })
 
-export type AudioModelType = Model<IAudio>
-
-export const Audio = model<IAudio, AudioModelType>(
+/* schema */
+export const AudioModel = model<IAudioDoc, IAudioModel>(
     SchemaNames.Audio,
     audioSchema,
 )
 
-export default Audio
+export default AudioModel

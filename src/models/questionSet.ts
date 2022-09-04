@@ -5,14 +5,15 @@ import { SchemaNames } from './schemaNames'
 
 const COLLECTION_NAME = 'questionSet'
 
-interface IQuestion extends Document {
+/* Question */
+interface IQuestionDoc extends Document {
     body?: string
     explanation?: string
     options: string[]
     answer: number
 }
 
-const questionSchema = new Schema<IQuestion>(
+const questionSchema = new Schema<IQuestionDoc>(
     {
         body: { type: String },
         explanation: { type: String },
@@ -27,14 +28,18 @@ const questionSchema = new Schema<IQuestion>(
     { _id: false },
 )
 
-export interface IQuestionSet extends Document {
+/* QuestionSet - interface */
+export interface IQuestionSetDoc extends Document {
     body?: string
     explanation?: string
-    questions: IQuestion[]
+    questions: IQuestionDoc[]
     audio?: [Schema.Types.ObjectId]
 }
 
-const questionSetSchema = new Schema<IQuestionSet>(
+export type IQuestionSetModel = Model<IQuestionSetDoc>
+
+/* QuestionSet - schema */
+const questionSetSchema = new Schema<IQuestionSetDoc>(
     {
         body: { type: String },
         explanation: { type: String },
@@ -53,7 +58,7 @@ const questionSetSchema = new Schema<IQuestionSet>(
 )
 
 questionSetSchema.set('toJSON', {
-    transform: function (doc: IQuestionSet, ret) {
+    transform: function (doc: IQuestionSetDoc, ret) {
         ret.id = ret._id.toString()
 
         delete ret.__v
@@ -61,11 +66,9 @@ questionSetSchema.set('toJSON', {
     },
 })
 
-export type QuestionSetModel = Model<IQuestionSet>
+export const QuestionSetModel = model<IQuestionSetDoc, IQuestionSetModel>(
+    SchemaNames.QuestionSet,
+    questionSetSchema,
+)
 
-export const QuestionSet: QuestionSetModel = model<
-    IQuestionSet,
-    QuestionSetModel
->(SchemaNames.QuestionSet, questionSetSchema)
-
-export default QuestionSet
+export default QuestionSetModel

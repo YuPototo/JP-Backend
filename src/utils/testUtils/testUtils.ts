@@ -1,17 +1,17 @@
-import User from '../../models/user'
-import Book from '../../models/book'
-import BookFav from '../../models/bookFav'
+import UserModel from '../../models/user'
+import BookModel from '../../models/book'
+import BookFavModel from '../../models/bookFav'
 
 const createOneUser = async (): Promise<string> => {
     const displayId = '123'
     const wxUnionId = 'wxUnionId'
-    const user = new User({ displayId, wxUnionId })
+    const user = new UserModel({ displayId, wxUnionId })
     await user.save()
     return user.id
 }
 
 const createOneBook = async (): Promise<string> => {
-    const book = new Book({
+    const book = new BookModel({
         title: 'test book',
         cover: 'cover_key',
         category: { key: 'test_category' },
@@ -21,7 +21,7 @@ const createOneBook = async (): Promise<string> => {
 }
 
 const createToken = async (userId: string): Promise<string> => {
-    const user = await User.findById(userId)
+    const user = await UserModel.findById(userId)
     if (!user) {
         throw new Error('user not found')
     }
@@ -30,9 +30,9 @@ const createToken = async (userId: string): Promise<string> => {
 }
 
 const cleanDatabase = async () => {
-    await Book.deleteMany()
-    await User.deleteMany()
-    await BookFav.deleteMany()
+    await BookModel.deleteMany()
+    await UserModel.deleteMany()
+    await BookFavModel.deleteMany()
 }
 
 const testUtils = {

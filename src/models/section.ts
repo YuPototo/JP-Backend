@@ -3,12 +3,14 @@ import { SchemaNames } from './schemaNames'
 
 const COLLECTION_NAME = 'section'
 
-export interface ISection extends Document {
+export interface ISectionDoc extends Document {
     title: string
     chapters: [Types.ObjectId]
 }
 
-const sectionSchema = new Schema<ISection>(
+export type ISectionModel = Model<ISectionDoc>
+
+const sectionSchema = new Schema<ISectionDoc>(
     {
         title: { type: String, required: true },
         chapters: {
@@ -19,7 +21,7 @@ const sectionSchema = new Schema<ISection>(
 )
 
 sectionSchema.set('toJSON', {
-    transform: function (doc: ISection, ret) {
+    transform: function (doc: ISectionDoc, ret) {
         ret.id = ret._id.toString()
 
         delete ret.__v
@@ -27,11 +29,9 @@ sectionSchema.set('toJSON', {
     },
 })
 
-export type SectionModel = Model<ISection>
-
-export const Section: SectionModel = model<ISection, SectionModel>(
+export const SectionModel = model<ISectionDoc, ISectionModel>(
     SchemaNames.Section,
     sectionSchema,
 )
 
-export default Section
+export default SectionModel

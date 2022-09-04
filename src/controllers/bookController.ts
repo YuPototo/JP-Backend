@@ -1,14 +1,14 @@
 import isMongoId from 'validator/lib/isMongoId'
 
 import type { RequestHandler } from 'express'
-import Book, { IBook } from '@/models/book'
+import BookModel, { IBookDoc } from '@/models/book'
 import { logger } from '@/utils/logger/winstonLogger'
 import { addReqMetaData } from '@/utils/logger/winstonLogger'
 import redis from '@/utils/redis/redisSingleton'
 import { getErrorMessage } from '@/utils/errorUtil/errorHandler'
 
 export const getBooks: RequestHandler = async (req, res, next) => {
-    let books: IBook[]
+    let books: IBookDoc[]
 
     try {
         const jsonBooks = await redis.get('books')
@@ -21,7 +21,7 @@ export const getBooks: RequestHandler = async (req, res, next) => {
     }
 
     try {
-        books = await Book.find()
+        books = await BookModel.find()
         res.json({ books })
     } catch (err) {
         return next(err)
@@ -44,9 +44,9 @@ export const getBookContent: RequestHandler = async (req, res, next) => {
         return
     }
 
-    let book: IBook | null
+    let book: IBookDoc | null
     try {
-        book = await Book.findById(bookId).populate({
+        book = await BookModel.findById(bookId).populate({
             path: 'sections',
             populate: { path: 'chapters' },
         })

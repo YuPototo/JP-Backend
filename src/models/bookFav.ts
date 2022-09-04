@@ -1,19 +1,21 @@
 import { Schema, Document, model, Model } from 'mongoose'
 import { SchemaNames } from './schemaNames'
-import Book from './book'
+import BookModel from './book'
 
 const COLLECTION_NAME = 'bookFav'
 
-export interface IBookFav extends Document {
+/* interface */
+export interface IBookFavDoc extends Document {
     user: Schema.Types.ObjectId
     book: Schema.Types.ObjectId
 }
 
-export interface BookFavModel extends Model<IBookFav> {
+export interface IBookFavModel extends Model<IBookFavDoc> {
     getBookIds: (userId: string) => Promise<string[]>
 }
 
-const bookFavSchema = new Schema<IBookFav, BookFavModel>(
+/* schema */
+const bookFavSchema = new Schema<IBookFavDoc, IBookFavModel>(
     {
         user: {
             type: Schema.Types.ObjectId,
@@ -33,7 +35,7 @@ const bookFavSchema = new Schema<IBookFav, BookFavModel>(
 bookFavSchema.index({ user: 1, book: 1 }, { unique: true })
 
 bookFavSchema.post('validate', async function () {
-    const book = await Book.findById(this.book)
+    const book = await BookModel.findById(this.book)
     if (!book) {
         throw Error(`找不到练习册 ${this.book}`)
     }
@@ -44,9 +46,9 @@ bookFavSchema.statics.getBookIds = async function (userId: string) {
     return bookFavs.map((bookFav) => bookFav.book.toString())
 }
 
-export const BookFav = model<IBookFav, BookFavModel>(
+export const BookFavModel = model<IBookFavDoc, IBookFavModel>(
     SchemaNames.BookFav,
     bookFavSchema,
 )
 
-export default BookFav
+export default BookFavModel

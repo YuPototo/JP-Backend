@@ -6,8 +6,8 @@ import { SchemaNames } from './schemaNames'
 
 const COLLECTION_NAME = 'user'
 
-// Book
-export interface IUser extends Document {
+/* schema */
+export interface IUserDoc extends Document {
     displayId: string
     wxUnionId: string
     createdAt: Date
@@ -16,12 +16,12 @@ export interface IUser extends Document {
     createToken: () => string
 }
 
-export interface UserModel extends Model<IUser> {
+export interface IUserModel extends Model<IUserDoc> {
     createDisplayId(length: number): string
-    createNewUser(wxUnionId: string): Promise<IUser>
+    createNewUser(wxUnionId: string): Promise<IUserDoc>
 }
 
-const userSchema = new Schema<IUser, UserModel>(
+const userSchema = new Schema<IUserDoc, IUserModel>(
     {
         displayId: { type: String, required: true, unique: true },
         wxUnionId: { type: String, required: true, unique: true },
@@ -49,7 +49,7 @@ userSchema.statics.createNewUser = async function (wxUnionId: string) {
 
 /* Instance Methods */
 userSchema.set('toJSON', {
-    transform: function (doc: IUser, ret) {
+    transform: function (doc: IUserDoc, ret) {
         delete ret.wxUnionId
         delete ret.createdAt
         delete ret.updatedAt
@@ -66,9 +66,12 @@ userSchema.methods.createToken = function () {
     return token
 }
 
-export const User = model<IUser, UserModel>(SchemaNames.User, userSchema)
+export const UserModel = model<IUserDoc, IUserModel>(
+    SchemaNames.User,
+    userSchema,
+)
 
-export default User
+export default UserModel
 
 function createRandomId(length: number) {
     let result = ''

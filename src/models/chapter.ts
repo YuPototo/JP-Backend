@@ -3,13 +3,17 @@ import { SchemaNames } from './schemaNames'
 
 const COLLECTION_NAME = 'chapter'
 
-export interface IChapter extends Document {
+/* interface */
+export interface IChapterDoc extends Document {
     title: string
     desc?: string
     questionSets: [Schema.Types.ObjectId]
 }
 
-const chapterSchema = new Schema<IChapter>(
+export type IChapterModel = Model<IChapterDoc>
+
+/* schema */
+const chapterSchema = new Schema<IChapterDoc>(
     {
         title: { type: String, required: true },
         desc: { type: String },
@@ -21,7 +25,7 @@ const chapterSchema = new Schema<IChapter>(
 )
 
 chapterSchema.set('toJSON', {
-    transform: function (doc: IChapter, ret) {
+    transform: function (doc: IChapterDoc, ret) {
         ret.id = ret._id.toString()
 
         delete ret.__v
@@ -29,11 +33,9 @@ chapterSchema.set('toJSON', {
     },
 })
 
-export type ChapterModelType = Model<IChapter>
-
-export const Chapter = model<IChapter, ChapterModelType>(
+export const ChapterModel = model<IChapterDoc, IChapterModel>(
     SchemaNames.Chapter,
     chapterSchema,
 )
 
-export default Chapter
+export default ChapterModel

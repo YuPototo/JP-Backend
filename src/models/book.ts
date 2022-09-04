@@ -7,14 +7,15 @@ import './section' // 引入 section, 否则不会有 section schema 的创建�
 
 const COLLECTION_NAME = 'book'
 
-// BookCategory
-interface IBookCategory extends Document {
+/* bookCategory - interface */
+interface IBookCategoryDoc extends Document {
     key: string
     description?: string // 用于辅助理解
-    child?: IBookCategory
+    child?: IBookCategoryDoc
 }
 
-const bookCategorySchema = new Schema<IBookCategory>(
+/* bookCategory - schema */
+const bookCategorySchema = new Schema<IBookCategoryDoc>(
     {
         key: { type: String, required: true },
         description: { type: String },
@@ -26,18 +27,20 @@ bookCategorySchema.add({
     child: bookCategorySchema,
 })
 
-// Book
-export interface IBook extends Document {
+/* book - interface */
+export interface IBookDoc extends Document {
     title: string
     desc: string
     cover: string
     weight: number
     hidden: boolean
-    category: IBookCategory
+    category: IBookCategoryDoc
     sections: [Types.ObjectId]
 }
 
-const bookSchema = new Schema<IBook>(
+export type IBookModel = Model<IBookDoc>
+
+const bookSchema = new Schema<IBookDoc>(
     {
         title: { type: String, required: true },
         desc: { type: String, default: '' },
@@ -54,7 +57,7 @@ const bookSchema = new Schema<IBook>(
 )
 
 bookSchema.set('toJSON', {
-    transform: function (doc: IBook, ret) {
+    transform: function (doc: IBookDoc, ret) {
         ret.id = ret._id.toString()
         ret.cover = addCdnDomain(config.cdnDomain, doc.cover) // 将 cover 的域名补充完整
 
@@ -63,8 +66,9 @@ bookSchema.set('toJSON', {
     },
 })
 
-export type BookModelType = Model<IBook>
+export const BookModel = model<IBookDoc, IBookModel>(
+    SchemaNames.Book,
+    bookSchema,
+)
 
-export const Book = model<IBook, BookModelType>(SchemaNames.Book, bookSchema)
-
-export default Book
+export default BookModel
