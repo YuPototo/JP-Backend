@@ -66,9 +66,9 @@ questionSetSchema.set('toJSON', {
     },
 })
 
-export const QuestionSetModel = model<IQuestionSetDoc, IQuestionSetModel>(
+export const QuestionSet = model<IQuestionSetDoc, IQuestionSetModel>(
     SchemaNames.QuestionSet,
     questionSetSchema,
 )
 
-export default QuestionSetModel
+export default QuestionSet

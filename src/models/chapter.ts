@@ -33,9 +33,9 @@ chapterSchema.set('toJSON', {
     },
 })
 
-export const ChapterModel = model<IChapterDoc, IChapterModel>(
+export const Chapter = model<IChapterDoc, IChapterModel>(
     SchemaNames.Chapter,
     chapterSchema,
 )
 
-export default ChapterModel
+export default Chapter

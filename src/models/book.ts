@@ -66,9 +66,6 @@ bookSchema.set('toJSON', {
     },
 })
 
-export const BookModel = model<IBookDoc, IBookModel>(
-    SchemaNames.Book,
-    bookSchema,
-)
+export const Book = model<IBookDoc, IBookModel>(SchemaNames.Book, bookSchema)
 
-export default BookModel
+export default Book

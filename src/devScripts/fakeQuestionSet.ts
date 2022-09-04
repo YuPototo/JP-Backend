@@ -1,4 +1,4 @@
-import QuestionSetModel from '@/models/questionSet'
+import QuestionSet from '@/models/questionSet'
 
 function addQuestionSet1(id: string) {
     const bodyData = [
@@ -524,7 +524,7 @@ function addQuestionSet9(id: string) {
 
 // questionSets
 export async function addQuestionSets() {
-    await QuestionSetModel.insertMany([
+    await QuestionSet.insertMany([
         addQuestionSet1('62ff846994d4a5032e425e3e'),
         addQuestionSet2('62ff846994d4a5032e425e31'),
         addQuestionSet3('62ff846994d4a5032e425e32'),

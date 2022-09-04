@@ -35,9 +35,9 @@ audioSchema.set('toJSON', {
 })
 
 /* schema */
-export const AudioModel = model<IAudioDoc, IAudioModel>(
+export const Audio = model<IAudioDoc, IAudioModel>(
     SchemaNames.Audio,
     audioSchema,
 )
 
-export default AudioModel
+export default Audio

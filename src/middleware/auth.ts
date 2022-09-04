@@ -2,7 +2,7 @@ import { RequestHandler } from 'express'
 import jwt, { JsonWebTokenError, TokenExpiredError } from 'jsonwebtoken'
 
 import config from '@/config/config'
-import UserModel from '@/models/user'
+import User from '@/models/user'
 import logger from '@/utils/logger/logger'
 import { getErrorMessage } from '@/utils/errorUtil/errorHandler'
 import redis from '@/utils/redis/redisSingleton'
@@ -104,7 +104,7 @@ export const auth: RequestHandler = async (req, res, next) => {
     }
 
     try {
-        const user = await UserModel.findById(userId)
+        const user = await User.findById(userId)
         if (!user) {
             logger.error(`Auth middleware，用户找不到：${userId}`)
             res.status(401).send({ message: '用户不存在' })

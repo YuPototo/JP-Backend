@@ -1,8 +1,8 @@
-import AudioModel from '@/models/audio'
+import Audio from '@/models/audio'
 
 // audios
 export async function addAudios() {
-    await AudioModel.insertMany([
+    await Audio.insertMany([
         {
             _id: '62ff846994d4a5032e425e22',
             key: 'audios/60fa250387373_2018_12_n5_1.mp3',

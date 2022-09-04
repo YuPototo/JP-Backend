@@ -1,5 +1,5 @@
 import type { RequestHandler } from 'express'
-import BookFavModel from '@/models/bookFav'
+import BookFav from '@/models/bookFav'
 import { logger } from '@/utils/logger/winstonLogger'
 import { addReqMetaData } from '@/utils/logger/winstonLogger'
 import isMongoId from 'validator/lib/isMongoId'
@@ -15,7 +15,7 @@ export const addBookFav: RequestHandler = async (req, res, next) => {
     }
 
     try {
-        const bookFav = new BookFavModel({ user: req.user, book: bookId })
+        const bookFav = new BookFav({ user: req.user, book: bookId })
         await bookFav.save()
         return res.status(201).json({ message: 'success' })
     } catch (err) {
@@ -38,7 +38,7 @@ export const deleteBookFav: RequestHandler = async (req, res, next) => {
     }
 
     try {
-        await BookFavModel.findOneAndDelete({
+        await BookFav.findOneAndDelete({
             user: req.user,
             book: bookId,
         })
@@ -50,7 +50,7 @@ export const deleteBookFav: RequestHandler = async (req, res, next) => {
 
 export const getBookFavs: RequestHandler = async (req, res, next) => {
     try {
-        const books = await BookFavModel.getBookIds(req.user.id)
+        const books = await BookFav.getBookIds(req.user.id)
 
         return res.status(200).json({ books })
     } catch (err) {
@@ -68,7 +68,7 @@ export const checkIsBookFav: RequestHandler = async (req, res, next) => {
     }
 
     try {
-        const bookFav = await BookFavModel.findOne({
+        const bookFav = await BookFav.findOne({
             user: req.user,
             book: bookId,
         })

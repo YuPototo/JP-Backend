@@ -1,6 +1,6 @@
-import SectionModel from '@/models/section'
-import ChapterModel from '@/models/chapter'
-import BookModel from '@/models/book'
+import Section from '@/models/section'
+import Chapter from '@/models/chapter'
+import Book from '@/models/book'
 import logger from '@/utils/logger/logger'
 import { addQuestionSets } from './fakeQuestionSet'
 import { addAudios } from './fakeAudios'
@@ -19,7 +19,7 @@ export default async function addFakeData() {
 
 // books
 async function addBooks() {
-    await BookModel.insertMany([
+    await Book.insertMany([
         {
             _id: '62e50da955ecc53ba31029aa',
             title: '做题测试册子',
@@ -182,7 +182,7 @@ async function addBooks() {
 
 // sections
 async function addSections() {
-    await SectionModel.insertMany([
+    await Section.insertMany([
         {
             _id: '62ee098f3ca7977c375aac40',
             title: 'section 2',
@@ -202,7 +202,7 @@ async function addSections() {
 
 // chapters
 async function addChapters() {
-    await ChapterModel.insertMany([
+    await Chapter.insertMany([
         {
             _id: '62ee08ee3ca7977c375aabec',
             title: 'chapter 1.1：题目的前后转换',

@@ -66,12 +66,9 @@ userSchema.methods.createToken = function () {
     return token
 }
 
-export const UserModel = model<IUserDoc, IUserModel>(
-    SchemaNames.User,
-    userSchema,
-)
+export const User = model<IUserDoc, IUserModel>(SchemaNames.User, userSchema)
 
-export default UserModel
+export default User
 
 function createRandomId(length: number) {
     let result = ''

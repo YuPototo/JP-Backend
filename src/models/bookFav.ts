@@ -1,6 +1,6 @@
 import { Schema, Document, model, Model } from 'mongoose'
 import { SchemaNames } from './schemaNames'
-import BookModel from './book'
+import Book from './book'
 
 const COLLECTION_NAME = 'bookFav'
 
@@ -35,7 +35,7 @@ const bookFavSchema = new Schema<IBookFavDoc, IBookFavModel>(
 bookFavSchema.index({ user: 1, book: 1 }, { unique: true })
 
 bookFavSchema.post('validate', async function () {
-    const book = await BookModel.findById(this.book)
+    const book = await Book.findById(this.book)
     if (!book) {
         throw Error(`找不到练习册 ${this.book}`)
     }
@@ -46,9 +46,9 @@ bookFavSchema.statics.getBookIds = async function (userId: string) {
     return bookFavs.map((bookFav) => bookFav.book.toString())
 }
 
-export const BookFavModel = model<IBookFavDoc, IBookFavModel>(
+export const BookFav = model<IBookFavDoc, IBookFavModel>(
     SchemaNames.BookFav,
     bookFavSchema,
 )
 
-export default BookFavModel
+export default BookFav

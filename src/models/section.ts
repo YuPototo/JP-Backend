@@ -29,9 +29,9 @@ sectionSchema.set('toJSON', {
     },
 })
 
-export const SectionModel = model<ISectionDoc, ISectionModel>(
+export const Section = model<ISectionDoc, ISectionModel>(
     SchemaNames.Section,
     sectionSchema,
 )
 
-export default SectionModel
+export default Section
