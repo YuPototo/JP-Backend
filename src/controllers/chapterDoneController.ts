@@ -4,14 +4,14 @@ import { addReqMetaData } from '@/utils/logger/winstonLogger'
 import ChapterDone, { IChapterDoneDoc } from '../models/chapterDone'
 
 export const addChapterDone: RequestHandler = async (req, res, next) => {
-    const { bookId, chapterId } = req.body as {
-        bookId: string
+    const { bookId } = req.params as { bookId: string }
+    const { chapterId } = req.body as {
         chapterId: string
     }
 
-    if (!bookId || !chapterId) {
-        res.status(400).json({ message: '需要 bookId 或 chapterId' })
-        logger.error('需要 bookId 或 chapterId', addReqMetaData(req))
+    if (!chapterId) {
+        res.status(400).json({ message: '需要 chapterId' })
+        logger.error('需要 chapterId', addReqMetaData(req))
         return
     }
 

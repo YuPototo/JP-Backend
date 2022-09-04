@@ -31,30 +31,16 @@ describe('Add chapterDone', () => {
     })
 
     it('should require auth', async () => {
-        const res = await request(app).post(`/api/v1/chapterDone`)
+        const res = await request(app).post(`/api/v1/chapterDone/some_book_id`)
         expect(res.status).toBe(401)
     })
 
-    it('should check request body contain bookId and chapterId', async () => {
+    it('should check request body contain chapterId', async () => {
         const resOne = await request(app)
-            .post(`/api/v1/chapterDone`)
+            .post(`/api/v1/chapterDone/some_book_id`)
             .set('Authorization', `Bearer ${token}`)
         expect(resOne.status).toBe(400)
-        expect(resOne.body.message).toBe('需要 bookId 或 chapterId')
-
-        const resTwo = await request(app)
-            .post(`/api/v1/chapterDone`)
-            .set('Authorization', `Bearer ${token}`)
-            .send({ bookId: '123' })
-        expect(resTwo.status).toBe(400)
-        expect(resTwo.body.message).toBe('需要 bookId 或 chapterId')
-
-        const resThree = await request(app)
-            .post(`/api/v1/chapterDone`)
-            .set('Authorization', `Bearer ${token}`)
-            .send({ chapterId: '123' })
-        expect(resThree.status).toBe(400)
-        expect(resThree.body.message).toBe('需要 bookId 或 chapterId')
+        expect(resOne.body.message).toBe('需要 chapterId')
     })
 
     it('should create a new record when there is no record', async () => {
@@ -65,9 +51,9 @@ describe('Add chapterDone', () => {
         const chapterId = await testUtils.createChapter()
 
         const res = await request(app)
-            .post(`/api/v1/chapterDone`)
+            .post(`/api/v1/chapterDone/${bookId}`)
             .set('Authorization', `Bearer ${token}`)
-            .send({ bookId, chapterId })
+            .send({ chapterId })
         expect(res.status).toBe(201)
         expect(res.body.message).toBe('添加成功')
 
@@ -84,9 +70,9 @@ describe('Add chapterDone', () => {
         const chapterId = await testUtils.createChapter()
 
         const res = await request(app)
-            .post(`/api/v1/chapterDone`)
+            .post(`/api/v1/chapterDone/${bookId}`)
             .set('Authorization', `Bearer ${token}`)
-            .send({ bookId, chapterId })
+            .send({ chapterId })
         expect(res.status).toBe(201)
 
         const recordBefore = await chapterDone.findOne()
@@ -95,9 +81,9 @@ describe('Add chapterDone', () => {
         // 再完成一章
         const newChapterId = await testUtils.createChapter()
         const resTwo = await request(app)
-            .post(`/api/v1/chapterDone`)
+            .post(`/api/v1/chapterDone/${bookId}`)
             .set('Authorization', `Bearer ${token}`)
-            .send({ bookId, chapterId: newChapterId })
+            .send({ chapterId: newChapterId })
         expect(resTwo.status).toBe(201)
 
         const recordAfter = await chapterDone.findOne()
@@ -110,9 +96,9 @@ describe('Add chapterDone', () => {
         const chapterId = await testUtils.createChapter()
 
         const res = await request(app)
-            .post(`/api/v1/chapterDone`)
+            .post(`/api/v1/chapterDone/${bookId}`)
             .set('Authorization', `Bearer ${token}`)
-            .send({ bookId, chapterId })
+            .send({ chapterId })
         expect(res.status).toBe(201)
 
         const recordBefore = await chapterDone.findOne()
@@ -120,9 +106,9 @@ describe('Add chapterDone', () => {
 
         // 再完成一章
         const resTwo = await request(app)
-            .post(`/api/v1/chapterDone`)
+            .post(`/api/v1/chapterDone/${bookId}`)
             .set('Authorization', `Bearer ${token}`)
-            .send({ bookId, chapterId })
+            .send({ chapterId })
         expect(resTwo.status).toBe(201)
 
         const recordAfter = await chapterDone.findOne()
@@ -158,9 +144,9 @@ describe('Get chapterDone', () => {
         const chapterId = await testUtils.createChapter()
 
         const res = await request(app)
-            .post(`/api/v1/chapterDone`)
+            .post(`/api/v1/chapterDone/${bookId}`)
             .set('Authorization', `Bearer ${token}`)
-            .send({ bookId, chapterId })
+            .send({ chapterId })
         expect(res.status).toBe(201)
 
         const resTwo = await request(app)
@@ -182,9 +168,9 @@ describe('Delete chapterDone by book', () => {
         const chapterId = await testUtils.createChapter()
 
         const res = await request(app)
-            .post(`/api/v1/chapterDone`)
+            .post(`/api/v1/chapterDone/${bookId}`)
             .set('Authorization', `Bearer ${token}`)
-            .send({ bookId, chapterId })
+            .send({ chapterId })
         expect(res.status).toBe(201)
 
         const recordBefore = await chapterDone.findOne()
@@ -204,9 +190,9 @@ describe('Delete chapterDone by book', () => {
         const chapterId = await testUtils.createChapter()
 
         const res = await request(app)
-            .post(`/api/v1/chapterDone`)
+            .post(`/api/v1/chapterDone/${bookId}`)
             .set('Authorization', `Bearer ${token}`)
-            .send({ bookId, chapterId })
+            .send({ chapterId })
         expect(res.status).toBe(201)
 
         const recordBefore = await chapterDone.findOne()

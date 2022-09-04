@@ -8,10 +8,10 @@ import { auth } from '@/middleware/auth'
 
 const router = Router()
 
-router.route('/chapterDone').post(auth, addChapterDone)
 router
     .route('/chapterDone/:bookId')
     .get(auth, getChapterDone)
     .delete(auth, deleteChapterDone)
+    .post(auth, addChapterDone)
 
 export default router

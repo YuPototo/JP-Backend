@@ -1,4 +1,4 @@
-import User, { IUser } from '../user'
+import User, { IUserDoc } from '../user'
 import config from '../../config/config'
 import db from '../../utils/db/dbSingleton'
 import jwt from 'jsonwebtoken'
@@ -101,7 +101,7 @@ describe('static method createNewUser()', () => {
 })
 
 describe('static method generate token()', () => {
-    let user: IUser
+    let user: IUserDoc
 
     beforeAll(async () => {
         user = new User({ wxUnionId: 'wxUnionId', displayId: 'displayId' })
@@ -122,7 +122,7 @@ describe('static method generate token()', () => {
 })
 
 describe('json()', () => {
-    let user: IUser
+    let user: IUserDoc
 
     it('should return display id', async () => {
         user = new User({ wxUnionId: 'wxUnionId', displayId: 'displayId' })
