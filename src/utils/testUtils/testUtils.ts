@@ -3,6 +3,7 @@ import Book from '../../models/book'
 import BookFav from '../../models/bookFav'
 import ChapterDone from '../../models/chapterDone'
 import Chapter from '@/models/chapter'
+import Notebook from '@/models/notebook'
 
 const createUser = async (): Promise<string> => {
     const displayId = '123'
@@ -39,11 +40,24 @@ const createToken = async (userId: string): Promise<string> => {
     return token
 }
 
+const createNotebook = async (
+    userId: string,
+    title: string,
+): Promise<string> => {
+    const notebook = new Notebook({
+        title,
+        user: userId,
+    })
+    await notebook.save()
+    return notebook.id
+}
+
 const cleanDatabase = async () => {
     await Book.deleteMany()
     await User.deleteMany()
     await BookFav.deleteMany()
     await ChapterDone.deleteMany()
+    await Notebook.deleteMany()
 }
 
 const testUtils = {
@@ -52,6 +66,7 @@ const testUtils = {
     createToken,
     cleanDatabase,
     createChapter,
+    createNotebook,
 }
 
 export default testUtils
