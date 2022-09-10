@@ -55,3 +55,35 @@ describe('GET notebooks', () => {
         })
     })
 })
+
+describe('POST notebooks', () => {
+    afterAll(async () => {
+        await Notebook.deleteMany()
+    })
+
+    it('should require auth', async () => {
+        const res = await request(app).post('/api/v1/notebooks')
+        expect(res.status).toBe(401)
+    })
+
+    it('should check req body', async () => {
+        const res = await request(app)
+            .post('/api/v1/notebooks')
+            .set('Authorization', `Bearer ${token}`)
+        expect(res.status).toBe(400)
+    })
+
+    it('should create notebook', async () => {
+        const res = await request(app)
+            .post('/api/v1/notebooks')
+            .set('Authorization', `Bearer ${token}`)
+            .send({ title: 'test notebook' })
+        expect(res.status).toBe(201)
+        expect(res.body).toHaveProperty('notebook')
+        expect(res.body.notebook).toMatchObject({
+            id: expect.any(String),
+            title: 'test notebook',
+            isDefault: expect.any(Boolean),
+        })
+    })
+})

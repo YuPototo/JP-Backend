@@ -11,3 +11,21 @@ export const getNotebooks: RequestHandler = async (req, res, next) => {
         next(err)
     }
 }
+
+export const createNotebook: RequestHandler = async (req, res, next) => {
+    const title = req.body.title
+
+    if (!title) {
+        return res.status(400).json({ message: 'title is required' })
+    }
+
+    try {
+        const notebook = await Notebook.create({
+            title,
+            user: req.user._id,
+        })
+        res.status(201).json({ notebook })
+    } catch (err) {
+        next(err)
+    }
+}
