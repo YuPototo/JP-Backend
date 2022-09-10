@@ -2,7 +2,7 @@ import morgan from 'morgan'
 import morganBody from 'morgan-body'
 import config from '@/config/config'
 import logger from './logger'
-import { nanoid } from './nanoid'
+import { nanoid } from '../nanoid'
 
 import type {
     Express,

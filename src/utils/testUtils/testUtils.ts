@@ -4,7 +4,7 @@ import BookFav from '../../models/bookFav'
 import ChapterDone from '../../models/chapterDone'
 import Chapter from '@/models/chapter'
 import Notebook from '@/models/notebook'
-import { nanoid } from '../logger/nanoid'
+import { nanoid } from '../nanoid'
 
 const createUser = async (): Promise<string> => {
     const displayId = nanoid(6)
