@@ -171,3 +171,79 @@ describe('PATCH notebooks/:notebookId', () => {
         expect(updatedNotebook!.title).toBe('updated notebook')
     })
 })
+
+describe('DELETE notebooks/:notebookId', () => {
+    it('should require auth', async () => {
+        const notebookId = await testUtils.createNotebook(
+            userId,
+            'test notebook',
+        )
+        const res = await request(app).delete(`/api/v1/notebooks/${notebookId}`)
+        expect(res.status).toBe(401)
+    })
+
+    it('should return 401 if notebook belongs to another user', async () => {
+        const newUserId = await testUtils.createUser()
+        const notebookId = await testUtils.createNotebook(
+            newUserId,
+            'test notebook',
+        )
+
+        const res = await request(app)
+            .delete(`/api/v1/notebooks/${notebookId}`)
+            .set('Authorization', `Bearer ${token}`)
+        expect(res.status).toBe(401)
+        expect(res.body).toHaveProperty('message')
+        expect(res.body.message).toBe('你没有权限删除这个笔记本')
+    })
+
+    it('should not delete default notebook', async () => {
+        const notebookId = await testUtils.createNotebook(
+            userId,
+            'test notebook',
+            true,
+        )
+
+        const res = await request(app)
+            .delete(`/api/v1/notebooks/${notebookId}`)
+            .set('Authorization', `Bearer ${token}`)
+        expect(res.status).toBe(400)
+        expect(res.body).toHaveProperty('message')
+        expect(res.body.message).toBe('不能删除默认笔记本')
+    })
+
+    it('should delete notebook', async () => {
+        const notebookId = await testUtils.createNotebook(
+            userId,
+            'test notebook',
+        )
+
+        const res = await request(app)
+            .delete(`/api/v1/notebooks/${notebookId}`)
+            .set('Authorization', `Bearer ${token}`)
+        expect(res.status).toBe(200)
+
+        const deletedNotebook = await Notebook.findById(notebookId)
+        expect(deletedNotebook).toBeNull()
+    })
+
+    it('should be indempotent', async () => {
+        const notebookId = await testUtils.createNotebook(
+            userId,
+            'test notebook',
+        )
+
+        const res = await request(app)
+            .delete(`/api/v1/notebooks/${notebookId}`)
+            .set('Authorization', `Bearer ${token}`)
+        expect(res.status).toBe(200)
+
+        const res2 = await request(app)
+            .delete(`/api/v1/notebooks/${notebookId}`)
+            .set('Authorization', `Bearer ${token}`)
+        expect(res2.status).toBe(200)
+    })
+
+    // todo
+    it.skip('shoud delete all questionSetFav records', async () => {})
+})

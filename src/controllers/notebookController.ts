@@ -64,3 +64,32 @@ export const updateNotebook: RequestHandler = async (req, res, next) => {
         return next(err)
     }
 }
+
+export const deleteNotebook: RequestHandler = async (req, res, next) => {
+    const { notebookId } = req.params
+
+    let notebook: INotebookDoc | null
+    try {
+        notebook = await Notebook.findById(notebookId)
+        if (!notebook) {
+            return res.json({ message: '已删除' })
+        }
+    } catch (err) {
+        return next(err)
+    }
+
+    if (notebook.user.toString() !== req.user.id) {
+        return res.status(401).json({ message: '你没有权限删除这个笔记本' })
+    }
+
+    if (notebook.isDefault) {
+        return res.status(400).json({ message: '不能删除默认笔记本' })
+    }
+
+    try {
+        await notebook.remove()
+        return res.json({ message: '已删除' })
+    } catch (err) {
+        return next(err)
+    }
+}
