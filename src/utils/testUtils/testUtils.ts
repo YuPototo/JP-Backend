@@ -4,10 +4,11 @@ import BookFav from '../../models/bookFav'
 import ChapterDone from '../../models/chapterDone'
 import Chapter from '@/models/chapter'
 import Notebook from '@/models/notebook'
+import { nanoid } from '../logger/nanoid'
 
 const createUser = async (): Promise<string> => {
-    const displayId = '123'
-    const wxUnionId = 'wxUnionId'
+    const displayId = nanoid(6)
+    const wxUnionId = nanoid(6)
     const user = new User({ displayId, wxUnionId })
     await user.save()
     return user.id
@@ -43,10 +44,12 @@ const createToken = async (userId: string): Promise<string> => {
 const createNotebook = async (
     userId: string,
     title: string,
+    isDefault = false,
 ): Promise<string> => {
     const notebook = new Notebook({
         title,
         user: userId,
+        isDefault,
     })
     await notebook.save()
     return notebook.id

@@ -71,6 +71,8 @@ describe('POST notebooks', () => {
             .post('/api/v1/notebooks')
             .set('Authorization', `Bearer ${token}`)
         expect(res.status).toBe(400)
+        expect(res.body).toHaveProperty('message')
+        expect(res.body.message).toBe('title is required')
     })
 
     it('should create notebook', async () => {
@@ -85,5 +87,87 @@ describe('POST notebooks', () => {
             title: 'test notebook',
             isDefault: expect.any(Boolean),
         })
+    })
+})
+
+describe('PATCH notebooks/:notebookId', () => {
+    afterEach(async () => {
+        await Notebook.deleteMany()
+    })
+
+    it('should require auth', async () => {
+        const res = await request(app).post('/api/v1/notebooks')
+        expect(res.status).toBe(401)
+    })
+
+    it('should check req body', async () => {
+        let notebookId = await testUtils.createNotebook(userId, 'test notebook')
+
+        const res = await request(app)
+            .patch(`/api/v1/notebooks/${notebookId}`)
+            .set('Authorization', `Bearer ${token}`)
+        expect(res.status).toBe(400)
+        expect(res.body).toHaveProperty('message')
+        expect(res.body.message).toBe('title is required')
+    })
+
+    it('should return 404 if notebook not found', async () => {
+        const randomId = '631c7e3f5a1bcfdaaa71f3bf'
+        const res = await request(app)
+            .patch(`/api/v1/notebooks/${randomId}`)
+            .set('Authorization', `Bearer ${token}`)
+            .send({ title: 'test notebook' })
+        expect(res.status).toBe(404)
+    })
+
+    it('should return 401 if notebook belongs to another user', async () => {
+        const newUserId = await testUtils.createUser()
+        const notebookId = await testUtils.createNotebook(
+            newUserId,
+            'test notebook',
+        )
+
+        const res = await request(app)
+            .patch(`/api/v1/notebooks/${notebookId}`)
+            .set('Authorization', `Bearer ${token}`)
+            .send({ title: 'test notebook' })
+        expect(res.status).toBe(401)
+        expect(res.body).toHaveProperty('message')
+        expect(res.body.message).toBe('你没有权限修改这个笔记本')
+    })
+
+    it('should not update default notebook', async () => {
+        const notebookId = await testUtils.createNotebook(
+            userId,
+            'test notebook',
+            true,
+        )
+
+        const res = await request(app)
+            .patch(`/api/v1/notebooks/${notebookId}`)
+            .set('Authorization', `Bearer ${token}`)
+            .send({ title: 'test notebook' })
+        expect(res.status).toBe(400)
+        expect(res.body).toHaveProperty('message')
+        expect(res.body.message).toBe('不能修改默认笔记本')
+    })
+
+    it('should update notebook', async () => {
+        let notebookId = await testUtils.createNotebook(userId, 'test notebook')
+
+        const res = await request(app)
+            .patch(`/api/v1/notebooks/${notebookId}`)
+            .set('Authorization', `Bearer ${token}`)
+            .send({ title: 'updated notebook' })
+        expect(res.status).toBe(200)
+        expect(res.body).toHaveProperty('notebook')
+        expect(res.body.notebook).toMatchObject({
+            id: notebookId,
+            title: 'updated notebook',
+            isDefault: expect.any(Boolean),
+        })
+
+        const updatedNotebook = await Notebook.findById(notebookId)
+        expect(updatedNotebook!.title).toBe('updated notebook')
     })
 })
