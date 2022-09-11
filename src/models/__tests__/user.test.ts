@@ -1,4 +1,5 @@
 import User, { IUserDoc } from '../user'
+import Notebook from '../notebook'
 import config from '../../config/config'
 import db from '../../utils/db/dbSingleton'
 import jwt from 'jsonwebtoken'
@@ -128,5 +129,21 @@ describe('json()', () => {
         user = new User({ wxUnionId: 'wxUnionId', displayId: 'displayId' })
         await user.save()
         expect(user.toJSON()).toEqual({ displayId: 'displayId' })
+    })
+})
+
+describe('when usr is created, should create default notebook', () => {
+    it('should create default notebook', async () => {
+        const user = new User({
+            wxUnionId: 'wxUnionId',
+            displayId: 'displayId',
+        })
+        await user.save()
+
+        const notebook = await Notebook.findOne({
+            user: user._id,
+            isDefault: true,
+        })
+        expect(notebook).not.toBeNull()
     })
 })

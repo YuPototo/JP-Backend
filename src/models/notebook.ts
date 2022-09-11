@@ -1,4 +1,5 @@
 import { Schema, Document, model, Model } from 'mongoose'
+import QuestionSetFav from './questionSetFav'
 import { SchemaNames } from './schemaNames'
 
 const COLLECTION_NAME = 'chapter'
@@ -37,8 +38,12 @@ notebookSchema.set('toJSON', {
     },
 })
 
+notebookSchema.pre('remove', async function () {
+    await QuestionSetFav.deleteMany({ notebook: this._id })
+})
+
 export const Notebook: INotebookModel = model<INotebookDoc, INotebookModel>(
-    'Notebook',
+    SchemaNames.Notebook,
     notebookSchema,
 )
 

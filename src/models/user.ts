@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken'
 
 import config from '@/config/config'
 import { SchemaNames } from './schemaNames'
+import Notebook from './notebook'
 
 const COLLECTION_NAME = 'user'
 
@@ -56,6 +57,14 @@ userSchema.set('toJSON', {
         delete ret.__v
         delete ret._id
     },
+})
+
+userSchema.post('save', async function () {
+    await Notebook.create({
+        user: this._id,
+        title: '默认笔记本',
+        isDefault: true,
+    })
 })
 
 userSchema.methods.createToken = function () {

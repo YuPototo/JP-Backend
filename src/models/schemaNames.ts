@@ -7,4 +7,6 @@ export enum SchemaNames {
     BookFav = 'BookFav',
     Chapter = 'Chapter',
     ChapterDone = 'ChapterDone',
+    Notebook = 'Notebook',
+    QuestionSetFav = 'QuestionSetFav',
 }

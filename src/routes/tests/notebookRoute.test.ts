@@ -6,6 +6,7 @@ import db from '../../utils/db/dbSingleton'
 import redis from '../../utils/redis/redisSingleton'
 import testUtils from '../../utils/testUtils/testUtils'
 import Notebook from '../../models/notebook'
+import QuestionSetFav from '../../models/questionSetFav'
 
 let app: Express
 let token: string
@@ -244,6 +245,28 @@ describe('DELETE notebooks/:notebookId', () => {
         expect(res2.status).toBe(200)
     })
 
-    // todo
-    it.skip('shoud delete all questionSetFav records', async () => {})
+    it('shoud delete all questionSetFav records', async () => {
+        const notebookId = await testUtils.createNotebook(
+            userId,
+            'test notebook',
+        )
+        const questionSetId = await testUtils.createQuestionSet()
+
+        await QuestionSetFav.create({
+            user: userId,
+            questionSet: questionSetId,
+            notebook: notebookId,
+        })
+
+        const res = await request(app)
+            .delete(`/api/v1/notebooks/${notebookId}`)
+            .set('Authorization', `Bearer ${token}`)
+        expect(res.status).toBe(200)
+
+        const questionSetFav = await QuestionSetFav.findOne({
+            userId,
+            questionSetId,
+        })
+        expect(questionSetFav).toBeNull()
+    })
 })

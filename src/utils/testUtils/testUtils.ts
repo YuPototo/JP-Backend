@@ -4,7 +4,11 @@ import BookFav from '../../models/bookFav'
 import ChapterDone from '../../models/chapterDone'
 import Chapter from '@/models/chapter'
 import Notebook from '@/models/notebook'
+import QuestionSet from '@/models/questionSet'
 import { nanoid } from '../nanoid'
+import mongoose from 'mongoose'
+import QuestionSetFav from '@/models/questionSetFav'
+import Section from '@/models/section'
 
 const createUser = async (): Promise<string> => {
     const displayId = nanoid(6)
@@ -55,12 +59,33 @@ const createNotebook = async (
     return notebook.id
 }
 
+const createQuestionSet = async (): Promise<string> => {
+    const minimalQuestionSet = {
+        questions: {
+            options: ['1', '2'],
+            answer: 1,
+        },
+    }
+    const questionSet = new QuestionSet(minimalQuestionSet)
+    await questionSet.save()
+    return questionSet.id
+}
+
 const cleanDatabase = async () => {
     await Book.deleteMany()
     await User.deleteMany()
     await BookFav.deleteMany()
     await ChapterDone.deleteMany()
+    await Chapter.deleteMany()
+    await Section.deleteMany()
     await Notebook.deleteMany()
+    await QuestionSet.deleteMany()
+    await QuestionSetFav.deleteMany()
+}
+
+const createRandomMongoId = async (): Promise<string> => {
+    const oid = new mongoose.Types.ObjectId()
+    return oid.toString()
 }
 
 const testUtils = {
@@ -70,6 +95,8 @@ const testUtils = {
     cleanDatabase,
     createChapter,
     createNotebook,
+    createQuestionSet,
+    createRandomMongoId,
 }
 
 export default testUtils
