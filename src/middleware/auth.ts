@@ -56,7 +56,8 @@ export const decipferToken = (token: string) => {
 }
 
 /**
- * ! tech debt: no tests for this middleware
+ * tech debt: no tests for this middleware
+ * I don't create tests for this middleware because the codes has been running for two years without any problems
  */
 export const auth: RequestHandler = async (req, res, next) => {
     let token: string
@@ -114,6 +115,15 @@ export const auth: RequestHandler = async (req, res, next) => {
         next()
     } catch (err) {
         return next(err)
+    }
+}
+
+export const optionalAuth: RequestHandler = async (req, res, next) => {
+    const authHeader = req.header('Authorization')
+    if (!authHeader) {
+        next()
+    } else {
+        auth(req, res, next)
     }
 }
 

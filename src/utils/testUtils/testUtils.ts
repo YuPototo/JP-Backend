@@ -47,7 +47,7 @@ const createToken = async (userId: string): Promise<string> => {
 
 const createNotebook = async (
     userId: string,
-    title: string,
+    title = 'test title',
     isDefault = false,
 ): Promise<string> => {
     const notebook = new Notebook({

@@ -5,6 +5,8 @@ import { createApp } from '../../app'
 import db from '../../utils/db/dbSingleton'
 import QuestionSet from '../../models/questionSet'
 import Audio from '../../models/audio'
+import testUtils from '../../utils/testUtils/testUtils'
+import QuestionSetFav from '../../models/questionSetFav'
 
 // test setup
 const minimalQuestionSet = {
@@ -75,5 +77,51 @@ describe('GET /questionSets/:questionSetId', () => {
             key: 'https://cdn.test.com/test_key',
             title: 'test_title',
         })
+    })
+})
+
+describe('GET questionSets with token', () => {
+    it('should not return isFav if there is not token in header', async () => {
+        const questionSetId = await testUtils.createQuestionSet()
+        const res = await request(app).get(
+            `/api/v1/questionSets/${questionSetId}`,
+        )
+        expect(res.statusCode).toBe(200)
+        expect(res.body).not.toHaveProperty('isFav')
+    })
+
+    it('isFav should be false when user has not saved the questionSet', async () => {
+        const userId = await testUtils.createUser()
+        const token = await testUtils.createToken(userId)
+
+        const questionSetId = await testUtils.createQuestionSet()
+
+        const res = await request(app)
+            .get(`/api/v1/questionSets/${questionSetId}`)
+            .set('Authorization', `Bearer ${token}`)
+        expect(res.statusCode).toBe(200)
+        expect(res.body).toHaveProperty('isFav')
+        expect(res.body.isFav).toBeFalsy()
+    })
+
+    it('should return isFav true when user has saved the questionSet', async () => {
+        const userId = await testUtils.createUser()
+        const token = await testUtils.createToken(userId)
+
+        const questionSetId = await testUtils.createQuestionSet()
+        const notebookId = await testUtils.createNotebook(userId)
+
+        await QuestionSetFav.create({
+            user: userId,
+            notebook: notebookId,
+            questionSet: questionSetId,
+        })
+
+        const res = await request(app)
+            .get(`/api/v1/questionSets/${questionSetId}`)
+            .set('Authorization', `Bearer ${token}`)
+        expect(res.statusCode).toBe(200)
+        expect(res.body).toHaveProperty('isFav')
+        expect(res.body.isFav).toBeTruthy()
     })
 })

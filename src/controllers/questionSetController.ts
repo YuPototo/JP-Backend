@@ -4,6 +4,7 @@ import type { RequestHandler } from 'express'
 import QuestionSet, { IQuestionSetDoc } from '@/models/questionSet'
 import logger from '@/utils/logger/logger'
 import { addReqMetaData } from '@/utils/logger/winstonLogger'
+import QuestionSetFav from '@/models/questionSetFav'
 
 export const getQuestionSet: RequestHandler = async (req, res, next) => {
     const questionSetId = req.params.questionSetId
@@ -35,5 +36,20 @@ export const getQuestionSet: RequestHandler = async (req, res, next) => {
         return
     }
 
-    return res.json({ questionSet })
+    if (req.user) {
+        try {
+            const favRecord = await QuestionSetFav.findOne({
+                user: req.user._id,
+                questionSet: questionSet._id,
+            })
+            return res.json({
+                questionSet,
+                isFav: !!favRecord,
+            })
+        } catch (err) {
+            return next(err)
+        }
+    } else {
+        return res.json({ questionSet })
+    }
 }
