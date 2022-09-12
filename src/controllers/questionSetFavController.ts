@@ -6,7 +6,7 @@ import { MongoError } from 'mongodb'
 import Notebook, { INotebookDoc } from '@/models/notebook'
 
 export const addQuestionSetFav: RequestHandler = async (req, res, next) => {
-    const { notebookId, questionSetId } = req.body
+    const { notebookId, questionSetId } = req.params
 
     if (!notebookId || !questionSetId) {
         return res

@@ -7,10 +7,12 @@ import { auth } from '@/middleware/auth'
 
 const router = Router()
 
-router.route('/questionSetFav').post(auth, addQuestionSetFav)
+router
+    .route('/notebooks/:notebookId/questionSets/:questionSetId')
+    .post(auth, addQuestionSetFav)
 
 router
-    .route('/questionSetFav/:questionSetId')
+    .route('/notebooks/questionSets/:questionSetId')
     .delete(auth, deleteQuestionSetFav)
 
 export default router

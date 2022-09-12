@@ -25,41 +25,24 @@ afterAll(async () => {
     await redis.close()
 })
 
-describe('POST questionSetFav', () => {
+describe('Save questionSet to notebook', () => {
     it('should require auth', async () => {
-        const res = await request(app).post('/api/v1/questionSetFav')
+        const notebookId = await testUtils.createRandomMongoId()
+        const questionSetId = await testUtils.createRandomMongoId()
+        const res = await request(app).post(
+            `/api/v1/notebooks/${notebookId}/questionSets/${questionSetId}`,
+        )
         expect(res.status).toBe(401)
-    })
-
-    it('should check req body', async () => {
-        const res = await request(app)
-            .post('/api/v1/questionSetFav')
-            .set('Authorization', `Bearer ${token}`)
-        expect(res.status).toBe(400)
-        expect(res.body.message).toMatch(/缺少 notebookId 或 questionSetId/)
-
-        const res2 = await request(app)
-            .post('/api/v1/questionSetFav')
-            .set('Authorization', `Bearer ${token}`)
-            .send({ notebookId: '123' })
-        expect(res2.status).toBe(400)
-
-        const res3 = await request(app)
-            .post('/api/v1/questionSetFav')
-            .set('Authorization', `Bearer ${token}`)
-            .send({ questionSetId: '123' })
-        expect(res3.status).toBe(400)
     })
 
     it('should check that notebook exists', async () => {
         const questionSetId = await testUtils.createQuestionSet()
-
         const notebookId = await testUtils.createRandomMongoId()
-
         const res = await request(app)
-            .post('/api/v1/questionSetFav')
+            .post(
+                `/api/v1/notebooks/${notebookId}/questionSets/${questionSetId}`,
+            )
             .set('Authorization', `Bearer ${token}`)
-            .send({ notebookId, questionSetId })
         expect(res.status).toBe(400)
         expect(res.body.message).toMatch(/找不到笔记本/)
     })
@@ -67,11 +50,11 @@ describe('POST questionSetFav', () => {
     it('should check that quetionSet exists', async () => {
         const notebookId = await testUtils.createNotebook(userId, 'test title')
         const questionSetId = await testUtils.createRandomMongoId()
-
         const res = await request(app)
-            .post('/api/v1/questionSetFav')
+            .post(
+                `/api/v1/notebooks/${notebookId}/questionSets/${questionSetId}`,
+            )
             .set('Authorization', `Bearer ${token}`)
-            .send({ notebookId, questionSetId })
         expect(res.status).toBe(500)
         expect(res.body.message).toMatch(/找不到习题/)
     })
@@ -85,9 +68,10 @@ describe('POST questionSetFav', () => {
         const questionSetId = await testUtils.createQuestionSet()
 
         const res = await request(app)
-            .post('/api/v1/questionSetFav')
+            .post(
+                `/api/v1/notebooks/${notebookId}/questionSets/${questionSetId}`,
+            )
             .set('Authorization', `Bearer ${token}`)
-            .send({ notebookId, questionSetId })
         expect(res.status).toBe(401)
         expect(res.body.message).toMatch(/你没有权限为这个笔记本添加题目/)
     })
@@ -95,14 +79,11 @@ describe('POST questionSetFav', () => {
     it('should create questionSetFav', async () => {
         const notebookId = await testUtils.createNotebook(userId, 'test title')
         const questionSetId = await testUtils.createQuestionSet()
-
         const res = await request(app)
-            .post('/api/v1/questionSetFav')
+            .post(
+                `/api/v1/notebooks/${notebookId}/questionSets/${questionSetId}`,
+            )
             .set('Authorization', `Bearer ${token}`)
-            .send({
-                notebookId,
-                questionSetId,
-            })
         expect(res.status).toBe(201)
         expect(res.body).toHaveProperty('questionSetFav')
         expect(res.body.questionSetFav).toMatchObject({
@@ -116,21 +97,19 @@ describe('POST questionSetFav', () => {
         const questionSetId = await testUtils.createQuestionSet()
 
         const res = await request(app)
-            .post('/api/v1/questionSetFav')
+            .post(
+                `/api/v1/notebooks/${notebookId}/questionSets/${questionSetId}`,
+            )
             .set('Authorization', `Bearer ${token}`)
-            .send({
-                notebookId,
-                questionSetId,
-            })
+
         expect(res.status).toBe(201)
 
         const res2 = await request(app)
-            .post('/api/v1/questionSetFav')
+            .post(
+                `/api/v1/notebooks/${notebookId}/questionSets/${questionSetId}`,
+            )
             .set('Authorization', `Bearer ${token}`)
-            .send({
-                notebookId,
-                questionSetId,
-            })
+
         expect(res2.status).toBe(201)
     })
 })
@@ -139,7 +118,7 @@ describe('DELETE questionSetFav', () => {
     it('should require auth', async () => {
         const questionSetId = await testUtils.createQuestionSet()
         const res = await request(app).delete(
-            `/api/v1/questionSetFav/${questionSetId}`,
+            `/api/v1/notebooks/questionSets/${questionSetId}`,
         )
         expect(res.status).toBe(401)
     })
@@ -147,18 +126,16 @@ describe('DELETE questionSetFav', () => {
     it('should delete questionSetFav', async () => {
         const notebookId = await testUtils.createNotebook(userId, 'test title')
         const questionSetId = await testUtils.createQuestionSet()
-
         const res = await request(app)
-            .post('/api/v1/questionSetFav')
+            .post(
+                `/api/v1/notebooks/${notebookId}/questionSets/${questionSetId}`,
+            )
             .set('Authorization', `Bearer ${token}`)
-            .send({
-                notebookId,
-                questionSetId,
-            })
+
         expect(res.status).toBe(201)
 
         const res2 = await request(app)
-            .delete(`/api/v1/questionSetFav/${questionSetId}`)
+            .delete(`/api/v1/notebooks/questionSets/${questionSetId}`)
             .set('Authorization', `Bearer ${token}`)
         expect(res2.status).toBe(200)
 
@@ -174,21 +151,20 @@ describe('DELETE questionSetFav', () => {
         const questionSetId = await testUtils.createQuestionSet()
 
         const res = await request(app)
-            .post('/api/v1/questionSetFav')
+            .post(
+                `/api/v1/notebooks/${notebookId}/questionSets/${questionSetId}`,
+            )
             .set('Authorization', `Bearer ${token}`)
-            .send({
-                notebookId,
-                questionSetId,
-            })
+
         expect(res.status).toBe(201)
 
         const res2 = await request(app)
-            .delete(`/api/v1/questionSetFav/${questionSetId}`)
+            .delete(`/api/v1/notebooks/questionSets/${questionSetId}`)
             .set('Authorization', `Bearer ${token}`)
         expect(res2.status).toBe(200)
 
         const res3 = await request(app)
-            .delete(`/api/v1/questionSetFav/${questionSetId}`)
+            .delete(`/api/v1/notebooks/questionSets/${questionSetId}`)
             .set('Authorization', `Bearer ${token}`)
         expect(res3.status).toBe(200)
     })
