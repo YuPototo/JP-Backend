@@ -40,9 +40,9 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           push: true
-          tags: ${{ steps.meta.outputs.tags }}, ${{ secrets.DOCKERHUB_USERNAME }}/test_ts_api:latest
+          tags: ${{ steps.meta.outputs.tags }}, ${{ secrets.DOCKERHUB_USERNAME }}/riyu:latest
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/test_ts_api:latest
+          cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/riyu:latest
           cache-to: type=inline
 
   deploy:
