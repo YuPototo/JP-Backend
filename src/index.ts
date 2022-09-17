@@ -9,8 +9,7 @@ import config from '@/config/config'
 
 // import addFakeData from './devScripts/fakeData'
 
-redis
-    .open()
+db.open()
     .then(createApp)
     .then((app) => {
         app.listen(config.port, () => {
