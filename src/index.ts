@@ -21,7 +21,7 @@ redis
         })
     })
     .then(() => {
-        //  todo: add fake data
+        //  todo: remove this line
         // addFakeData()
     })
     .catch((err) => {
