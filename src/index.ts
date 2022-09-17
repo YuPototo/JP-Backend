@@ -17,7 +17,7 @@ db.open()
         })
     })
     .then(() => {
-        // redis.open()
+        redis.open()
     })
     .then(() => {
         //  todo: remove this line
