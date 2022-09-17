@@ -19,16 +19,24 @@ class RedisCache {
     }
 
     public open(): Promise<void> {
+        let connectionTimeout: NodeJS.Timeout
+
+        function throwTimeoutError() {
+            connectionTimeout = setTimeout(() => {
+                throw new Error('Redis connection failed')
+            }, 10000)
+        }
+
         return new Promise((resolve) => {
             this._client = createClient({
                 url: config.redisUrl,
-                //  todo: retry_strategy
             })
 
             const client = this._client
 
             client.connect().then(() => {
                 logger.info('Redis: connected')
+                connectionTimeout && clearTimeout(connectionTimeout)
             })
 
             client.on('ready', () => {
@@ -53,6 +61,7 @@ class RedisCache {
 
             client.on('error', function (err: unknown) {
                 logger.error(`Redis: error: ${err}`)
+                throwTimeoutError()
             })
         })
     }
