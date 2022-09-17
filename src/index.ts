@@ -9,7 +9,8 @@ import config from '@/config/config'
 
 // import addFakeData from './devScripts/fakeData'
 
-db.open()
+redis
+    .open()
     .then(createApp)
     .then((app) => {
         app.listen(config.port, () => {
@@ -17,7 +18,7 @@ db.open()
         })
     })
     .then(() => {
-        // redis.open()
+        redis.open()
     })
     .then(() => {
         //  todo: remove this line
