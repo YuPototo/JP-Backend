@@ -19,7 +19,8 @@ import questionSetFavRouter from '@/routes/questionSetFavRoute'
 
 import { addReqMetaData } from './utils/logger/winstonLogger'
 
-const API_PREFIX = '/api/v1'
+const VERSION = 'v1'
+const API_PREFIX = `/api/${VERSION}`
 
 export function createApp(): Express {
     const app = express()
@@ -41,6 +42,13 @@ export function createApp(): Express {
     app.use(`${API_PREFIX}`, chapterDoneRouter)
     app.use(`${API_PREFIX}`, notebookRouter)
     app.use(`${API_PREFIX}`, questionSetFavRouter)
+
+    app.use('/', (req, res) => {
+        res.send(
+            'If you are seeing this page, then api is working! API version: ' +
+                VERSION,
+        )
+    })
 
     // Error-handling middleware: 必须使用 4个 argument
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
