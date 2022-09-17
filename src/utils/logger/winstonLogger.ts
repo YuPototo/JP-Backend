@@ -9,7 +9,7 @@ export type LogLevel =
     | 'error'
     | 'warn'
     | 'info'
-    | 'http'
+    | 'http' // prod
     | 'verbose'
     | 'debug'
     | 'silly'

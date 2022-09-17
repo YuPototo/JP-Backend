@@ -1,0 +1,102 @@
+name: CD
+
+on: 
+  pull_request:
+    branches: ["main"]
+    types:
+      - closed
+
+jobs:
+  build_docker:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v3
+      -
+        name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/test_ts_api
+          tags: |
+            type=sha
+      -
+        name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      -
+        name: Login to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      -
+        name: Build and push
+        uses: docker/build-push-action@v3
+        with:
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}, ${{ secrets.DOCKERHUB_USERNAME }}/test_ts_api:latest
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/test_ts_api:latest
+          cache-to: type=inline
+
+  deploy:
+    needs: build_docker
+    runs-on: ubuntu-latest
+    steps:
+      - name: configure ssh
+        run: |
+          mkdir -p ~/.ssh/
+          echo "$SSH_KEY" > ~/.ssh/staging.key
+          chmod 600 ~/.ssh/staging.key
+          cat >>~/.ssh/config <<END
+          Host prod_server
+            HostName $SSH_HOST
+            User $SSH_USER
+            IdentityFile ~/.ssh/staging.key
+            StrictHostKeyChecking no
+          END
+        env:
+          SSH_USER: ${{ secrets.HOST_USERNAME }}
+          SSH_KEY: ${{ secrets.HOST_PRIVATE_KEY }}
+          SSH_HOST: ${{ secrets.HOST_IP }}
+
+      - name: 写入环境变量
+        run: |
+          ssh prod_server '
+            cd deploy
+            sudo rm -rf .app_env
+            echo "PORT=${{secrets.APP_PORT}}" >> .app_env
+            echo "APP_SECRET=${{secrets.APP_SECRET}}" >> .app_env
+            echo "MONGO_URL=${{secrets.APP_MONGO_URL}}" >> .app_env
+            echo "REDIS_URL=${{secrets.APP_REDIS_URL}}" >> .app_env
+            echo "WX_MINI_APP_ID=${{secrets.APP_WX_MINI_APP_ID}}" >> .app_env
+            echo "WX_MINI_APP_SECRET=${{secrets.APP_WX_MINI_APP_SECRET}}" >> .app_env
+            echo "WX_WEB_APP_ID=${{secrets.APP_WX_WEB_APP_ID}}" >> .app_env
+            echo "WX_WEB_APP_SECRET=${{secrets.APP_WX_WEB_APP_SECRET}}" >> .app_env
+
+          '
+ 
+      - name: pull 并重新运行 compose
+        run: |
+          ssh prod_server '
+            cd deploy
+            sudo docker compose pull
+            sudo docker compose up -d
+          '
+      
+      - name: 删除不需要的 logs
+        run: |
+          ssh prod_server '
+            cd deploy
+            sudo docker image prune -f
+          '
+      
+      - name: 查看 container ls
+        run: ssh prod_server "sudo docker container ls"
+
