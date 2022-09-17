@@ -9,16 +9,15 @@ import config from '@/config/config'
 
 // import addFakeData from './devScripts/fakeData'
 
-redis
-    .open()
-    .then(() => {
-        db.open()
-    })
-    .then(() => createApp())
+db.open()
+    .then(createApp)
     .then((app) => {
         app.listen(config.port, () => {
-            logger.info(`Listening on http://localhost:${config.port}`)
+            logger.info(`Listening on port ${config.port}`)
         })
+    })
+    .then(() => {
+        // redis.open()
     })
     .then(() => {
         //  todo: remove this line

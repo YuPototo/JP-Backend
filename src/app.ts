@@ -21,7 +21,7 @@ import { addReqMetaData } from './utils/logger/winstonLogger'
 
 const API_PREFIX = '/api/v1'
 
-export async function createApp(): Promise<Express> {
+export function createApp(): Express {
     const app = express()
 
     // middleware
