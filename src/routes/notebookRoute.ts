@@ -4,6 +4,7 @@ import {
     createNotebook,
     updateNotebook,
     deleteNotebook,
+    getNotebookQuestionSets,
 } from '@/controllers/notebookController'
 import { auth } from '@/middleware/auth'
 
@@ -14,5 +15,9 @@ router
     .route('/notebooks/:notebookId')
     .patch(auth, updateNotebook)
     .delete(auth, deleteNotebook)
+
+router
+    .route('/notebooks/:notebookId/questionSets')
+    .get(auth, getNotebookQuestionSets)
 
 export default router

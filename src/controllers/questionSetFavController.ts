@@ -3,7 +3,7 @@ import QuestionSetFav from '@/models/questionSetFav'
 import logger from '@/utils/logger/logger'
 import { addReqMetaData } from '@/utils/logger/winstonLogger'
 import { MongoError } from 'mongodb'
-import Notebook, { INotebookDoc } from '@/models/notebook'
+import Notebook, { INotebook } from '@/models/notebook'
 
 export const addQuestionSetFav: RequestHandler = async (req, res, next) => {
     const { notebookId, questionSetId } = req.params
@@ -14,7 +14,7 @@ export const addQuestionSetFav: RequestHandler = async (req, res, next) => {
             .json({ message: '缺少 notebookId 或 questionSetId' })
     }
 
-    let notebook: INotebookDoc | null
+    let notebook: INotebook | null
     try {
         notebook = await Notebook.findById(notebookId)
         if (!notebook) {
