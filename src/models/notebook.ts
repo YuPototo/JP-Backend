@@ -9,6 +9,7 @@ export interface INotebookDoc extends Document {
     title: string
     isDefault: boolean
     user: Schema.Types.ObjectId
+    questionSets: [Schema.Types.ObjectId]
 }
 
 export type INotebookModel = Model<INotebookDoc>
@@ -24,6 +25,11 @@ const notebookSchema = new Schema<INotebookDoc>(
             required: true,
             indexd: true,
         },
+        questionSets: {
+            type: [
+                { type: Schema.Types.ObjectId, ref: SchemaNames.QuestionSet },
+            ],
+        },
     },
     { collection: COLLECTION_NAME },
 )
@@ -35,6 +41,7 @@ notebookSchema.set('toJSON', {
         delete ret.__v
         delete ret._id
         delete ret.user
+        delete ret.questionSets
     },
 })
 
