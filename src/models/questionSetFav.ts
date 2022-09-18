@@ -11,7 +11,9 @@ export interface IQuestionSetFavDoc extends Document {
     questionSet: Schema.Types.ObjectId
 }
 
-export type IQuestionSetFavModel = Model<IQuestionSetFavDoc>
+export interface IQuestionSetFavModel extends Model<IQuestionSetFavDoc> {
+    findNotebookQuestionSetIds(notebookId: string): string
+}
 
 /* schema */
 const questionSetFavSchema = new Schema<
@@ -58,6 +60,15 @@ questionSetFavSchema.post('validate', async function () {
         throw Error(`找不到习题 ${this.questionSet}`)
     }
 })
+
+questionSetFavSchema.statics.findNotebookQuestionSetIds = async function (
+    notebookId: string,
+) {
+    const questionSetFavs = await this.find({ notebook: notebookId })
+    return questionSetFavs.map((questionSetFav) =>
+        questionSetFav.questionSet.toString(),
+    )
+}
 
 export const QuestionSetFav: IQuestionSetFavModel = model<
     IQuestionSetFavDoc,

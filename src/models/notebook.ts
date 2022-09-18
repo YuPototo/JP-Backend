@@ -1,21 +1,20 @@
-import { Schema, Document, model, Model } from 'mongoose'
+import { Schema, model, Types, Model } from 'mongoose'
 import QuestionSetFav from './questionSetFav'
 import { SchemaNames } from './schemaNames'
 
-const COLLECTION_NAME = 'chapter'
+const COLLECTION_NAME = 'notebook'
 
 /* interface */
-export interface INotebookDoc extends Document {
+export interface INotebook {
     title: string
     isDefault: boolean
-    user: Schema.Types.ObjectId
-    questionSets: [Schema.Types.ObjectId]
+    user: Types.ObjectId
 }
 
-export type INotebookModel = Model<INotebookDoc>
+export type NotebookModel = Model<INotebook, Record<string, never>>
 
 /* schema */
-const notebookSchema = new Schema<INotebookDoc>(
+const notebookSchema = new Schema<INotebook, NotebookModel>(
     {
         title: { type: String, required: true },
         isDefault: { type: Boolean, default: false },
@@ -24,11 +23,6 @@ const notebookSchema = new Schema<INotebookDoc>(
             ref: SchemaNames.User,
             required: true,
             indexd: true,
-        },
-        questionSets: {
-            type: [
-                { type: Schema.Types.ObjectId, ref: SchemaNames.QuestionSet },
-            ],
         },
     },
     { collection: COLLECTION_NAME },
@@ -49,7 +43,7 @@ notebookSchema.pre('remove', async function () {
     await QuestionSetFav.deleteMany({ notebook: this._id })
 })
 
-export const Notebook: INotebookModel = model<INotebookDoc, INotebookModel>(
+export const Notebook: NotebookModel = model<INotebook, NotebookModel>(
     SchemaNames.Notebook,
     notebookSchema,
 )

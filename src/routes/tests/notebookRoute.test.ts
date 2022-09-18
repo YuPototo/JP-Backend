@@ -278,3 +278,64 @@ describe('DELETE notebooks/:notebookId', () => {
         expect(questionSetFav).toBeNull()
     })
 })
+
+describe('GET notebooks/:notebookId/questionSets', () => {
+    it('should require auth', async () => {
+        const notebookId = await testUtils.createNotebook(
+            userId,
+            'test notebook',
+        )
+        const res = await request(app).get(
+            `/api/v1/notebooks/${notebookId}/questionSets`,
+        )
+        expect(res.status).toBe(401)
+    })
+
+    it('should return 401 if notebook belongs to another user', async () => {
+        const newUserId = await testUtils.createUser()
+        const notebookId = await testUtils.createNotebook(
+            newUserId,
+            'test notebook',
+        )
+
+        const res = await request(app)
+            .get(`/api/v1/notebooks/${notebookId}/questionSets`)
+            .set('Authorization', `Bearer ${token}`)
+        expect(res.status).toBe(401)
+        expect(res.body).toHaveProperty('message')
+        expect(res.body.message).toBe('你没有权限查看这个笔记本')
+    })
+
+    it('should return 404 if notebook does not exist', async () => {
+        const randomMongoId = await testUtils.createRandomMongoId()
+        const res = await request(app)
+            .get(`/api/v1/notebooks/${randomMongoId}/questionSets`)
+            .set('Authorization', `Bearer ${token}`)
+        expect(res.status).toBe(404)
+        expect(res.body).toHaveProperty('message')
+        expect(res.body.message).toBe('笔记本不存在')
+    })
+
+    it('should return questionSet ids', async () => {
+        const notebookId = await testUtils.createNotebook(
+            userId,
+            'test notebook',
+        )
+        const questionSetId = await testUtils.createQuestionSet()
+
+        await QuestionSetFav.create({
+            user: userId,
+            questionSet: questionSetId,
+            notebook: notebookId,
+        })
+
+        const res = await request(app)
+            .get(`/api/v1/notebooks/${notebookId}/questionSets`)
+            .set('Authorization', `Bearer ${token}`)
+        expect(res.status).toBe(200)
+        expect(res.body).toHaveProperty('questionSets')
+        expect(res.body.questionSets).toEqual(
+            expect.arrayContaining([questionSetId]),
+        )
+    })
+})

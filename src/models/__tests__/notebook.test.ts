@@ -40,7 +40,5 @@ describe('Notebook toJSON method', () => {
             isDefault: false,
             id: notebook.id,
         })
-
-        expect(notebook.toJSON()).not.toHaveProperty('questionSets')
     })
 })

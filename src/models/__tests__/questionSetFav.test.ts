@@ -35,3 +35,21 @@ describe('questionSetFav model', () => {
         await expect(duplicateQuestionSetFav.save()).rejects.toThrow(/E11000/)
     })
 })
+
+describe('static methods: findNotebookQuestionSetIds()', () => {
+    it('should return questionSetIds', async () => {
+        const notebookId = await testUtils.createNotebook(userId, 'test title')
+        const questionSetId = await testUtils.createQuestionSet()
+        const questionSetFav = new QuestionSetFav({
+            user: userId,
+            notebook: notebookId,
+            questionSet: questionSetId,
+        })
+        await questionSetFav.save()
+
+        const questionSetIds = await QuestionSetFav.findNotebookQuestionSetIds(
+            notebookId,
+        )
+        expect(questionSetIds).toEqual([questionSetId])
+    })
+})
