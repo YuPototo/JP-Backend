@@ -27,8 +27,8 @@ afterAll(async () => {
 
 describe('Save questionSet to notebook', () => {
     it('should require auth', async () => {
-        const notebookId = await testUtils.createRandomMongoId()
-        const questionSetId = await testUtils.createRandomMongoId()
+        const notebookId = testUtils.createRandomMongoId()
+        const questionSetId = testUtils.createRandomMongoId()
         const res = await request(app).post(
             `/api/v1/notebooks/${notebookId}/questionSets/${questionSetId}`,
         )
@@ -37,7 +37,7 @@ describe('Save questionSet to notebook', () => {
 
     it('should check that notebook exists', async () => {
         const questionSetId = await testUtils.createQuestionSet()
-        const notebookId = await testUtils.createRandomMongoId()
+        const notebookId = testUtils.createRandomMongoId()
         const res = await request(app)
             .post(
                 `/api/v1/notebooks/${notebookId}/questionSets/${questionSetId}`,
@@ -49,7 +49,7 @@ describe('Save questionSet to notebook', () => {
 
     it('should check that quetionSet exists', async () => {
         const notebookId = await testUtils.createNotebook(userId, 'test title')
-        const questionSetId = await testUtils.createRandomMongoId()
+        const questionSetId = testUtils.createRandomMongoId()
         const res = await request(app)
             .post(
                 `/api/v1/notebooks/${notebookId}/questionSets/${questionSetId}`,

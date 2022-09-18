@@ -1,4 +1,4 @@
-import { Schema, Document, model, Model } from 'mongoose'
+import { Schema, Types, model } from 'mongoose'
 
 import './audio' // 引入 audio，否则不会运行 audio schema 的创建，因为我还没有在其他地方使用 audio
 import { SchemaNames } from './schemaNames'
@@ -6,14 +6,14 @@ import { SchemaNames } from './schemaNames'
 const COLLECTION_NAME = 'questionSet'
 
 /* Question */
-interface IQuestionDoc extends Document {
+interface IQuestion {
     body?: string
     explanation?: string
     options: string[]
     answer: number
 }
 
-const questionSchema = new Schema<IQuestionDoc>(
+const questionSchema = new Schema<IQuestion>(
     {
         body: { type: String },
         explanation: { type: String },
@@ -29,17 +29,15 @@ const questionSchema = new Schema<IQuestionDoc>(
 )
 
 /* QuestionSet - interface */
-export interface IQuestionSetDoc extends Document {
+export interface IQuestionSet {
     body?: string
     explanation?: string
-    questions: IQuestionDoc[]
-    audio?: [Schema.Types.ObjectId]
+    questions: IQuestion[]
+    audio?: [Types.ObjectId]
 }
 
-export type IQuestionSetModel = Model<IQuestionSetDoc>
-
 /* QuestionSet - schema */
-const questionSetSchema = new Schema<IQuestionSetDoc>(
+const questionSetSchema = new Schema<IQuestionSet>(
     {
         body: { type: String },
         explanation: { type: String },
@@ -58,7 +56,7 @@ const questionSetSchema = new Schema<IQuestionSetDoc>(
 )
 
 questionSetSchema.set('toJSON', {
-    transform: function (doc: IQuestionSetDoc, ret) {
+    transform: function (doc: IQuestionSet, ret) {
         ret.id = ret._id.toString()
 
         delete ret.__v
@@ -66,7 +64,7 @@ questionSetSchema.set('toJSON', {
     },
 })
 
-export const QuestionSet = model<IQuestionSetDoc, IQuestionSetModel>(
+export const QuestionSet = model<IQuestionSet>(
     SchemaNames.QuestionSet,
     questionSetSchema,
 )

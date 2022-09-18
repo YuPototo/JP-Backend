@@ -1,21 +1,21 @@
-import { Schema, Document, model, Model } from 'mongoose'
+import { Schema, Types, model, Model } from 'mongoose'
 import { SchemaNames } from './schemaNames'
 import Book from './book'
 
 const COLLECTION_NAME = 'bookFav'
 
 /* interface */
-export interface IBookFavDoc extends Document {
-    user: Schema.Types.ObjectId
-    book: Schema.Types.ObjectId
+export interface IBookFav {
+    user: Types.ObjectId
+    book: Types.ObjectId
 }
 
-export interface IBookFavModel extends Model<IBookFavDoc> {
-    getBookIds: (userId: string) => Promise<string[]>
+interface BookFavModel extends Model<IBookFav> {
+    getUserFavBooks: (userId: string) => Promise<string[]>
 }
 
 /* schema */
-const bookFavSchema = new Schema<IBookFavDoc, IBookFavModel>(
+const bookFavSchema = new Schema<IBookFav, BookFavModel>(
     {
         user: {
             type: Schema.Types.ObjectId,
@@ -41,12 +41,12 @@ bookFavSchema.post('validate', async function () {
     }
 })
 
-bookFavSchema.statics.getBookIds = async function (userId: string) {
+bookFavSchema.statics.getUserFavBooks = async function (userId: string) {
     const bookFavs = await this.find({ user: userId })
     return bookFavs.map((bookFav) => bookFav.book.toString())
 }
 
-export const BookFav = model<IBookFavDoc, IBookFavModel>(
+export const BookFav = model<IBookFav, BookFavModel>(
     SchemaNames.BookFav,
     bookFavSchema,
 )

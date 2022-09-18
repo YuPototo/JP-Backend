@@ -1,19 +1,17 @@
-import { Schema, Document, model, Model } from 'mongoose'
+import { Schema, Types, model } from 'mongoose'
 import { SchemaNames } from './schemaNames'
 
 const COLLECTION_NAME = 'chapter'
 
 /* interface */
-export interface IChapterDoc extends Document {
+export interface IChapter {
     title: string
     desc?: string
-    questionSets: [Schema.Types.ObjectId]
+    questionSets: [Types.ObjectId]
 }
 
-export type IChapterModel = Model<IChapterDoc>
-
 /* schema */
-const chapterSchema = new Schema<IChapterDoc>(
+const chapterSchema = new Schema<IChapter>(
     {
         title: { type: String, required: true },
         desc: { type: String },
@@ -25,7 +23,7 @@ const chapterSchema = new Schema<IChapterDoc>(
 )
 
 chapterSchema.set('toJSON', {
-    transform: function (doc: IChapterDoc, ret) {
+    transform: function (doc: IChapter, ret) {
         ret.id = ret._id.toString()
 
         delete ret.__v
@@ -33,9 +31,6 @@ chapterSchema.set('toJSON', {
     },
 })
 
-export const Chapter = model<IChapterDoc, IChapterModel>(
-    SchemaNames.Chapter,
-    chapterSchema,
-)
+export const Chapter = model<IChapter>(SchemaNames.Chapter, chapterSchema)
 
 export default Chapter

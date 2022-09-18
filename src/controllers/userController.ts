@@ -1,5 +1,5 @@
 import type { RequestHandler } from 'express'
-import User, { IUserDoc } from '@/models/user'
+import User from '@/models/user'
 import wxService from '@/wxService'
 import logger from '@/utils/logger/logger'
 import { getErrorMessage } from '@/utils/errorUtil/errorHandler'
@@ -56,7 +56,7 @@ export const wxLoginHandler: RequestHandler = async (req, res, next) => {
     }
 
     // 根据 union id 查找 user
-    let user: IUserDoc | null = null
+    let user
     try {
         user = await User.findOne({ wxUnionId })
     } catch (err) {

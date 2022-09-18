@@ -307,7 +307,7 @@ describe('GET notebooks/:notebookId/questionSets', () => {
     })
 
     it('should return 404 if notebook does not exist', async () => {
-        const randomMongoId = await testUtils.createRandomMongoId()
+        const randomMongoId = testUtils.createRandomMongoId()
         const res = await request(app)
             .get(`/api/v1/notebooks/${randomMongoId}/questionSets`)
             .set('Authorization', `Bearer ${token}`)

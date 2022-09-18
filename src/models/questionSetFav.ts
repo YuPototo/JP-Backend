@@ -1,25 +1,22 @@
-import { Schema, Document, model, Model } from 'mongoose'
+import { Schema, model, Model, Types } from 'mongoose'
 import { SchemaNames } from './schemaNames'
 import QuestionSet from './questionSet'
 
 const COLLECTION_NAME = 'questionSetFav'
 
 /* interface */
-export interface IQuestionSetFavDoc extends Document {
-    user: Schema.Types.ObjectId
-    notebook: Schema.Types.ObjectId
-    questionSet: Schema.Types.ObjectId
+export interface IQuestionSetFav {
+    user: Types.ObjectId
+    notebook: Types.ObjectId
+    questionSet: Types.ObjectId
 }
 
-export interface IQuestionSetFavModel extends Model<IQuestionSetFavDoc> {
+export interface IQuestionSetFavModel extends Model<IQuestionSetFav> {
     findNotebookQuestionSetIds(notebookId: string): string
 }
 
 /* schema */
-const questionSetFavSchema = new Schema<
-    IQuestionSetFavDoc,
-    IQuestionSetFavModel
->(
+const questionSetFavSchema = new Schema<IQuestionSetFav, IQuestionSetFavModel>(
     {
         user: {
             type: Schema.Types.ObjectId,
@@ -70,9 +67,9 @@ questionSetFavSchema.statics.findNotebookQuestionSetIds = async function (
     )
 }
 
-export const QuestionSetFav: IQuestionSetFavModel = model<
-    IQuestionSetFavDoc,
-    IQuestionSetFavModel
->(SchemaNames.QuestionSetFav, questionSetFavSchema)
+export const QuestionSetFav = model<IQuestionSetFav, IQuestionSetFavModel>(
+    SchemaNames.QuestionSetFav,
+    questionSetFavSchema,
+)
 
 export default QuestionSetFav

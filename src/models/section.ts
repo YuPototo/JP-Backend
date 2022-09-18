@@ -1,16 +1,14 @@
-import { Schema, Document, model, Model, Types } from 'mongoose'
+import { Schema, model, Types } from 'mongoose'
 import { SchemaNames } from './schemaNames'
 
 const COLLECTION_NAME = 'section'
 
-export interface ISectionDoc extends Document {
+export interface ISection {
     title: string
     chapters: [Types.ObjectId]
 }
 
-export type ISectionModel = Model<ISectionDoc>
-
-const sectionSchema = new Schema<ISectionDoc>(
+const sectionSchema = new Schema<ISection>(
     {
         title: { type: String, required: true },
         chapters: {
@@ -21,7 +19,7 @@ const sectionSchema = new Schema<ISectionDoc>(
 )
 
 sectionSchema.set('toJSON', {
-    transform: function (doc: ISectionDoc, ret) {
+    transform: function (doc: ISection, ret) {
         ret.id = ret._id.toString()
 
         delete ret.__v
@@ -29,9 +27,6 @@ sectionSchema.set('toJSON', {
     },
 })
 
-export const Section = model<ISectionDoc, ISectionModel>(
-    SchemaNames.Section,
-    sectionSchema,
-)
+export const Section = model<ISection>(SchemaNames.Section, sectionSchema)
 
 export default Section

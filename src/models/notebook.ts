@@ -1,4 +1,4 @@
-import { Schema, model, Types, Model } from 'mongoose'
+import { Schema, model, Types } from 'mongoose'
 import QuestionSetFav from './questionSetFav'
 import { SchemaNames } from './schemaNames'
 
@@ -11,10 +11,8 @@ export interface INotebook {
     user: Types.ObjectId
 }
 
-export type NotebookModel = Model<INotebook, Record<string, never>>
-
 /* schema */
-const notebookSchema = new Schema<INotebook, NotebookModel>(
+const notebookSchema = new Schema<INotebook>(
     {
         title: { type: String, required: true },
         isDefault: { type: Boolean, default: false },
@@ -43,9 +41,6 @@ notebookSchema.pre('remove', async function () {
     await QuestionSetFav.deleteMany({ notebook: this._id })
 })
 
-export const Notebook: NotebookModel = model<INotebook, NotebookModel>(
-    SchemaNames.Notebook,
-    notebookSchema,
-)
+export const Notebook = model<INotebook>(SchemaNames.Notebook, notebookSchema)
 
 export default Notebook
