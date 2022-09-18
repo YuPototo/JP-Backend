@@ -37,11 +37,7 @@ describe('GET notebooks', () => {
     })
 
     it('should return notebooks', async () => {
-        const notebookId = await testUtils.createNotebook(
-            userId,
-            'test notebook',
-        )
-
+        // default
         const res = await request(app)
             .get('/api/v1/notebooks')
             .set('Authorization', `Bearer ${token}`)
@@ -50,10 +46,22 @@ describe('GET notebooks', () => {
         expect(res.body.notebooks.length).toBe(1)
 
         expect(res.body.notebooks[0]).toMatchObject({
-            id: notebookId,
-            title: 'test notebook',
+            id: expect.any(String),
+            title: '默认笔记本',
             isDefault: expect.any(Boolean),
         })
+
+        //
+        const notebookId = await testUtils.createNotebook(
+            userId,
+            'test notebook',
+        )
+        const res2 = await request(app)
+            .get('/api/v1/notebooks')
+            .set('Authorization', `Bearer ${token}`)
+        expect(res2.status).toBe(200)
+        expect(res2.body).toHaveProperty('notebooks')
+        expect(res2.body.notebooks.length).toBe(2)
     })
 })
 
