@@ -50,7 +50,7 @@ export const deleteBookFav: RequestHandler = async (req, res, next) => {
 
 export const getBookFavs: RequestHandler = async (req, res, next) => {
     try {
-        const books = await BookFav.getBookIds(req.user.id)
+        const books = await BookFav.getUserFavBooks(req.user.id)
 
         return res.status(200).json({ books })
     } catch (err) {

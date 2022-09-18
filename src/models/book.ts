@@ -1,6 +1,6 @@
 import config from '@/config/config'
 import { addCdnDomain } from '@/utils/staticAssets'
-import { Schema, Document, model, Model, Types } from 'mongoose'
+import { Schema, model, Types } from 'mongoose'
 import { SchemaNames } from './schemaNames'
 
 import './section' // 引入 section, 否则不会有 section schema 的创建，因为我还没有在其他地方使用 section
@@ -8,14 +8,14 @@ import './section' // 引入 section, 否则不会有 section schema 的创建�
 const COLLECTION_NAME = 'book'
 
 /* bookCategory - interface */
-interface IBookCategoryDoc extends Document {
+interface IBookCategory {
     key: string
     description?: string // 用于辅助理解
-    child?: IBookCategoryDoc
+    child?: IBookCategory
 }
 
 /* bookCategory - schema */
-const bookCategorySchema = new Schema<IBookCategoryDoc>(
+const bookCategorySchema = new Schema<IBookCategory>(
     {
         key: { type: String, required: true },
         description: { type: String },
@@ -28,19 +28,17 @@ bookCategorySchema.add({
 })
 
 /* book - interface */
-export interface IBookDoc extends Document {
+export interface IBook {
     title: string
     desc: string
     cover: string
     weight: number
     hidden: boolean
-    category: IBookCategoryDoc
+    category: IBookCategory
     sections: [Types.ObjectId]
 }
 
-export type IBookModel = Model<IBookDoc>
-
-const bookSchema = new Schema<IBookDoc>(
+const bookSchema = new Schema<IBook>(
     {
         title: { type: String, required: true },
         desc: { type: String, default: '' },
@@ -57,7 +55,7 @@ const bookSchema = new Schema<IBookDoc>(
 )
 
 bookSchema.set('toJSON', {
-    transform: function (doc: IBookDoc, ret) {
+    transform: function (doc: IBook, ret) {
         ret.id = ret._id.toString()
         ret.cover = addCdnDomain(config.cdnDomain, doc.cover) // 将 cover 的域名补充完整
 
@@ -66,6 +64,6 @@ bookSchema.set('toJSON', {
     },
 })
 
-export const Book = model<IBookDoc, IBookModel>(SchemaNames.Book, bookSchema)
+export const Book = model<IBook>(SchemaNames.Book, bookSchema)
 
 export default Book

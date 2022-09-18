@@ -44,7 +44,7 @@ describe('GET /chapters/:chapterId', () => {
             questionSets: [questionSetOneId, questionSetTwoId],
         })
         await chapter.save()
-        chapterId = chapter._id
+        chapterId = chapter.id
     })
 
     afterAll(async () => {

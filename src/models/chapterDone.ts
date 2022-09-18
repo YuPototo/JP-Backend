@@ -1,21 +1,32 @@
-import { Schema, Document, model, Model } from 'mongoose'
+import { Schema, model, Types, Model } from 'mongoose'
 import { SchemaNames } from './schemaNames'
 
 const COLLECTION_NAME = 'chapterDone'
 
 /* interface */
-export interface IChapterDoneDoc extends Document {
-    user: Schema.Types.ObjectId
-    book: Schema.Types.ObjectId
-    chapters: [Schema.Types.ObjectId]
-
-    addChapter: (chapterId: string) => Promise<void>
+export interface IChapterDone {
+    user: Types.ObjectId
+    book: Types.ObjectId
+    chapters: [Types.ObjectId]
 }
 
-export type IChapterDoneModel = Model<IChapterDoneDoc>
+// Put all user instance methods in this interface:
+interface IChapterDoneMethods {
+    addChapter(chapterId: string): Promise<void>
+}
+
+type ChapterDoneModel = Model<
+    IChapterDone,
+    Record<string, never>,
+    IChapterDoneMethods
+>
 
 /* schema */
-const chapterDoneSchema = new Schema<IChapterDoneDoc>(
+const chapterDoneSchema = new Schema<
+    IChapterDone,
+    ChapterDoneModel,
+    IChapterDoneMethods
+>(
     {
         user: {
             type: Schema.Types.ObjectId,
@@ -47,9 +58,9 @@ chapterDoneSchema.methods.addChapter = async function (chapterId: string) {
     }
 }
 
-export const ChapterDoneModel = model<IChapterDoneDoc, IChapterDoneModel>(
+export const ChapterDone = model<IChapterDone, ChapterDoneModel>(
     SchemaNames.ChapterDone,
     chapterDoneSchema,
 )
 
-export default ChapterDoneModel
+export default ChapterDone

@@ -1,7 +1,7 @@
 import type { RequestHandler } from 'express'
 import { logger } from '@/utils/logger/winstonLogger'
 import { addReqMetaData } from '@/utils/logger/winstonLogger'
-import ChapterDone, { IChapterDoneDoc } from '../models/chapterDone'
+import ChapterDone, { IChapterDone } from '../models/chapterDone'
 
 export const addChapterDone: RequestHandler = async (req, res, next) => {
     const { bookId } = req.params as { bookId: string }
@@ -15,7 +15,7 @@ export const addChapterDone: RequestHandler = async (req, res, next) => {
         return
     }
 
-    let record: IChapterDoneDoc | null
+    let record
     try {
         record = await ChapterDone.findOne({
             user: req.user._id,
@@ -54,7 +54,7 @@ export const addChapterDone: RequestHandler = async (req, res, next) => {
 export const getChapterDone: RequestHandler = async (req, res, next) => {
     const { bookId } = req.params as { bookId: string }
 
-    let record: IChapterDoneDoc | null
+    let record: IChapterDone | null
     try {
         record = await ChapterDone.findOne({
             user: req.user._id,

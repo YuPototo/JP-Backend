@@ -83,8 +83,7 @@ const cleanDatabase = async () => {
     await QuestionSetFav.deleteMany()
 }
 
-// todo: remove async
-const createRandomMongoId = async (): Promise<string> => {
+const createRandomMongoId = (): string => {
     const oid = new mongoose.Types.ObjectId()
     return oid.toString()
 }

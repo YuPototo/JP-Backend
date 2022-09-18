@@ -17,7 +17,7 @@ afterAll(async () => {
     await db.close()
 })
 
-describe('Audio model', () => {
+describe('BookFav model', () => {
     afterEach(async () => {
         await BookFav.deleteMany()
     })

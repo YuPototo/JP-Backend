@@ -7,7 +7,12 @@ import Notebook from './notebook'
 
 const COLLECTION_NAME = 'user'
 
-/* schema */
+/**
+ * Tech debt
+ * 这里使用了 mongoose 不推荐的方法来 type
+ * 因为 mongoose 推荐的方案无法跟 auth 兼容。
+ * 文档没有介绍如何 type 一个 document。
+ */
 export interface IUserDoc extends Document {
     displayId: string
     wxUnionId: string

@@ -1,4 +1,4 @@
-import User, { IUserDoc } from '../user'
+import User from '../user'
 import Notebook from '../notebook'
 import config from '../../config/config'
 import db from '../../utils/db/dbSingleton'
@@ -102,14 +102,13 @@ describe('static method createNewUser()', () => {
 })
 
 describe('static method generate token()', () => {
-    let user: IUserDoc
-
-    beforeAll(async () => {
-        user = new User({ wxUnionId: 'wxUnionId', displayId: 'displayId' })
-        await user.save()
-    })
-
     it('should generate a token', async () => {
+        const user = new User({
+            wxUnionId: 'wxUnionId',
+            displayId: 'displayId',
+        })
+        await user.save()
+
         const token = await user.createToken()
         expect(token).not.toBeNull()
 
@@ -123,10 +122,11 @@ describe('static method generate token()', () => {
 })
 
 describe('json()', () => {
-    let user: IUserDoc
-
     it('should return display id', async () => {
-        user = new User({ wxUnionId: 'wxUnionId', displayId: 'displayId' })
+        const user = new User({
+            wxUnionId: 'wxUnionId',
+            displayId: 'displayId',
+        })
         await user.save()
         expect(user.toJSON()).toEqual({ displayId: 'displayId' })
     })
