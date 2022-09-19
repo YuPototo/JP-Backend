@@ -13,7 +13,7 @@ const router = Router()
 router.route('/notebooks').get(auth, getNotebooks).post(auth, createNotebook)
 router
     .route('/notebooks/:notebookId')
-    .patch(auth, updateNotebook)
+    .post(auth, updateNotebook) // 小程序不支持 PATCH 方法
     .delete(auth, deleteNotebook)
 
 router
