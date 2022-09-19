@@ -99,7 +99,7 @@ describe('POST notebooks', () => {
     })
 })
 
-describe('PATCH notebooks/:notebookId', () => {
+describe('POST notebooks/:notebookId', () => {
     afterEach(async () => {
         await Notebook.deleteMany()
     })
@@ -113,7 +113,7 @@ describe('PATCH notebooks/:notebookId', () => {
         let notebookId = await testUtils.createNotebook(userId, 'test notebook')
 
         const res = await request(app)
-            .patch(`/api/v1/notebooks/${notebookId}`)
+            .post(`/api/v1/notebooks/${notebookId}`)
             .set('Authorization', `Bearer ${token}`)
         expect(res.status).toBe(400)
         expect(res.body).toHaveProperty('message')
@@ -123,7 +123,7 @@ describe('PATCH notebooks/:notebookId', () => {
     it('should return 404 if notebook not found', async () => {
         const randomId = '631c7e3f5a1bcfdaaa71f3bf'
         const res = await request(app)
-            .patch(`/api/v1/notebooks/${randomId}`)
+            .post(`/api/v1/notebooks/${randomId}`)
             .set('Authorization', `Bearer ${token}`)
             .send({ title: 'test notebook' })
         expect(res.status).toBe(404)
@@ -137,7 +137,7 @@ describe('PATCH notebooks/:notebookId', () => {
         )
 
         const res = await request(app)
-            .patch(`/api/v1/notebooks/${notebookId}`)
+            .post(`/api/v1/notebooks/${notebookId}`)
             .set('Authorization', `Bearer ${token}`)
             .send({ title: 'test notebook' })
         expect(res.status).toBe(401)
@@ -153,7 +153,7 @@ describe('PATCH notebooks/:notebookId', () => {
         )
 
         const res = await request(app)
-            .patch(`/api/v1/notebooks/${notebookId}`)
+            .post(`/api/v1/notebooks/${notebookId}`)
             .set('Authorization', `Bearer ${token}`)
             .send({ title: 'test notebook' })
         expect(res.status).toBe(400)
@@ -165,7 +165,7 @@ describe('PATCH notebooks/:notebookId', () => {
         let notebookId = await testUtils.createNotebook(userId, 'test notebook')
 
         const res = await request(app)
-            .patch(`/api/v1/notebooks/${notebookId}`)
+            .post(`/api/v1/notebooks/${notebookId}`)
             .set('Authorization', `Bearer ${token}`)
             .send({ title: 'updated notebook' })
         expect(res.status).toBe(200)
