@@ -16,6 +16,7 @@ import bookFavRouter from '@/routes/bookFavRoute'
 import chapterDoneRouter from '@/routes/chapterDoneRoute'
 import notebookRouter from '@/routes/notebookRoute'
 import questionSetFavRouter from '@/routes/questionSetFavRoute'
+import wrongRecordRouter from '@/routes/wrongRecordRoute'
 
 import { addReqMetaData } from './utils/logger/winstonLogger'
 
@@ -42,8 +43,9 @@ export function createApp(): Express {
     app.use(`${API_PREFIX}`, chapterDoneRouter)
     app.use(`${API_PREFIX}`, notebookRouter)
     app.use(`${API_PREFIX}`, questionSetFavRouter)
+    app.use(`${API_PREFIX}`, wrongRecordRouter)
 
-    app.use('/', (req, res) => {
+    app.use('/check', (req, res) => {
         res.send(
             'If you are seeing this page, then api is working! API version: ' +
                 VERSION,

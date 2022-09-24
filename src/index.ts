@@ -6,6 +6,7 @@ import logger from '@/utils/logger/logger'
 import { getErrorMessage } from './utils/errorUtil/errorHandler'
 
 import config from '@/config/config'
+import { createWrongRecordScheduler } from './utils/schedule/wrongRecordClean'
 
 // import addFakeData from './devScripts/fakeData'
 
@@ -15,6 +16,7 @@ db.open()
         app.listen(config.port, () => {
             logger.info(`Listening on port ${config.port}`)
         })
+        createWrongRecordScheduler()
     })
     .then(() => {
         redis.open()

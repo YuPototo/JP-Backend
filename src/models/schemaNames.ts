@@ -9,4 +9,5 @@ export enum SchemaNames {
     ChapterDone = 'ChapterDone',
     Notebook = 'Notebook',
     QuestionSetFav = 'QuestionSetFav',
+    WrongRecord = 'WrongRecord',
 }
