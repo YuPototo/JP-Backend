@@ -2,7 +2,7 @@ import {
     createWrongRecord,
     getWrongRecords,
     deleteWrongRecord,
-} from '@/controllers/wongRecordController'
+} from '@/controllers/wrongRecordController'
 import { auth } from '@/middleware/auth'
 import { Router } from 'express'
 
