@@ -9,6 +9,7 @@ import { nanoid } from '../nanoid'
 import mongoose from 'mongoose'
 import QuestionSetFav from '@/models/questionSetFav'
 import Section from '@/models/section'
+import AdReward from '@/models/adReward'
 
 const createUser = async (): Promise<string> => {
     const displayId = nanoid(6)
@@ -81,6 +82,7 @@ const cleanDatabase = async () => {
     await Notebook.deleteMany()
     await QuestionSet.deleteMany()
     await QuestionSetFav.deleteMany()
+    await AdReward.deleteMany()
 }
 
 const createRandomMongoId = (): string => {

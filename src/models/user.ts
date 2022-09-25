@@ -18,6 +18,9 @@ export interface IUserDoc extends Document {
     wxUnionId: string
     createdAt: Date
     updatedAt: Date
+    isMember: boolean
+    memberDue?: Date
+    quizChance: number
 
     createToken: () => string
 }
@@ -31,6 +34,9 @@ const userSchema = new Schema<IUserDoc, IUserModel>(
     {
         displayId: { type: String, required: true, unique: true },
         wxUnionId: { type: String, required: true, unique: true },
+        isMember: { type: Boolean, default: false },
+        memberDue: { type: Date },
+        quizChance: { type: Number, default: 30 }, // 新用户默认有30题
     },
     { collection: COLLECTION_NAME, timestamps: true },
 )
