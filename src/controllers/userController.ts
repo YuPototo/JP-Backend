@@ -94,7 +94,7 @@ export const reduceQuizChanceHandler: RequestHandler = async (
     const user = req.user
 
     try {
-        user.quizChance = user.quizChance - 1
+        user.quizChance = user.quizChance - 1 < 0 ? 0 : user.quizChance - 1 
         await user.save()
     } catch (err) {
         return next(err)
