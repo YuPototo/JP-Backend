@@ -122,13 +122,17 @@ describe('static method generate token()', () => {
 })
 
 describe('json()', () => {
-    it('should return display id', async () => {
+    it('should return jsonified obj', async () => {
         const user = new User({
             wxUnionId: 'wxUnionId',
             displayId: 'displayId',
         })
         await user.save()
-        expect(user.toJSON()).toEqual({ displayId: 'displayId' })
+        expect(user.toJSON()).toMatchObject({
+            displayId: 'displayId',
+            isMember: false,
+            quizChances: 30,
+        })
     })
 })
 

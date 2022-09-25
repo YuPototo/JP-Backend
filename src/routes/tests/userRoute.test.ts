@@ -6,6 +6,7 @@ import wxService from '../../wxService'
 import { createApp } from '../../app'
 import db from '../../utils/db/dbSingleton'
 import User from '../../models/user'
+import testUtils from '../../utils/testUtils/testUtils'
 
 let app: Express
 
@@ -140,5 +141,52 @@ describe('微信登录：网页版', () => {
 
         const userAfter = await User.findOne({ wxUnionId })
         expect(userAfter).not.toBeNull()
+    })
+})
+
+describe('PUT /users/reduceQuizChance', () => {
+    it('should require auth', async () => {
+        const res = await request(app).put(`/api/v1/users/reduceQuizChance`)
+        expect(res.statusCode).toBe(401)
+    })
+
+    it('should reducer user quiz chances', async () => {
+        const userId = await testUtils.createUser()
+        const token = await testUtils.createToken(userId)
+
+        const user = await User.findById(userId)
+        const quizChanceBefore = user!.quizChance
+
+        const res = await request(app)
+            .put(`/api/v1/users/reduceQuizChance`)
+            .set('Authorization', `Bearer ${token}`)
+        expect(res.statusCode).toBe(200)
+
+        const userAfter = await User.findById(userId)
+        const quizChanceAfter = userAfter!.quizChance
+        expect(quizChanceAfter).toBe(quizChanceBefore - 1)
+    })
+})
+
+describe('GET /users', () => {
+    it('should require auth', async () => {
+        const res = await request(app).get(`/api/v1/users`)
+        expect(res.statusCode).toBe(401)
+    })
+
+    it('should return user info', async () => {
+        const userId = await testUtils.createUser()
+        const token = await testUtils.createToken(userId)
+
+        const res = await request(app)
+            .get(`/api/v1/users`)
+            .set('Authorization', `Bearer ${token}`)
+        expect(res.statusCode).toBe(200)
+
+        expect(res.body.user).toMatchObject({
+            displayId: expect.any(String),
+            quizChance: expect.any(Number),
+            isMember: false,
+        })
     })
 })

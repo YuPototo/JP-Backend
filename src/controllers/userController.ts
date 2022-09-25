@@ -85,3 +85,26 @@ export const wxLoginHandler: RequestHandler = async (req, res, next) => {
 
     return res.status(201).json({ token, user })
 }
+
+export const reduceQuizChanceHandler: RequestHandler = async (
+    req,
+    res,
+    next,
+) => {
+    const user = req.user
+
+    try {
+        user.quizChance = user.quizChance - 1
+        await user.save()
+    } catch (err) {
+        return next(err)
+    }
+
+    return res.status(200).json({ message: '已减少一次答题机会' })
+}
+
+export const getUserInfoHandler: RequestHandler = async (req, res) => {
+    const user = req.user
+
+    return res.status(200).json({ user })
+}
