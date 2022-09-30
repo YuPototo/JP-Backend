@@ -95,10 +95,19 @@ const config: Config = {
     },
 
     wxMerchant: {
+        // 微信商户平台的 id
         id: (parsedEnv.WX_MERCHANT_ID as number).toString(),
-        apiKey: parsedEnv.WX_MERCHANT_API_KEY as string,
+
+        // 微信商户平台的 api key
+        apiKey: parsedEnv.git as string,
+
+        // 微信支付成功后的通知 url
         notifyURL: parsedEnv.WX_MERCHANT_NOTIFY_URL as string,
+
+        // 微信商户平台的 序列号？？
         serialNo: parsedEnv.WX_MERCHANT_SERIAL_NO as string,
+
+        // 微信商户平台的证书
         privateKeyFile: parsedEnv.WX_MERCHANT_PRIVATE_KEY_FILE as string,
         publicKeyFile: parsedEnv.WX_MERCHANT_PUBLIC_KEY_FILE as string,
     },
