@@ -100,6 +100,7 @@ userSchema.set('toJSON', {
             ret.memberDays = doc.memberDays
         }
 
+        delete ret.memberDue
         delete ret.wxUnionId
         delete ret.wxMiniOpenId
         delete ret.createdAt
