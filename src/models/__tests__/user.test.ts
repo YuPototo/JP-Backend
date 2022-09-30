@@ -131,7 +131,7 @@ describe('json()', () => {
         expect(user.toJSON()).toMatchObject({
             displayId: 'displayId',
             isMember: false,
-            quizChances: 30,
+            quizChance: 30,
         })
     })
 })

@@ -1,15 +1,10 @@
 import User from '../../models/user'
 import Book from '../../models/book'
-import BookFav from '../../models/bookFav'
-import ChapterDone from '../../models/chapterDone'
 import Chapter from '@/models/chapter'
 import Notebook from '@/models/notebook'
 import QuestionSet from '@/models/questionSet'
 import { nanoid } from '../nanoid'
 import mongoose from 'mongoose'
-import QuestionSetFav from '@/models/questionSetFav'
-import Section from '@/models/section'
-import AdReward from '@/models/adReward'
 
 const createUser = async (): Promise<string> => {
     const displayId = nanoid(6)
@@ -73,16 +68,7 @@ const createQuestionSet = async (): Promise<string> => {
 }
 
 const cleanDatabase = async () => {
-    await Book.deleteMany()
-    await User.deleteMany()
-    await BookFav.deleteMany()
-    await ChapterDone.deleteMany()
-    await Chapter.deleteMany()
-    await Section.deleteMany()
-    await Notebook.deleteMany()
-    await QuestionSet.deleteMany()
-    await QuestionSetFav.deleteMany()
-    await AdReward.deleteMany()
+    await mongoose.connection.db.dropDatabase()
 }
 
 const createRandomMongoId = (): string => {

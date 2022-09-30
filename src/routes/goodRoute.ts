@@ -4,6 +4,6 @@ import { getGoodsHandler } from '@/controllers/goodController'
 
 const router = Router()
 
-router.route('/').get(getGoodsHandler)
+router.route('/goods').get(getGoodsHandler)
 
 export default router

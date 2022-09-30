@@ -34,6 +34,15 @@ const goodSchema = new Schema<IGood>(
     { collection: COLLECTION_NAME },
 )
 
+goodSchema.set('toJSON', {
+    transform: function (doc, ret) {
+        ret.id = ret._id.toString()
+
+        delete ret.__v
+        delete ret._id
+    },
+})
+
 export const Good = model<IGood>(SchemaNames.Good, goodSchema)
 
 export default Good
