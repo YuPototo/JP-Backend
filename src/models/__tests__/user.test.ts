@@ -114,12 +114,7 @@ describe('static method createNewUser()', () => {
 
 describe('static method generate token()', () => {
     it('should generate a token', async () => {
-        const user = new User({
-            wxUnionId: 'wxUnionId',
-            displayId: 'displayId',
-        })
-        await user.save()
-
+        const user = await User.createNewUser('wxUnionId')
         const token = await user.createToken()
         expect(token).not.toBeNull()
 
@@ -134,26 +129,26 @@ describe('static method generate token()', () => {
 
 describe('json()', () => {
     it('should return jsonified obj', async () => {
-        const user = new User({
-            wxUnionId: 'wxUnionId',
-            displayId: 'displayId',
-        })
-        await user.save()
+        const user = await User.createNewUser('wxUnionId')
         expect(user.toJSON()).toMatchObject({
-            displayId: 'displayId',
-            quizChance: 30,
+            displayId: expect.any(String),
+            quizChance: expect.any(Number),
+        })
+    })
+
+    it('should return isMember', async () => {
+        const user = await User.createNewUser('wxUnionId')
+        expect(user.toJSON()).toMatchObject({
+            displayId: expect.any(String),
+            quizChance: expect.any(Number),
+            isMember: false,
         })
     })
 })
 
 describe('when usr is created, should create default notebook', () => {
     it('should create default notebook', async () => {
-        const user = new User({
-            wxUnionId: 'wxUnionId',
-            displayId: 'displayId',
-        })
-        await user.save()
-
+        const user = await User.createNewUser('wxUnionId')
         const notebook = await Notebook.findOne({
             user: user._id,
             isDefault: true,

@@ -1,5 +1,6 @@
 import request from 'supertest'
 import { Express } from 'express-serve-static-core'
+import { addDays } from 'date-fns'
 
 import wxService from '../../wxService'
 
@@ -278,6 +279,42 @@ describe('GET /users', () => {
             displayId: expect.any(String),
             quizChance: expect.any(Number),
             isMember: false,
+        })
+    })
+
+    // 对于会员，返回还有几天到期
+    it('should return memberDays', async () => {
+        const memberDueDate = addDays(new Date(), 11)
+        const userId = await testUtils.createUser({ memberDueDate })
+        const token = await testUtils.createToken(userId)
+
+        const res = await request(app)
+            .get(`/api/v1/users`)
+            .set('Authorization', `Bearer ${token}`)
+        expect(res.statusCode).toBe(200)
+        expect(res.body.user).toMatchObject({
+            displayId: expect.any(String),
+            quizChance: expect.any(Number),
+            isMember: true,
+            memberDays: 10,
+        })
+    })
+
+    // 对于已过期会员，返回过期时间
+    it('should return memberDays', async () => {
+        const memberDueDate = addDays(new Date(), -10)
+        const userId = await testUtils.createUser({ memberDueDate })
+        const token = await testUtils.createToken(userId)
+
+        const res = await request(app)
+            .get(`/api/v1/users`)
+            .set('Authorization', `Bearer ${token}`)
+        expect(res.statusCode).toBe(200)
+        expect(res.body.user).toMatchObject({
+            displayId: expect.any(String),
+            quizChance: expect.any(Number),
+            isMember: false,
+            memberDays: -10,
         })
     })
 })

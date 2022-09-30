@@ -7,12 +7,16 @@ import Good from '@/models/good'
 import { nanoid } from '../nanoid'
 import mongoose from 'mongoose'
 
-async function createUser(): Promise<string> {
-    const displayId = nanoid(6)
+async function createUser(arg?: { memberDueDate: Date }): Promise<string> {
     const wxUnionId = nanoid(6)
 
-    const user = new User({ displayId, wxUnionId })
-    await user.save()
+    const user = await User.createNewUser(wxUnionId)
+
+    if (arg) {
+        user.memberDue = arg.memberDueDate
+        await user.save()
+    }
+
     return user.id
 }
 
