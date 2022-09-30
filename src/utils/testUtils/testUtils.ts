@@ -3,6 +3,7 @@ import Book from '../../models/book'
 import Chapter from '@/models/chapter'
 import Notebook from '@/models/notebook'
 import QuestionSet from '@/models/questionSet'
+import Good from '@/models/good'
 import { nanoid } from '../nanoid'
 import mongoose from 'mongoose'
 
@@ -76,6 +77,16 @@ const createRandomMongoId = (): string => {
     return oid.toString()
 }
 
+const createGood = async (): Promise<string> => {
+    const good = new Good({
+        name: 'test good',
+        price: 100,
+        memberDays: 31,
+    })
+    await good.save()
+    return good.id
+}
+
 const testUtils = {
     createUser,
     createBook,
@@ -85,6 +96,7 @@ const testUtils = {
     createNotebook,
     createQuestionSet,
     createRandomMongoId,
+    createGood,
 }
 
 export default testUtils

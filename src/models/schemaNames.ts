@@ -12,4 +12,5 @@ export enum SchemaNames {
     WrongRecord = 'WrongRecord',
     AdReward = 'AdReward',
     Good = 'Good',
+    Order = 'Order',
 }
