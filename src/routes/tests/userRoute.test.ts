@@ -38,18 +38,22 @@ describe('微信登录', () => {
 })
 
 describe('微信登录：小程序 ', () => {
-    const mock = jest.spyOn(wxService, 'getUnionIdByMiniAppCode')
+    const mock = jest.spyOn(wxService, 'getIdByMiniAppCode')
 
     afterEach(async () => {
         await User.deleteMany({})
     })
 
+    // 场景：新用户首次登录发生在小程序
     it('should create a new user when wxUnionId is new', async () => {
         const wxUnionId = 'wxUnionId'
-        const userBefore = await User.findOne({ wxUnionId })
+        const wxMiniOpenId = 'wxMiniOpenId'
+        const userBefore = await User.findOne({ wxUnionId, wxMiniOpenId })
         expect(userBefore).toBeNull()
 
-        mock.mockImplementation(() => Promise.resolve(wxUnionId))
+        mock.mockImplementation(() =>
+            Promise.resolve({ wxUnionId, wxMiniOpenId }),
+        )
 
         const loginCode = 'loginCode'
         const response = await request(app)
@@ -63,27 +67,32 @@ describe('微信登录：小程序 ', () => {
         expect(userAfter).not.toBeNull()
     })
 
+    // 场景：老用户在小程序登录（之前已经在小程序登录过）
     it('should not create a new user when wxUnionId is old', async () => {
-        mock.mockImplementation(() => Promise.resolve('wxUnionId'))
+        const wxUnionId = 'wxUnionId'
+        const wxMiniOpenId = 'wxMiniOpenId'
+        mock.mockImplementation(() =>
+            Promise.resolve({ wxUnionId, wxMiniOpenId }),
+        )
+        const user_t0 = await User.findOne({ wxUnionId, wxMiniOpenId })
+        expect(user_t0).toBeNull()
 
-        const count_1 = await User.countDocuments({})
-
-        const loginCode = 'loginCode'
+        // 首次登录：创建用户
         const responseOne = await request(app)
             .post('/api/v1/users/login/wx/miniApp')
-            .send({ loginCode })
+            .send({ loginCode: 'loginCode_1' })
         expect(responseOne.status).toBe(201)
 
-        const count_2 = await User.countDocuments({})
-        expect(count_2).toBe(count_1 + 1)
+        const user_t1 = await User.findOne({ wxUnionId, wxMiniOpenId })
+        expect(user_t1).not.toBeNull()
 
+        // 再次登录
         const responseTwo = await request(app)
             .post('/api/v1/users/login/wx/miniApp')
-            .send({ loginCode })
+            .send({ loginCode: 'loginCode_2' })
         expect(responseTwo.status).toBe(201)
-
-        const count_3 = await User.countDocuments({})
-        expect(count_3).toBe(count_1 + 1)
+        const user_t2 = await User.findOne({ wxUnionId, wxMiniOpenId })
+        expect(user_t2!.id).toBe(user_t1!.id)
     })
 
     it('should return error message when wxService.getUnionIdByMiniAppCode fails', async () => {
@@ -99,8 +108,11 @@ describe('微信登录：小程序 ', () => {
     })
 
     it('should return user info', async () => {
-        mock.mockImplementation(() => Promise.resolve('wxUnionId'))
-
+        const wxUnionId = 'wxUnionId'
+        const wxMiniOpenId = 'wxMiniOpenId'
+        mock.mockImplementation(() =>
+            Promise.resolve({ wxUnionId, wxMiniOpenId }),
+        )
         const loginCode = 'loginCode'
         const res = await request(app)
             .post('/api/v1/users/login/wx/miniApp')
@@ -128,7 +140,7 @@ describe('微信登录：网页版', () => {
         const userBefore = await User.findOne({ wxUnionId })
         expect(userBefore).toBeNull()
 
-        mock.mockImplementation(() => Promise.resolve(wxUnionId))
+        mock.mockImplementation(() => Promise.resolve({ wxUnionId }))
 
         const loginCode = 'loginCode'
         const response = await request(app)
@@ -141,6 +153,85 @@ describe('微信登录：网页版', () => {
 
         const userAfter = await User.findOne({ wxUnionId })
         expect(userAfter).not.toBeNull()
+    })
+})
+
+describe('微信登录：网页和小程序先后登陆', () => {
+    const mockGetIdByMiniAppCode = jest.spyOn(wxService, 'getIdByMiniAppCode')
+    const mockGetUnionIdByWebCode = jest.spyOn(wxService, 'getUnionIdByWebCode')
+
+    afterEach(async () => {
+        await User.deleteMany({})
+    })
+
+    it('先小程序后网页', async () => {
+        const wxUnionId = 'wxUnionId'
+        const wxMiniOpenId = 'wxMiniOpenId'
+        mockGetIdByMiniAppCode.mockImplementation(() =>
+            Promise.resolve({ wxUnionId, wxMiniOpenId }),
+        )
+        mockGetUnionIdByWebCode.mockImplementation(() =>
+            Promise.resolve({ wxUnionId }),
+        )
+
+        // 先小程序登录
+        const loginCodeMiniApp = 'loginCodeMiniApp'
+        const responseMiniApp = await request(app)
+            .post('/api/v1/users/login/wx/miniApp')
+            .send({ loginCode: loginCodeMiniApp })
+        expect(responseMiniApp.status).toBe(201)
+        expect(responseMiniApp.body.token).toBeDefined()
+
+        // 再网页登录
+        const loginCodeWeb = 'loginCodeWeb'
+        const responseWeb = await request(app)
+            .post('/api/v1/users/login/wx/web')
+            .send({ loginCode: loginCodeWeb })
+        expect(responseWeb.status).toBe(201)
+        expect(responseWeb.body.token).toBeDefined()
+
+        // 确认只创建了一个用户
+        const users = await User.find({})
+        expect(users.length).toBe(1)
+    })
+
+    it('先网页后小程序', async () => {
+        const wxUnionId = 'wxUnionId'
+        const wxMiniOpenId = 'wxMiniOpenId'
+        mockGetIdByMiniAppCode.mockImplementation(() =>
+            Promise.resolve({ wxUnionId, wxMiniOpenId }),
+        )
+        mockGetUnionIdByWebCode.mockImplementation(() =>
+            Promise.resolve({ wxUnionId }),
+        )
+
+        // 先网页登录
+        const loginCodeWeb = 'loginCodeWeb'
+        const responseWeb = await request(app)
+            .post('/api/v1/users/login/wx/web')
+            .send({ loginCode: loginCodeWeb })
+        expect(responseWeb.status).toBe(201)
+        expect(responseWeb.body.token).toBeDefined()
+
+        // 确认此时没有 open id
+        const userBefore = await User.findOne({ wxUnionId })
+        expect(userBefore!.wxMiniOpenId).not.toBeDefined()
+
+        // 再小程序登录
+        const loginCodeMiniApp = 'loginCodeMiniApp'
+        const responseMiniApp = await request(app)
+            .post('/api/v1/users/login/wx/miniApp')
+            .send({ loginCode: loginCodeMiniApp })
+        expect(responseMiniApp.status).toBe(201)
+        expect(responseMiniApp.body.token).toBeDefined()
+
+        // 确认只创建了一个用户
+        const users = await User.find({})
+        expect(users.length).toBe(1)
+
+        // 确认此时有 open id
+        const userAfter = await User.findOne({ wxUnionId })
+        expect(userAfter!.wxMiniOpenId).toBeDefined()
     })
 })
 

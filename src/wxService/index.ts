@@ -1,4 +1,9 @@
-import { getUnionIdByMiniAppCode } from './miniProgram'
+import { getIdByMiniAppCode } from './miniProgram'
 import { getUnionIdByWebCode } from './web'
+import { createPrepayOrder } from './createPrepayOrder'
 
-export default { getUnionIdByMiniAppCode, getUnionIdByWebCode }
+export default {
+    getIdByMiniAppCode,
+    getUnionIdByWebCode,
+    createPrepayOrder,
+}

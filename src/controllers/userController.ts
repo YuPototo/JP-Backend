@@ -36,12 +36,12 @@ export const wxLoginHandler: RequestHandler = async (req, res, next) => {
     }
 
     // 访问微信的 code2session api，获取 union_id
-    let wxUnionId: string
+    let wxRes: { wxUnionId: string; wxMiniOpenId?: string }
     try {
         if (loginPlatform === Platform.miniApp) {
-            wxUnionId = await wxService.getUnionIdByMiniAppCode(loginCode)
+            wxRes = await wxService.getIdByMiniAppCode(loginCode)
         } else if (loginPlatform === Platform.web) {
-            wxUnionId = await wxService.getUnionIdByWebCode(loginCode)
+            wxRes = await wxService.getUnionIdByWebCode(loginCode)
         } else {
             /*
              * tech debt: 增加这个 branch 是为了消除 ts 的报错
@@ -55,35 +55,97 @@ export const wxLoginHandler: RequestHandler = async (req, res, next) => {
         return res.status(500).json({ message })
     }
 
-    // 根据 union id 查找 user
-    let user
-    try {
-        user = await User.findOne({ wxUnionId })
-    } catch (err) {
-        return next(err)
-    }
+    // 小程序登录
 
-    // 如果不存在 user，就创建一个新的 user
-    if (!user) {
-        logger.info(`新用户：${wxUnionId}`, addReqMetaData(req))
+    if (loginPlatform === Platform.miniApp) {
+        const { wxUnionId, wxMiniOpenId } = wxRes
+
+        let user
         try {
-            user = await User.createNewUser(wxUnionId)
+            user = await User.findOne({ wxUnionId, wxMiniOpenId })
+        } catch (err) {
+            const errorMessage = getErrorMessage(err)
+            const message = `平台 ${loginPlatform} - 查询用户失败: ${errorMessage}`
+            logger.error(message, addReqMetaData(req))
+            return res.status(500).json({ message })
+        }
+
+        if (!user) {
+            // 仅查询 wxUnionId
+            try {
+                user = await User.findOne({ wxUnionId })
+                if (user) {
+                    // add open id
+                    user.wxMiniOpenId = wxMiniOpenId
+                    await user.save()
+                }
+            } catch (err) {
+                const errorMessage = getErrorMessage(err)
+                const message = `平台 ${loginPlatform} - 查询用户失败: ${errorMessage}`
+                logger.error(message, addReqMetaData(req))
+                return res.status(500).json({ message })
+            }
+        }
+
+        if (!user) {
+            // 创建用户
+            try {
+                user = await User.createNewUser(wxUnionId, wxMiniOpenId)
+            } catch (err) {
+                const errorMessage = getErrorMessage(err)
+                const message = `平台 ${loginPlatform} - 创建用户失败: ${errorMessage}`
+                logger.error(message, addReqMetaData(req))
+                return res.status(500).json({ message })
+            }
+        }
+
+        // 生成 token 并返回
+        let token: string
+        try {
+            token = user.createToken()
         } catch (err) {
             return next(err)
         }
-    } else {
-        logger.info('这是一个老用户', addReqMetaData(req))
+
+        return res.status(201).json({ token, user })
     }
 
-    // 生成 token 并返回
-    let token: string
-    try {
-        token = user.createToken()
-    } catch (err) {
-        return next(err)
-    }
+    // 网页版登录
+    if (loginPlatform === Platform.web) {
+        const { wxUnionId } = wxRes
 
-    return res.status(201).json({ token, user })
+        let user
+        try {
+            user = await User.findOne({ wxUnionId })
+        } catch (err) {
+            const errorMessage = getErrorMessage(err)
+            const message = `平台 ${loginPlatform} - 查询用户失败: ${errorMessage}`
+            logger.error(message, addReqMetaData(req))
+            return res.status(500).json({ message })
+        }
+
+        if (!user) {
+            // 创建用户
+            try {
+                user = await User.createNewUser(wxUnionId)
+            } catch (err) {
+                const errorMessage = getErrorMessage(err)
+                const message = `平台 ${loginPlatform} - 创建用户失败: ${errorMessage}`
+                logger.error(message, addReqMetaData(req))
+                return res.status(500).json({ message })
+            }
+        }
+
+        // 生成 token 并返回
+        let token: string
+        try {
+            token = user.createToken()
+        } catch (err) {
+            return next(err)
+        }
+
+        return res.status(201).json({ token, user })
+    }
 }
 
 export const reduceQuizChanceHandler: RequestHandler = async (
@@ -94,7 +156,7 @@ export const reduceQuizChanceHandler: RequestHandler = async (
     const user = req.user
 
     try {
-        user.quizChance = user.quizChance - 1 < 0 ? 0 : user.quizChance - 1 
+        user.quizChance = user.quizChance - 1 < 0 ? 0 : user.quizChance - 1
         await user.save()
     } catch (err) {
         return next(err)

@@ -83,7 +83,7 @@ describe('static method createNewUser()', () => {
         await User.deleteMany({})
     })
 
-    it('should create a new user', async () => {
+    it('should create a new user with wxUnionId', async () => {
         const wxUnionId = 'wxUnionId'
         const user = await User.createNewUser(wxUnionId)
         expect(user.wxUnionId).toEqual(wxUnionId)
@@ -98,6 +98,17 @@ describe('static method createNewUser()', () => {
         expect(user.wxUnionId).toEqual(wxUnionId)
 
         await expect(User.createNewUser(wxUnionId)).rejects.toThrow(/wxUnionId/)
+    })
+
+    it('should create a user with wxUnionId and wxMiniOpenId', async () => {
+        const wxUnionId = 'wxUnionId'
+        const wxMiniOpenId = 'wxMiniOpenId'
+        const user = await User.createNewUser(wxUnionId, wxMiniOpenId)
+        expect(user.wxUnionId).toEqual(wxUnionId)
+        expect(user.wxMiniOpenId).toEqual(wxMiniOpenId)
+
+        const userFound = await User.findOne({ wxUnionId, wxMiniOpenId })
+        expect(userFound).not.toBeNull()
     })
 })
 
@@ -130,8 +141,7 @@ describe('json()', () => {
         await user.save()
         expect(user.toJSON()).toMatchObject({
             displayId: 'displayId',
-            isMember: false,
-            quizChances: 30,
+            quizChance: 30,
         })
     })
 })

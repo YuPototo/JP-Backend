@@ -15,31 +15,44 @@ const COLLECTION_NAME = 'user'
  */
 export interface IUserDoc extends Document {
     displayId: string
-    wxUnionId: string
+    wxUnionId: string // 微信开放平台的 open id
     createdAt: Date
     updatedAt: Date
-    isMember: boolean
-    memberDue?: Date
     quizChance: number
+    memberDue?: Date
+    wxMiniOpenId?: string // 微信小程序的 open id
 
     createToken: () => string
+    addMemberDays: (days: number) => void
 }
 
 export interface IUserModel extends Model<IUserDoc> {
     createDisplayId(length: number): string
-    createNewUser(wxUnionId: string): Promise<IUserDoc>
+    createNewUser(wxUnionId: string, wxMiniOpenId?: string): Promise<IUserDoc>
 }
 
 const userSchema = new Schema<IUserDoc, IUserModel>(
     {
         displayId: { type: String, required: true, unique: true },
         wxUnionId: { type: String, required: true, unique: true },
-        isMember: { type: Boolean, default: false },
+        wxMiniOpenId: { type: String },
         memberDue: { type: Date },
         quizChance: { type: Number, default: 30 }, // 新用户默认有30题
     },
-    { collection: COLLECTION_NAME, timestamps: true },
+    {
+        collection: COLLECTION_NAME,
+        timestamps: true,
+    },
 )
+/* virtuals */
+userSchema.virtual('isMember').get(function (this: IUserDoc) {
+    if (this.memberDue) {
+        const now = new Date()
+        return now < this.memberDue
+    } else {
+        return false
+    }
+})
 
 /* Static Methods */
 userSchema.statics.createDisplayId = async function (length: number) {
@@ -53,16 +66,25 @@ userSchema.statics.createDisplayId = async function (length: number) {
     }
 }
 
-userSchema.statics.createNewUser = async function (wxUnionId: string) {
+userSchema.statics.createNewUser = async function (
+    wxUnionId: string,
+    wxMiniOpenId?: string,
+) {
     const displayId = await this.createDisplayId(6)
-    const user = await this.create({ displayId, wxUnionId })
-    return user
+    if (wxMiniOpenId) {
+        const user = await this.create({ displayId, wxUnionId, wxMiniOpenId })
+        return user
+    } else {
+        const user = await this.create({ displayId, wxUnionId })
+        return user
+    }
 }
 
 /* Instance Methods */
 userSchema.set('toJSON', {
     transform: function (doc: IUserDoc, ret) {
         delete ret.wxUnionId
+        delete ret.wxMiniOpenId
         delete ret.createdAt
         delete ret.updatedAt
         delete ret.__v
@@ -84,6 +106,17 @@ userSchema.methods.createToken = function () {
         expiresIn: config.jwtExpireDays,
     })
     return token
+}
+
+userSchema.methods.addMemberDays = async function (days: number) {
+    if (this.isMember) {
+        this.memberDue = new Date(
+            this.memberDue.getTime() + days * 24 * 60 * 60 * 1000,
+        )
+    } else {
+        this.memberDue = new Date(Date.now() + days * 24 * 60 * 60 * 1000)
+    }
+    await this.save()
 }
 
 export const User = model<IUserDoc, IUserModel>(SchemaNames.User, userSchema)
