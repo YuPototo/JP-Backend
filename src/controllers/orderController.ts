@@ -1,6 +1,7 @@
 import type { RequestHandler } from 'express'
 import Order from '@/models/order'
 import Good from '@/models/good'
+import wxServices from '@/wxService'
 
 export const createOrder: RequestHandler = async (req, res, next) => {
     const { goodId } = req.body
@@ -38,6 +39,19 @@ export const createOrder: RequestHandler = async (req, res, next) => {
     }
 
     // 请求下单接口，创建订单
+    const payload = {
+        openId: req.user.wxMiniOpenId as string, // 在小程序里支付时，一定存在
+        outTradeNo: order.tradeId,
+        description: good.name,
+        amountTotal: good.price,
+    }
 
-    res.status(200).json()
+    try {
+        const prepayOrder = await wxServices.createPrepayOrder(payload)
+        return res.status(201).json({ prepayOrder })
+    } catch (err) {
+        // todo: handle payment error
+        next(err)
+        return
+    }
 }

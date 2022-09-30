@@ -49,6 +49,15 @@ interface Config {
         id: string
         secret: string
     }
+
+    // 微信商户平台
+    wxMerchant: {
+        id: string
+        notifyURL: string
+        serialNo: string
+        privateKeyFile: string
+        publicKeyFile: string
+    }
 }
 
 const config: Config = {
@@ -82,6 +91,14 @@ const config: Config = {
     wxWebApp: {
         id: parsedEnv.WX_WEB_APP_ID as string,
         secret: parsedEnv.WX_WEB_APP_SECRET as string,
+    },
+
+    wxMerchant: {
+        id: (parsedEnv.WX_MERCHANT_ID as number).toString(),
+        notifyURL: parsedEnv.WX_MERCHANT_NOTIFY_URL as string,
+        serialNo: parsedEnv.WX_MERCHANT_SERIAL_NO as string,
+        privateKeyFile: parsedEnv.WX_MERCHANT_PRIVATE_KEY_FILE as string,
+        publicKeyFile: parsedEnv.WX_MERCHANT_PUBLIC_KEY_FILE as string,
     },
 }
 
