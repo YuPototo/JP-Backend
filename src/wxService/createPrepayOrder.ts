@@ -166,7 +166,7 @@ export const createPrepayOrder = async (
     if (res.status >= 400) {
         const resData: JsApiError = await res.json()
         const message = `获取微信支付 prepay 订单失败。状态码：${res.status}。`
-        logger.error(resData.message)
+        logger.error(`微信支付返回的消息：${resData.message}`)
         throw new Error(message)
     }
 

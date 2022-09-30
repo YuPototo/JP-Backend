@@ -5,6 +5,7 @@ import wxServices from '@/wxService'
 import { decipherGCM } from '@/utils/decipher'
 import wxServiceConstants from '@/wxService/constants'
 import User from '@/models/user'
+import { logger } from '@/utils/logger/winstonLogger'
 
 export const createOrder: RequestHandler = async (req, res, next) => {
     const { goodId } = req.body
@@ -120,6 +121,8 @@ export const receiveNoticeHandler: RequestHandler = async (req, res, next) => {
     // 解密
     const { resource } = reqBody
     const { ciphertext, associated_data: associatedData, nonce } = resource
+
+    logger.info(resource)
 
     const resourceText = decipherGCM(
         ciphertext,
