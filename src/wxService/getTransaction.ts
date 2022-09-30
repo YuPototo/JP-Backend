@@ -1,6 +1,7 @@
 /* https://pay.weixin.qq.com/wiki/doc/apiv3/apis/chapter3_5_2.shtml */
 
 import { createTextToSign, sign, createAuthToken } from './createAuthToken'
+import fetch from 'cross-fetch'
 
 import { nanoid } from '@/utils/nanoid'
 import wxServiceConstants from './constants'
