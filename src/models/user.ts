@@ -18,12 +18,12 @@ export interface IUserDoc extends Document {
     wxUnionId: string // 微信开放平台的 open id
     createdAt: Date
     updatedAt: Date
-    isMember: boolean
     quizChance: number
     memberDue?: Date
     wxMiniOpenId?: string // 微信小程序的 open id
 
     createToken: () => string
+    addMemberDays: (days: number) => void
 }
 
 export interface IUserModel extends Model<IUserDoc> {
@@ -36,12 +36,23 @@ const userSchema = new Schema<IUserDoc, IUserModel>(
         displayId: { type: String, required: true, unique: true },
         wxUnionId: { type: String, required: true, unique: true },
         wxMiniOpenId: { type: String },
-        isMember: { type: Boolean, default: false },
         memberDue: { type: Date },
         quizChance: { type: Number, default: 30 }, // 新用户默认有30题
     },
-    { collection: COLLECTION_NAME, timestamps: true },
+    {
+        collection: COLLECTION_NAME,
+        timestamps: true,
+    },
 )
+/* virtuals */
+userSchema.virtual('isMember').get(function (this: IUserDoc) {
+    if (this.memberDue) {
+        const now = new Date()
+        return now < this.memberDue
+    } else {
+        return false
+    }
+})
 
 /* Static Methods */
 userSchema.statics.createDisplayId = async function (length: number) {
@@ -95,6 +106,17 @@ userSchema.methods.createToken = function () {
         expiresIn: config.jwtExpireDays,
     })
     return token
+}
+
+userSchema.methods.addMemberDays = async function (days: number) {
+    if (this.isMember) {
+        this.memberDue = new Date(
+            this.memberDue.getTime() + days * 24 * 60 * 60 * 1000,
+        )
+    } else {
+        this.memberDue = new Date(Date.now() + days * 24 * 60 * 60 * 1000)
+    }
+    await this.save()
 }
 
 export const User = model<IUserDoc, IUserModel>(SchemaNames.User, userSchema)

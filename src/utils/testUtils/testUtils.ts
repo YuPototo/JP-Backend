@@ -7,9 +7,10 @@ import Good from '@/models/good'
 import { nanoid } from '../nanoid'
 import mongoose from 'mongoose'
 
-const createUser = async (): Promise<string> => {
+async function createUser(): Promise<string> {
     const displayId = nanoid(6)
     const wxUnionId = nanoid(6)
+
     const user = new User({ displayId, wxUnionId })
     await user.save()
     return user.id
@@ -77,11 +78,16 @@ const createRandomMongoId = (): string => {
     return oid.toString()
 }
 
-const createGood = async (): Promise<string> => {
+const createGood = async (arg?: { memberDays: number }): Promise<string> => {
+    let memberDays = 31
+    if (arg) {
+        memberDays = arg.memberDays
+    }
+
     const good = new Good({
         name: 'test good',
         price: 100,
-        memberDays: 31,
+        memberDays,
     })
     await good.save()
     return good.id

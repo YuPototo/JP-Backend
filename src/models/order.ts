@@ -1,4 +1,3 @@
-import { nanoid } from '@/utils/nanoid'
 import { Schema, model, Types } from 'mongoose'
 import { SchemaNames } from './schemaNames'
 
@@ -17,7 +16,6 @@ export interface IOrder {
     good: Types.ObjectId
     payAmount: number
     status: OrderStatus
-    tradeId: string
     createdAt: Date
     updatedAt: Date
 }
@@ -40,12 +38,6 @@ const orderSchema = new Schema<IOrder>(
         status: {
             type: String,
             default: OrderStatus.Created,
-        },
-        tradeId: {
-            type: String,
-            default: () => {
-                return Date.now() + nanoid(4)
-            },
         },
     },
     { collection: COLLECTION_NAME, timestamps: true },

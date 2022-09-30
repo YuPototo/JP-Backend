@@ -40,7 +40,6 @@ describe('Order model', () => {
             good: good.id,
             payAmount: good.price,
             status: 'created',
-            tradeId: expect.any(String),
         })
     })
 })

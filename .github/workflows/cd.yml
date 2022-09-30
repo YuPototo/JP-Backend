@@ -79,6 +79,12 @@ jobs:
             echo "WX_MINI_APP_SECRET=${{secrets.APP_WX_MINI_APP_SECRET}}" >> .app_env
             echo "WX_WEB_APP_ID=${{secrets.APP_WX_WEB_APP_ID}}" >> .app_env
             echo "WX_WEB_APP_SECRET=${{secrets.APP_WX_WEB_APP_SECRET}}" >> .app_env
+            echo "WX_MERCHANT_ID=${{secrets.APP_WX_MERCHANT_ID}}" >> .app_env
+            echo "WX_MERCHANT_API_KEY=${{secrets.APP_WX_MERCHANT_API_KEY}}" >> .app_env
+            echo "WX_MERCHANT_NOTIFY_URL=${{secrets.APP_WX_MERCHANT_NOTIFY_URL}}" >> .app_env
+            echo "WX_MERCHANT_SERIAL_NO=${{secrets.APP_WX_MERCHANT_SERIAL_NO}}" >> .app_env
+            echo "WX_MERCHANT_PRIVATE_KEY_FILE=${{secrets.APP_WX_MERCHANT_PRIVATE_KEY_FILE}}" >> .app_env
+            echo "WX_MERCHANT_PUBLIC_KEY_FILE=${{secrets.APP_WX_MERCHANT_PUBLIC_KEY_FILE}}" >> .app_env
 
           '
  

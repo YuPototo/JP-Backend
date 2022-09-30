@@ -141,7 +141,6 @@ describe('json()', () => {
         await user.save()
         expect(user.toJSON()).toMatchObject({
             displayId: 'displayId',
-            isMember: false,
             quizChance: 30,
         })
     })
