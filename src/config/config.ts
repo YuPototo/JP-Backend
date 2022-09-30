@@ -99,7 +99,7 @@ const config: Config = {
         id: (parsedEnv.WX_MERCHANT_ID as number).toString(),
 
         // 微信商户平台的 api key
-        apiKey: parsedEnv.git as string,
+        apiKey: parsedEnv.WX_MERCHANT_API_KEY as string,
 
         // 微信支付成功后的通知 url
         notifyURL: parsedEnv.WX_MERCHANT_NOTIFY_URL as string,
