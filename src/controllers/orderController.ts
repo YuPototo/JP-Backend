@@ -5,7 +5,6 @@ import wxServices from '@/wxService'
 import { decipherGCM } from '@/utils/decipher'
 import wxServiceConstants from '@/wxService/constants'
 import User from '@/models/user'
-import { logger } from '@/utils/logger/winstonLogger'
 
 export const createOrder: RequestHandler = async (req, res, next) => {
     const { goodId } = req.body
@@ -122,7 +121,6 @@ export const receiveNoticeHandler: RequestHandler = async (req, res, next) => {
     const { resource } = reqBody
     const { ciphertext, associated_data: associatedData, nonce } = resource
 
-    logger.info(resource)
     const resourceText = decipherGCM(
         ciphertext,
         wxServiceConstants.merchantApiKey,
@@ -195,4 +193,57 @@ export const receiveNoticeHandler: RequestHandler = async (req, res, next) => {
     }
 
     res.json({ code: 'SUCCESS', message: '成功' })
+}
+
+/**
+ * 查询订单状态
+ */
+export const getOrder: RequestHandler = async (req, res, next) => {
+    const { orderId } = req.query as { orderId: string }
+
+    if (!orderId) {
+        return res.status(400).json({ message: 'orderId is required' })
+    }
+
+    let order
+    try {
+        order = await Order.findById(orderId).populate('good')
+        if (!order) {
+            return res.status(404).json({ message: 'order not found' })
+        }
+    } catch (err) {
+        next(err)
+        return
+    }
+
+    if (order.status === OrderStatus.Delivered) {
+        return res.status(200).json({ message: '订单已交付' })
+    }
+
+    // 接下来处理订单为 prepayed 的情况
+    let payResult
+    try {
+        payResult = await wxServices.getTransactionByOrderId(orderId)
+    } catch (err) {
+        next(err)
+        return
+    }
+
+    if (payResult.trade_state === 'SUCCESS') {
+        // 实现添加会员
+
+        try {
+            // good 已经被 populated 了
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            //@ts-ignore
+            await req.user.addMemberDays(order.good.memberDays)
+            return res.json({ message: '完成订单交付' })
+        } catch (err) {
+            return next(err)
+        }
+    } else {
+        res.status(500).json({
+            message: `订单支付失败，状态为 ${payResult.trade_state}`,
+        })
+    }
 }

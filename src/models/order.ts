@@ -4,9 +4,7 @@ import { SchemaNames } from './schemaNames'
 const COLLECTION_NAME = 'order'
 
 export enum OrderStatus {
-    Created = 'created', // 已创建
     Prepayed = 'prepayed', // 已获取 prepay id
-    Payed = 'payed', // 已支付
     Delivered = 'delivered', // 已发货（已修改会员到期时间）
 }
 
@@ -37,7 +35,7 @@ const orderSchema = new Schema<IOrder>(
         },
         status: {
             type: String,
-            default: OrderStatus.Created,
+            default: OrderStatus.Prepayed,
         },
     },
     { collection: COLLECTION_NAME, timestamps: true },

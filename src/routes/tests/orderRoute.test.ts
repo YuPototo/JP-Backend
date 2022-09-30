@@ -99,7 +99,6 @@ describe('Create Order', () => {
 })
 
 describe('Pay Success Notice', () => {
-    const mockPrepayOrder = jest.spyOn(wxService, 'createPrepayOrder')
     const mockDecipher = jest.spyOn(decipher, 'decipherGCM')
 
     const NOTICE_BODY = {
@@ -383,5 +382,113 @@ describe('Pay Success Notice', () => {
         const diffInMs =
             user_t1!.memberDue!.getTime() - user_t0!.memberDue!.getTime()
         expect(diffInMs).toBe(0)
+    })
+})
+
+describe('GET order', () => {
+    const mock = jest.spyOn(wxService, 'getTransactionByOrderId')
+
+    it('should require auth', async () => {
+        const res = await request(app).get('/api/v1/orders')
+
+        expect(res.status).toBe(401)
+    })
+
+    it('should check req param', async () => {
+        const res = await request(app)
+            .get('/api/v1/orders')
+            .set('Authorization', `Bearer ${token}`)
+        expect(res.status).toBe(400)
+    })
+
+    it('should return 404 if order is not found', async () => {
+        const randomId = testUtils.createRandomMongoId()
+        const res = await request(app)
+            .get(`/api/v1/orders?orderId=${randomId}`)
+            .set('Authorization', `Bearer ${token}`)
+        expect(res.status).toBe(404)
+    })
+
+    it('should return 200 if order is already delivered', async () => {
+        const memberDays = 10
+        const goodId = await testUtils.createGood({ memberDays })
+        const userId = await testUtils.createUser()
+        const token = await testUtils.createToken(userId)
+
+        const order = new Order({
+            good: goodId,
+            user: userId,
+            payAmount: 1,
+        })
+        order.status = OrderStatus.Delivered
+        await order.save()
+
+        const res = await request(app)
+            .get(`/api/v1/orders?orderId=${order.id}`)
+            .set('Authorization', `Bearer ${token}`)
+
+        expect(res.status).toBe(200)
+    })
+
+    it('should return fetch order status from wechat if order is prepayed, if SUCCESS, add member days', async () => {
+        const memberDays = 10
+        const goodId = await testUtils.createGood({ memberDays })
+        const userId = await testUtils.createUser()
+        const token = await testUtils.createToken(userId)
+
+        const order = new Order({
+            good: goodId,
+            user: userId,
+            payAmount: 1,
+        })
+        await order.save()
+
+        const user_t0 = await User.findById(userId)
+        expect(user_t0?.memberDue).toBeUndefined()
+
+        mock.mockImplementation(() =>
+            Promise.resolve({ trade_state: 'SUCCESS' }),
+        )
+
+        const res = await request(app)
+            .get(`/api/v1/orders?orderId=${order.id}`)
+            .set('Authorization', `Bearer ${token}`)
+        expect(res.status).toBe(200)
+
+        const user_t1 = await User.findById(userId)
+        expect(user_t1?.memberDue).not.toBeUndefined()
+        const memberDue = user_t1?.memberDue as Date
+
+        const now = new Date()
+        const diffInMs = memberDue.getTime() - now.getTime()
+        const acceptedDiff = 2 * 60 * 1000 // 接受2分钟的误差
+
+        expect(diffInMs - memberDays * 24 * 60 * 60 * 1000).toBeLessThanOrEqual(
+            acceptedDiff,
+        )
+    })
+
+    it('should return 500 if order status is not successful', async () => {
+        const memberDays = 10
+        const goodId = await testUtils.createGood({ memberDays })
+        const userId = await testUtils.createUser()
+        const token = await testUtils.createToken(userId)
+
+        const order = new Order({
+            good: goodId,
+            user: userId,
+            payAmount: 1,
+        })
+        await order.save()
+
+        mock.mockImplementation(() =>
+            Promise.resolve({ trade_state: 'REFUND' }),
+        )
+
+        const res = await request(app)
+            .get(`/api/v1/orders?orderId=${order.id}`)
+            .set('Authorization', `Bearer ${token}`)
+        expect(res.status).toBe(500)
+        expect(res.body.message).toMatch(/REFUND/)
     })
 })
