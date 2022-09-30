@@ -55,6 +55,7 @@ interface Config {
         id: string
         notifyURL: string
         serialNo: string
+        apiKey: string
         privateKeyFile: string
         publicKeyFile: string
     }
@@ -95,6 +96,7 @@ const config: Config = {
 
     wxMerchant: {
         id: (parsedEnv.WX_MERCHANT_ID as number).toString(),
+        apiKey: parsedEnv.WX_MERCHANT_API_KEY as string,
         notifyURL: parsedEnv.WX_MERCHANT_NOTIFY_URL as string,
         serialNo: parsedEnv.WX_MERCHANT_SERIAL_NO as string,
         privateKeyFile: parsedEnv.WX_MERCHANT_PRIVATE_KEY_FILE as string,

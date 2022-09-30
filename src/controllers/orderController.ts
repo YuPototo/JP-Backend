@@ -123,10 +123,9 @@ export const receiveNoticeHandler: RequestHandler = async (req, res, next) => {
     const { ciphertext, associated_data: associatedData, nonce } = resource
 
     logger.info(resource)
-
     const resourceText = decipherGCM(
         ciphertext,
-        wxServiceConstants.merchantPrivateKey,
+        wxServiceConstants.merchantApiKey,
         nonce,
         associatedData,
     )

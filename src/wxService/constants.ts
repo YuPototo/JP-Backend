@@ -8,6 +8,7 @@ const wxServiceConstants = {
     merchantId: config.wxMerchant.id,
     merchantNotifyUrl: config.wxMerchant.notifyURL,
     merchantSerialNo: config.wxMerchant.serialNo,
+    merchantApiKey: config.wxMerchant.apiKey,
     merchantPrivateKey: fs.readFileSync(
         config.wxMerchant.privateKeyFile,
         'utf8',

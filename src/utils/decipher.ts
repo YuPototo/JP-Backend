@@ -18,7 +18,7 @@ export function decipherGCM(
     decipher.setAAD(Buffer.from(associatedData))
 
     const output = Buffer.concat([
-        decipher.update(encrypted.slice(0, -16)),
+        decipher.update(encrypted.subarray(0, -16)),
         decipher.final(),
     ])
 
