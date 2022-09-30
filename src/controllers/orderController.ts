@@ -237,6 +237,8 @@ export const getOrder: RequestHandler = async (req, res, next) => {
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             //@ts-ignore
             await req.user.addMemberDays(order.good.memberDays)
+            order.status = OrderStatus.Delivered
+            await order.save()
             return res.json({ message: '完成订单交付' })
         } catch (err) {
             return next(err)

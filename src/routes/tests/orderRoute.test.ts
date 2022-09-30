@@ -466,6 +466,10 @@ describe('GET order', () => {
         expect(diffInMs - memberDays * 24 * 60 * 60 * 1000).toBeLessThanOrEqual(
             acceptedDiff,
         )
+
+        // 订单应该变为交付状态
+        const orderAfter = await Order.findById(order.id)
+        expect(orderAfter!.status).toBe(OrderStatus.Delivered)
     })
 
     it('should return 500 if order status is not successful', async () => {
