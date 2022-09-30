@@ -11,4 +11,5 @@ export enum SchemaNames {
     QuestionSetFav = 'QuestionSetFav',
     WrongRecord = 'WrongRecord',
     AdReward = 'AdReward',
+    Good = 'Good',
 }
