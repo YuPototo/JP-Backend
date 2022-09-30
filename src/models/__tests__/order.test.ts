@@ -1,4 +1,4 @@
-import Order from '../order'
+import Order, { OrderStatus } from '../order'
 import Good from '../good'
 
 import db from '../../utils/db/dbSingleton'
@@ -39,7 +39,7 @@ describe('Order model', () => {
             user: userId,
             good: good.id,
             payAmount: good.price,
-            status: 'created',
+            status: OrderStatus.Prepayed,
         })
     })
 })

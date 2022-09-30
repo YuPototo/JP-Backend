@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken'
 import config from '@/config/config'
 import { SchemaNames } from './schemaNames'
 import Notebook from './notebook'
+import { addDays, differenceInDays } from 'date-fns'
 
 const COLLECTION_NAME = 'user'
 
@@ -21,6 +22,10 @@ export interface IUserDoc extends Document {
     quizChance: number
     memberDue?: Date
     wxMiniOpenId?: string // 微信小程序的 open id
+
+    // virtuals
+    isMember: boolean
+    memberDays?: number
 
     createToken: () => string
     addMemberDays: (days: number) => void
@@ -54,6 +59,13 @@ userSchema.virtual('isMember').get(function (this: IUserDoc) {
     }
 })
 
+userSchema.virtual('memberDays').get(function (this: IUserDoc) {
+    if (this.memberDue) {
+        const now = new Date()
+        return differenceInDays(this.memberDue, now)
+    }
+})
+
 /* Static Methods */
 userSchema.statics.createDisplayId = async function (length: number) {
     const isUnique = false
@@ -83,6 +95,11 @@ userSchema.statics.createNewUser = async function (
 /* Instance Methods */
 userSchema.set('toJSON', {
     transform: function (doc: IUserDoc, ret) {
+        ret.isMember = doc.isMember
+        if (doc.memberDue) {
+            ret.memberDays = doc.memberDays
+        }
+
         delete ret.wxUnionId
         delete ret.wxMiniOpenId
         delete ret.createdAt
@@ -110,11 +127,9 @@ userSchema.methods.createToken = function () {
 
 userSchema.methods.addMemberDays = async function (days: number) {
     if (this.isMember) {
-        this.memberDue = new Date(
-            this.memberDue.getTime() + days * 24 * 60 * 60 * 1000,
-        )
+        this.memberDue = addDays(this.memberDue, days)
     } else {
-        this.memberDue = new Date(Date.now() + days * 24 * 60 * 60 * 1000)
+        this.memberDue = addDays(new Date(), days)
     }
     await this.save()
 }
