@@ -16,17 +16,6 @@ JSAPI
 https://pay.weixin.qq.com/wiki/doc/apiv3/apis/chapter3_5_1.shtml 
 */
 
-// interface WxOrderInfo {
-//     trade_state:
-//         | 'SUCCESS'
-//         | 'REFUND'
-//         | 'NOTPAY'
-//         | 'CLOSED'
-//         | 'REVOKED'
-//         | 'USERPAYING'
-//         | 'PAYERROR'
-// }
-
 interface JsApiError {
     code: string | number
     message: string
