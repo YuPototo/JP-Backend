@@ -77,7 +77,7 @@ describe('Create Order', () => {
         expect(order).not.toBeNull()
     })
 
-    it('should return prepayOder data', async () => {
+    it('should return prepayOder data and orderId', async () => {
         mock.mockImplementation(() =>
             Promise.resolve({
                 package: 'pakcage',
@@ -94,7 +94,8 @@ describe('Create Order', () => {
             .send({ goodId })
 
         expect(res.statusCode).toBe(201)
-        expect(res.body.prepayOrder).not.toBeNull()
+        expect(res.body).toHaveProperty('prepayOrder')
+        expect(res.body).toHaveProperty('orderId')
     })
 })
 
@@ -428,6 +429,7 @@ describe('GET order', () => {
             .set('Authorization', `Bearer ${token}`)
 
         expect(res.status).toBe(200)
+        expect(res.body.state).toBe('SUCCESS')
     })
 
     it('should return fetch order status from wechat if order is prepayed, if SUCCESS, add member days', async () => {
@@ -454,6 +456,7 @@ describe('GET order', () => {
             .get(`/api/v1/orders?orderId=${order.id}`)
             .set('Authorization', `Bearer ${token}`)
         expect(res.status).toBe(200)
+        expect(res.body.state).toBe('SUCCESS')
 
         const user_t1 = await User.findById(userId)
         expect(user_t1?.memberDue).not.toBeUndefined()
@@ -472,7 +475,7 @@ describe('GET order', () => {
         expect(orderAfter!.status).toBe(OrderStatus.Delivered)
     })
 
-    it('should return 500 if order status is not successful', async () => {
+    it('should return 200 if order status is not successful', async () => {
         const memberDays = 10
         const goodId = await testUtils.createGood({ memberDays })
         const userId = await testUtils.createUser()
@@ -492,7 +495,8 @@ describe('GET order', () => {
         const res = await request(app)
             .get(`/api/v1/orders?orderId=${order.id}`)
             .set('Authorization', `Bearer ${token}`)
-        expect(res.status).toBe(500)
+        expect(res.status).toBe(200)
+        expect(res.body.state).toBe('FAIL')
         expect(res.body.message).toMatch(/REFUND/)
     })
 })

@@ -51,7 +51,7 @@ export const createOrder: RequestHandler = async (req, res, next) => {
 
     try {
         const prepayOrder = await wxServices.createPrepayOrder(payload)
-        return res.status(201).json({ prepayOrder })
+        return res.status(201).json({ prepayOrder, orderId: order.id })
     } catch (err) {
         next(err)
         return
@@ -199,6 +199,7 @@ export const receiveNoticeHandler: RequestHandler = async (req, res, next) => {
  * 查询订单状态
  */
 export const getOrder: RequestHandler = async (req, res, next) => {
+    return res.status(200).json({ message: 'abc', state: 'FAIL' })
     const { orderId } = req.query as { orderId: string }
 
     if (!orderId) {
@@ -217,7 +218,7 @@ export const getOrder: RequestHandler = async (req, res, next) => {
     }
 
     if (order.status === OrderStatus.Delivered) {
-        return res.status(200).json({ message: '订单已交付' })
+        return res.status(200).json({ message: '订单已交付', state: 'SUCCESS' })
     }
 
     // 接下来处理订单为 prepayed 的情况
@@ -239,13 +240,14 @@ export const getOrder: RequestHandler = async (req, res, next) => {
             await req.user.addMemberDays(order.good.memberDays)
             order.status = OrderStatus.Delivered
             await order.save()
-            return res.json({ message: '完成订单交付' })
+            return res.json({ message: '已完成订单交付', state: 'SUCCESS' })
         } catch (err) {
             return next(err)
         }
     } else {
-        res.status(500).json({
+        res.status(200).json({
             message: `订单支付失败，状态为 ${payResult.trade_state}`,
+            state: 'FAIL',
         })
     }
 }
