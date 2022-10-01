@@ -6,7 +6,7 @@ import wxService from '../../wxService'
 
 import { createApp } from '../../app'
 import db from '../../utils/db/dbSingleton'
-import User from '../../models/user'
+import User, { Role } from '../../models/user'
 import testUtils from '../../utils/testUtils/testUtils'
 
 let app: Express
@@ -64,7 +64,7 @@ describe('微信登录：小程序 ', () => {
         expect(response.status).toBe(201)
         expect(response.body.token).toBeDefined()
 
-        const userAfter = await User.findOne({ wxUnionId })
+        const userAfter = await User.findOne({ wxUnionId, wxMiniOpenId })
         expect(userAfter).not.toBeNull()
     })
 
@@ -315,6 +315,72 @@ describe('GET /users', () => {
             quizChance: expect.any(Number),
             isMember: false,
             memberDays: -10,
+        })
+    })
+})
+
+describe('后台登录', () => {
+    beforeAll(async () => {
+        const user = await User.createNewUser('wxUnionId')
+
+        user.adminPassword = 'adminPassword'
+        user.adminUsername = 'adminUsername'
+        user.role = Role.Admin
+        await user.save()
+    })
+
+    afterAll(async () => {
+        await User.deleteMany({})
+    })
+
+    it('should check body', async () => {
+        const res = await request(app).post('/api/v1/users/login/admin')
+        expect(res.status).toBe(400)
+        expect(res.body.message).toBe('需要 username')
+
+        const res2 = await request(app).post('/api/v1/users/login/admin').send({
+            username: 'username',
+        })
+        expect(res2.status).toBe(400)
+        expect(res2.body.message).toBe('需要 password')
+
+        const res3 = await request(app).post('/api/v1/users/login/admin').send({
+            password: 'password',
+        })
+        expect(res3.status).toBe(400)
+        expect(res3.body.message).toBe('需要 username')
+    })
+
+    it('should return 404 if username not found', async () => {
+        const res = await request(app).post('/api/v1/users/login/admin').send({
+            username: 'some_username',
+            password: 'password',
+        })
+        expect(res.status).toBe(404)
+        expect(res.body.message).toBe('找不到用户')
+    })
+
+    it('should return 400 if usernamd and password not match', async () => {
+        const res = await request(app).post('/api/v1/users/login/admin').send({
+            username: 'adminUsername',
+            password: 'wrongPassWord',
+        })
+        expect(res.status).toBe(400)
+        expect(res.body.message).toBe('密码错误')
+    })
+
+    it('should return token and user info if matched', async () => {
+        const res = await request(app).post('/api/v1/users/login/admin').send({
+            username: 'adminUsername',
+            password: 'adminPassword',
+        })
+        expect(res.status).toBe(200)
+        expect(res.body).toMatchObject({
+            token: expect.any(String),
+            user: {
+                adminUsername: 'adminUsername',
+                role: Role.Admin,
+            },
         })
     })
 })

@@ -199,7 +199,6 @@ export const receiveNoticeHandler: RequestHandler = async (req, res, next) => {
  * 查询订单状态
  */
 export const getOrder: RequestHandler = async (req, res, next) => {
-    return res.status(200).json({ message: 'abc', state: 'FAIL' })
     const { orderId } = req.query as { orderId: string }
 
     if (!orderId) {

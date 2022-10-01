@@ -8,6 +8,12 @@ import { addDays, differenceInDays } from 'date-fns'
 
 const COLLECTION_NAME = 'user'
 
+export enum Role {
+    User = 'uer',
+    Admin = 'admin',
+    Editor = 'editor',
+}
+
 /**
  * Tech debt
  * 这里使用了 mongoose 不推荐的方法来 type
@@ -22,6 +28,9 @@ export interface IUserDoc extends Document {
     quizChance: number
     memberDue?: Date
     wxMiniOpenId?: string // 微信小程序的 open id
+    role: Role // 用户的角色
+    adminUsername?: string // admin 用户的用户名
+    adminPassword?: string // admin 用户的密码
 
     // virtuals
     isMember: boolean
@@ -43,6 +52,9 @@ const userSchema = new Schema<IUserDoc, IUserModel>(
         wxMiniOpenId: { type: String },
         memberDue: { type: Date },
         quizChance: { type: Number, default: 30 }, // 新用户默认有30题
+        role: { type: String, enum: Role, default: Role.User },
+        adminUsername: { type: String },
+        adminPassword: { type: String },
     },
     {
         collection: COLLECTION_NAME,
@@ -107,6 +119,7 @@ userSchema.set('toJSON', {
         delete ret.updatedAt
         delete ret.__v
         delete ret._id
+        delete ret.password
     },
 })
 

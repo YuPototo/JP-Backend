@@ -1,4 +1,4 @@
-import User from '../user'
+import User, { Role } from '../user'
 import Notebook from '../notebook'
 import config from '../../config/config'
 import db from '../../utils/db/dbSingleton'
@@ -33,6 +33,7 @@ describe('create user with new keyword', () => {
         expect(userFound!.displayId).toEqual(displayId)
         expect(userFound!.wxUnionId).toEqual(wxUnionId)
         expect(userFound!.createdAt).not.toBeNull()
+        expect(userFound!.role).toBe(Role.User)
     })
 
     it('should throw error when displayId is not unique', async () => {

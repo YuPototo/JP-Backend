@@ -170,3 +170,46 @@ export const getUserInfoHandler: RequestHandler = async (req, res) => {
 
     return res.status(200).json({ user })
 }
+
+/**
+ * 后台用户的 login
+ */
+export const adminLoginHandler: RequestHandler = async (req, res, next) => {
+    const { username, password } = req.body
+
+    if (!username) {
+        return res.status(400).json({ message: '需要 username' })
+    }
+    if (!password) {
+        return res.status(400).json({ message: '需要 password' })
+    }
+
+    let user
+    try {
+        user = await User.findOne({ adminUsername: username })
+    } catch (err) {
+        next(err)
+        return
+    }
+
+    if (!user) {
+        return res.status(404).json({ message: '找不到用户' })
+    }
+
+    if (user.adminPassword !== password) {
+        return res.status(400).json({ message: '密码错误' })
+    }
+
+    try {
+        const token = user.createToken()
+        return res.json({
+            token,
+            user: {
+                adminUsername: user.adminUsername,
+                role: user.role,
+            },
+        })
+    } catch (err) {
+        return next(err)
+    }
+}
