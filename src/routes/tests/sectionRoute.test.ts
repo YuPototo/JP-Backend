@@ -22,11 +22,10 @@ afterAll(async () => {
  * 修改 section
  */
 describe('PATCH /sections/:sectionId', () => {
-    let editorUserId: string
     let editorToken: string
 
     beforeAll(async () => {
-        editorUserId = await testUtils.createUser({ role: Role.Admin })
+        const editorUserId = await testUtils.createUser({ role: Role.Editor })
         editorToken = await testUtils.createToken(editorUserId)
     })
 

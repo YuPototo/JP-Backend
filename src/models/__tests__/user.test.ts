@@ -27,7 +27,7 @@ describe('create user with new keyword', () => {
         const user = new User({ displayId, wxUnionId })
         await user.save()
 
-        const userFound = await User.findOne()
+        const userFound = await User.findOne({ wxUnionId })
 
         expect(userFound).not.toBeNull()
         expect(userFound!.displayId).toEqual(displayId)

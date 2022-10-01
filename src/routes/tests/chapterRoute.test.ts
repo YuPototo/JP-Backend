@@ -4,15 +4,8 @@ import { Express } from 'express-serve-static-core'
 import { createApp } from '../../app'
 import db from '../../utils/db/dbSingleton'
 import Chapter from '../../models/chapter'
-import QuestionSet from '../../models/questionSet'
-
-// test setup
-const minimalQuestionSet = {
-    questions: {
-        options: ['1', '2'],
-        answer: 1,
-    },
-}
+import testUtils from '../../utils/testUtils/testUtils'
+import { Role } from '../../models/user'
 
 let app: Express
 
@@ -22,6 +15,7 @@ beforeAll(async () => {
 })
 
 afterAll(async () => {
+    await testUtils.cleanDatabase()
     await db.close()
 })
 
@@ -31,24 +25,14 @@ describe('GET /chapters/:chapterId', () => {
     let questionSetTwoId: string
 
     beforeAll(async () => {
-        const questionSetOne = new QuestionSet(minimalQuestionSet)
-        await questionSetOne.save()
-        questionSetOneId = questionSetOne._id.toString()
-
-        const questionSetTwo = new QuestionSet(minimalQuestionSet)
-        await questionSetTwo.save()
-        questionSetTwoId = questionSetTwo._id.toString()
-
+        questionSetOneId = await testUtils.createQuestionSet()
+        questionSetTwoId = await testUtils.createQuestionSet()
         const chapter = new Chapter({
             title: 'test chapter',
             questionSets: [questionSetOneId, questionSetTwoId],
         })
         await chapter.save()
         chapterId = chapter.id
-    })
-
-    afterAll(async () => {
-        await Chapter.deleteMany({})
     })
 
     it('should return 400 when chapter is not valid mongoID', async () => {
@@ -71,6 +55,105 @@ describe('GET /chapters/:chapterId', () => {
             id: chapterId,
             title: 'test chapter',
             questionSets: [questionSetOneId, questionSetTwoId],
+        })
+    })
+})
+
+describe('PATCH /chapters/:chapterId', () => {
+    let chapterId: string
+    let editorToken: string
+
+    beforeAll(async () => {
+        const chapter = new Chapter({
+            title: 'test chapter',
+            questionSets: [],
+        })
+        await chapter.save()
+        chapterId = chapter.id
+
+        const editorUserId = await testUtils.createUser({ role: Role.Editor })
+        editorToken = await testUtils.createToken(editorUserId)
+    })
+
+    it('should require auth', async () => {
+        const res = await request(app).patch(`/api/v1/chapters/${chapterId}`)
+        expect(res.statusCode).toBe(401)
+    })
+
+    it('should not allow normal user to access', async () => {
+        const userId = await testUtils.createUser()
+        const token = await testUtils.createToken(userId)
+        const res = await request(app)
+            .patch(`/api/v1/chapters/${chapterId}`)
+            .set('Authorization', `Bearer ${token}`)
+        expect(res.statusCode).toBe(401)
+    })
+
+    it('should check input', async () => {
+        const res = await request(app)
+            .patch(`/api/v1/chapters/${chapterId}`)
+            .set('Authorization', `Bearer ${editorToken}`)
+
+        expect(res.statusCode).toBe(400)
+        expect(res.body.message).toBe('req body 为空')
+    })
+
+    it('should only allow title and desc', async () => {
+        const res = await request(app)
+            .patch(`/api/v1/chapters/${chapterId}`)
+            .set('Authorization', `Bearer ${editorToken}`)
+            .send({ abc: 'abc' })
+
+        expect(res.statusCode).toBe(400)
+        expect(res.body.message).toBe('req body 有不允许的属性')
+    })
+
+    it('should check if title is empty', async () => {
+        const res = await request(app)
+            .patch(`/api/v1/chapters/${chapterId}`)
+            .set('Authorization', `Bearer ${editorToken}`)
+            .send({ title: '' })
+
+        expect(res.statusCode).toBe(400)
+        expect(res.body.message).toBe('标题不可为空')
+    })
+
+    it('should check if chapter exists', async () => {
+        const falseId = '61502602e94950fbe7a0075d'
+        const res = await request(app)
+            .patch(`/api/v1/chapters/${falseId}`)
+            .set('Authorization', `Bearer ${editorToken}`)
+            .send({ title: 'new title' })
+
+        expect(res.statusCode).toBe(404)
+        expect(res.body.message).toMatch(/找不到 chapter/)
+    })
+
+    it('should be able to update chapter title', async () => {
+        const res = await request(app)
+            .patch(`/api/v1/chapters/${chapterId}`)
+            .set('Authorization', `Bearer ${editorToken}`)
+            .send({ title: 'new title' })
+
+        expect(res.statusCode).toBe(200)
+        expect(res.body).toHaveProperty('chapter')
+        expect(res.body.chapter).toMatchObject({
+            id: chapterId,
+            title: 'new title',
+        })
+    })
+
+    it('should be able to update chapter desc', async () => {
+        const res = await request(app)
+            .patch(`/api/v1/chapters/${chapterId}`)
+            .set('Authorization', `Bearer ${editorToken}`)
+            .send({ desc: 'new desc' })
+
+        expect(res.statusCode).toBe(200)
+        expect(res.body).toHaveProperty('chapter')
+        expect(res.body.chapter).toMatchObject({
+            id: chapterId,
+            desc: 'new desc',
         })
     })
 })
