@@ -141,6 +141,10 @@ describe('PATCH /chapters/:chapterId', () => {
             id: chapterId,
             title: 'new title',
         })
+
+        const chapter = await Chapter.findById(chapterId)
+        expect(chapter).not.toBeNull()
+        expect(chapter?.title).toBe('new title')
     })
 
     it('should be able to update chapter desc', async () => {
@@ -155,5 +159,9 @@ describe('PATCH /chapters/:chapterId', () => {
             id: chapterId,
             desc: 'new desc',
         })
+
+        const chapter = await Chapter.findById(chapterId)
+        expect(chapter).not.toBeNull()
+        expect(chapter?.desc).toBe('new desc')
     })
 })

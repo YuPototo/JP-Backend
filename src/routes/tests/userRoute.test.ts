@@ -17,8 +17,8 @@ beforeAll(async () => {
 })
 
 afterAll(async () => {
-    await db.close()
     await testUtils.cleanDatabase()
+    await db.close()
 })
 
 describe('微信登录', () => {

@@ -8,6 +8,8 @@ import db from '../../utils/db/dbSingleton'
 import Book from '../../models/book'
 import Section from '../../models/section'
 import Chapter from '../../models/chapter'
+import testUtils from '../../utils/testUtils/testUtils'
+import { Role } from '../../models/user'
 
 // test setup
 
@@ -205,5 +207,106 @@ describe('GET book contents', () => {
             title: 'chapter 1.1',
             id: expect.any(String),
         })
+    })
+})
+
+describe('PATCH /books/:bookId', () => {
+    let bookId: string
+    let editorToken: string
+
+    beforeAll(async () => {
+        bookId = await testUtils.createBook()
+        const editorUserId = await testUtils.createUser({ role: Role.Editor })
+        editorToken = await testUtils.createToken(editorUserId)
+    })
+
+    it('should require auth', async () => {
+        const res = await request(app).patch('/api/v1/books/abc')
+        expect(res.statusCode).toBe(401)
+    })
+
+    it('should not allow normal user to access', async () => {
+        const userId = await testUtils.createUser()
+        const token = await testUtils.createToken(userId)
+        const res = await request(app)
+            .patch(`/api/v1/books/${bookId}`)
+            .set('Authorization', `Bearer ${token}`)
+        expect(res.statusCode).toBe(401)
+    })
+
+    it('should check input', async () => {
+        const res = await request(app)
+            .patch(`/api/v1/books/${bookId}`)
+            .set('Authorization', `Bearer ${editorToken}`)
+
+        expect(res.statusCode).toBe(400)
+        expect(res.body.message).toBe('req body 为空')
+    })
+
+    it('should only allow title and desc', async () => {
+        const res = await request(app)
+            .patch(`/api/v1/books/${bookId}`)
+            .set('Authorization', `Bearer ${editorToken}`)
+            .send({ abc: 'abc' })
+
+        expect(res.statusCode).toBe(400)
+        expect(res.body.message).toBe('req body 有不允许的属性')
+    })
+
+    it('should check if title is empty', async () => {
+        const res = await request(app)
+            .patch(`/api/v1/books/${bookId}`)
+            .set('Authorization', `Bearer ${editorToken}`)
+            .send({ title: '' })
+
+        expect(res.statusCode).toBe(400)
+        expect(res.body.message).toBe('标题不可为空')
+    })
+
+    it('should check if book exists', async () => {
+        const falseId = '61502602e94950fbe7a0075d'
+        const res = await request(app)
+            .patch(`/api/v1/books/${falseId}`)
+            .set('Authorization', `Bearer ${editorToken}`)
+            .send({ title: 'new title' })
+
+        expect(res.statusCode).toBe(404)
+        expect(res.body.message).toMatch(/找不到 book/)
+    })
+
+    it('should update book title', async () => {
+        const res = await request(app)
+            .patch(`/api/v1/books/${bookId}`)
+            .set('Authorization', `Bearer ${editorToken}`)
+            .send({ title: 'new title' })
+
+        expect(res.statusCode).toBe(200)
+        expect(res.body.book).toMatchObject({
+            title: 'new title',
+            id: bookId,
+        })
+
+        const book = await Book.findById(bookId)
+        expect(book!.title).toBe('new title')
+    })
+
+    it('should update book desc', async () => {
+        const res = await request(app)
+            .patch(`/api/v1/books/${bookId}`)
+            .set('Authorization', `Bearer ${editorToken}`)
+            .send({ desc: 'new desc' })
+
+        expect(res.statusCode).toBe(200)
+        expect(res.body.book).toMatchObject({
+            desc: 'new desc',
+            id: bookId,
+        })
+
+        const book = await Book.findById(bookId)
+        expect(book!.desc).toBe('new desc')
+    })
+
+    it.skip('invalidate cach', async () => {
+        // todo
     })
 })

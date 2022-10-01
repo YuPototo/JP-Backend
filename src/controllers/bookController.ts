@@ -65,3 +65,45 @@ export const getBookContent: RequestHandler = async (req, res, next) => {
     res.json({ sections })
     return
 }
+
+export const updateBook: RequestHandler = async (req, res, next) => {
+    const bookId = req.params.bookId
+
+    // check input
+    const update = req.body
+
+    if (Object.values(update).length === 0) {
+        res.status(400).json({ message: 'req body 为空' })
+        return
+    }
+
+    if (update.title === '') {
+        res.status(400).json({ message: '标题不可为空' })
+        return
+    }
+
+    if (Object.keys(update).some((key) => !['title', 'desc'].includes(key))) {
+        res.status(400).json({ message: 'req body 有不允许的属性' })
+        return
+    }
+
+    // check if book exists
+    let book
+    try {
+        book = await Book.findOneAndUpdate({ _id: bookId }, update, {
+            new: true,
+        })
+        redis.del('books')
+    } catch (err) {
+        next(err)
+        return
+    }
+
+    if (!book) {
+        res.status(404).json({ message: `找不到 bookId: ${bookId}` })
+        logger.error(`不存在 chapter：${bookId} `, addReqMetaData(req))
+        return
+    }
+
+    return res.json({ book })
+}
