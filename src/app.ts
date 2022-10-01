@@ -20,6 +20,7 @@ import wrongRecordRouter from '@/routes/wrongRecordRoute'
 import adRewardRouter from '@/routes/adRewardRoute'
 import goodRouter from '@/routes/goodRoute'
 import orderRouter from '@/routes/orderRoute'
+import sectionRouter from '@/routes/sectionRoute'
 
 import { addReqMetaData } from './utils/logger/winstonLogger'
 
@@ -50,6 +51,7 @@ export function createApp(): Express {
     app.use(`${API_PREFIX}`, adRewardRouter)
     app.use(`${API_PREFIX}`, goodRouter)
     app.use(`${API_PREFIX}`, orderRouter)
+    app.use(`${API_PREFIX}`, sectionRouter)
 
     app.use('/check', (req, res) => {
         res.send(

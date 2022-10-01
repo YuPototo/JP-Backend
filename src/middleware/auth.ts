@@ -135,6 +135,14 @@ export const authAdmin: RequestHandler = async (req, res, next) => {
     next()
 }
 
+export const authEditorOrAdmin: RequestHandler = async (req, res, next) => {
+    if (req.user.role !== Role.Admin && req.user.role !== Role.Editor) {
+        res.status(401).send({ message: '没有权限' })
+        return
+    }
+    next()
+}
+
 const saveTokenToRedis = async (token: string, userId: string, exp: number) => {
     try {
         await redis.set(token, userId, secondsTillExpire(exp))
