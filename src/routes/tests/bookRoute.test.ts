@@ -2,6 +2,7 @@
 
 import request from 'supertest'
 import { Express } from 'express-serve-static-core'
+import redis from '../../utils/redis/redisSingleton'
 
 import { createApp } from '../../app'
 import db from '../../utils/db/dbSingleton'
@@ -56,11 +57,13 @@ let app: Express
 
 beforeAll(async () => {
     await db.open()
+    await redis.open()
     app = await createApp()
 })
 
 afterAll(async () => {
     await db.close()
+    await redis.close()
 })
 
 describe('GET /books', () => {
@@ -306,7 +309,26 @@ describe('PATCH /books/:bookId', () => {
         expect(book!.desc).toBe('new desc')
     })
 
-    it.skip('invalidate cach', async () => {
+    it('should update hidden', async () => {
+        const bookBefore = await Book.findById(bookId)
+        expect(bookBefore!.hidden).toBeFalsy()
+
+        const res = await request(app)
+            .patch(`/api/v1/books/${bookId}`)
+            .set('Authorization', `Bearer ${editorToken}`)
+            .send({ hidden: true })
+
+        expect(res.statusCode).toBe(200)
+        expect(res.body.book).toMatchObject({
+            hidden: true,
+            id: bookId,
+        })
+
+        const book = await Book.findById(bookId)
+        expect(book!.hidden).toBe(true)
+    })
+
+    it.skip('invalidate redis cach', async () => {
         // todo
     })
 })

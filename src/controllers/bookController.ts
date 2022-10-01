@@ -77,13 +77,17 @@ export const updateBook: RequestHandler = async (req, res, next) => {
         return
     }
 
-    if (update.title === '') {
-        res.status(400).json({ message: '标题不可为空' })
+    if (
+        Object.keys(update).some(
+            (key) => !['title', 'desc', 'hidden'].includes(key),
+        )
+    ) {
+        res.status(400).json({ message: 'req body 有不允许的属性' })
         return
     }
 
-    if (Object.keys(update).some((key) => !['title', 'desc'].includes(key))) {
-        res.status(400).json({ message: 'req body 有不允许的属性' })
+    if (update.title === '') {
+        res.status(400).json({ message: '标题不可为空' })
         return
     }
 
