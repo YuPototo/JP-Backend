@@ -18,6 +18,7 @@ beforeAll(async () => {
 
 afterAll(async () => {
     await db.close()
+    await testUtils.cleanDatabase()
 })
 
 describe('微信登录', () => {
@@ -378,9 +379,103 @@ describe('后台登录', () => {
         expect(res.body).toMatchObject({
             token: expect.any(String),
             user: {
-                adminUsername: 'adminUsername',
+                username: 'adminUsername',
                 role: Role.Admin,
             },
+        })
+    })
+})
+
+describe('管理员开会员', () => {
+    let adminUserId: string
+    let adminToken: string
+
+    beforeAll(async () => {
+        adminUserId = await testUtils.createUser({ role: Role.Admin })
+        adminToken = await testUtils.createToken(adminUserId)
+    })
+
+    afterAll(async () => {
+        await User.deleteMany
+    })
+
+    it('should require auth', async () => {
+        const res = await request(app).post(`/api/v1/users/addMember`)
+        expect(res.statusCode).toBe(401)
+    })
+
+    it('should return 401 when normal user trys to use this url', async () => {
+        const userId = await testUtils.createUser()
+        const token = await testUtils.createToken(userId)
+        const res = await request(app)
+            .post(`/api/v1/users/addMember`)
+            .set('Authorization', `Bearer ${token}`)
+        expect(res.statusCode).toBe(401)
+    })
+
+    it('should return 401 when editor user trys to use this url', async () => {
+        const userId = await testUtils.createUser({ role: Role.Editor })
+        const token = await testUtils.createToken(userId)
+        const res = await request(app)
+            .post(`/api/v1/users/addMember`)
+            .set('Authorization', `Bearer ${token}`)
+        expect(res.statusCode).toBe(401)
+    })
+
+    it('should require userDisplayId and months', async () => {
+        const res = await request(app)
+            .post(`/api/v1/users/addMember`)
+            .set('Authorization', `Bearer ${adminToken}`)
+        expect(res.statusCode).toBe(400)
+        expect(res.body.message).toBe('需要 id')
+
+        const res2 = await request(app)
+            .post(`/api/v1/users/addMember`)
+            .set('Authorization', `Bearer ${adminToken}`)
+            .send({ userDisplayId: 'userDisplayId' })
+        expect(res2.statusCode).toBe(400)
+        expect(res2.body.message).toBe('需要 months')
+
+        const res3 = await request(app)
+            .post(`/api/v1/users/addMember`)
+            .set('Authorization', `Bearer ${adminToken}`)
+            .send({ months: 5 })
+        expect(res3.statusCode).toBe(400)
+        expect(res3.body.message).toBe('需要 id')
+    })
+
+    it('should return 404 if user not found', async () => {
+        const res = await request(app)
+            .post(`/api/v1/users/addMember`)
+            .set('Authorization', `Bearer ${adminToken}`)
+            .send({ userDisplayId: 'userDisplayId', months: 5 })
+        expect(res.statusCode).toBe(404)
+        expect(res.body.message).toBe('找不到用户')
+    })
+
+    it('should add user member months', async () => {
+        const userId = await testUtils.createUser()
+        const user = await User.findById(userId)
+        const displayId = user!.displayId
+
+        expect(user?.memberDays).toBeUndefined()
+
+        const res = await request(app)
+            .post(`/api/v1/users/addMember`)
+            .set('Authorization', `Bearer ${adminToken}`)
+            .send({ userDisplayId: displayId, months: 5 })
+        expect(res.statusCode).toBe(200)
+
+        const userAfter = await User.findById(userId)
+        const memberDays = userAfter?.memberDays
+        expect(memberDays).toBeDefined()
+        expect(memberDays! - 5 * 31).toBeLessThan(5)
+
+        // return right format
+        expect(res.body).toMatchObject({
+            displayId,
+            memberDaysBefore: 0,
+            memberDaysAfter: memberDays!,
         })
     })
 })

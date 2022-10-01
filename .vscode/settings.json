@@ -24,10 +24,8 @@
     /**
     * Jest 插件
     */
-    // 只在 test 文件保存时重新运行测试
     "jest.autoRun": {
-        "watch": false,
-        "onSave":  "test-file",
-     },
+        "watch": false
+    },
     "jest.jestCommandLine": "yarn test",
 }

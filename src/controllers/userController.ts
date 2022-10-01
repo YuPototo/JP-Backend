@@ -205,11 +205,52 @@ export const adminLoginHandler: RequestHandler = async (req, res, next) => {
         return res.json({
             token,
             user: {
-                adminUsername: user.adminUsername,
+                username: user.adminUsername,
                 role: user.role,
             },
         })
     } catch (err) {
         return next(err)
+    }
+}
+
+/**
+ * admin 开会员
+ */
+export const addMemberHandler: RequestHandler = async (req, res, next) => {
+    const { userDisplayId: displayId, months } = req.body
+
+    if (!displayId) {
+        return res.status(400).json({ message: '需要 id' })
+    }
+    if (!months) {
+        return res.status(400).json({ message: '需要 months' })
+    }
+
+    let user
+    try {
+        user = await User.findOne({ displayId })
+    } catch (err) {
+        next(err)
+        return
+    }
+
+    if (!user) {
+        return res.status(404).json({ message: '找不到用户' })
+    }
+
+    const memberDaysBefore = user.memberDays || 0
+
+    try {
+        await user.addMemberDays(months * 31)
+        res.json({
+            displayId: user.displayId,
+            memberDaysBefore,
+            memberDaysAfter: user.memberDays,
+        })
+        return
+    } catch (err) {
+        next(err)
+        return
     }
 }

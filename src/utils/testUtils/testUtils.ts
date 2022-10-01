@@ -1,4 +1,4 @@
-import User from '../../models/user'
+import User, { Role } from '../../models/user'
 import Book from '../../models/book'
 import Chapter from '@/models/chapter'
 import Notebook from '@/models/notebook'
@@ -7,13 +7,21 @@ import Good from '@/models/good'
 import { nanoid } from '../nanoid'
 import mongoose from 'mongoose'
 
-async function createUser(arg?: { memberDueDate: Date }): Promise<string> {
+async function createUser(arg?: {
+    memberDueDate?: Date
+    role?: Role
+}): Promise<string> {
     const wxUnionId = nanoid(6)
 
     const user = await User.createNewUser(wxUnionId)
 
-    if (arg) {
+    if (arg?.memberDueDate) {
         user.memberDue = arg.memberDueDate
+        await user.save()
+    }
+
+    if (arg?.role) {
+        user.role = arg.role
         await user.save()
     }
 
