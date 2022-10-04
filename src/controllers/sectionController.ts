@@ -34,3 +34,24 @@ export const updateSection: RequestHandler = async (req, res, next) => {
         return
     }
 }
+
+export const addSection: RequestHandler = async (req, res, next) => {
+    const { title, bookId } = req.body
+
+    if (!title) {
+        res.status(400).send({ message: 'title 不能为空' })
+        return
+    }
+    if (!bookId) {
+        res.status(400).send({ message: 'bookId 不能为空' })
+        return
+    }
+
+    try {
+        const section = await Section.createSection({ title, bookId })
+        return res.status(201).json({ section })
+    } catch (err) {
+        next(err)
+        return
+    }
+}
