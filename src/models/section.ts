@@ -12,7 +12,7 @@ export interface ISection {
 
 // static methods
 interface SectionModel extends Model<ISection> {
-    createSection({
+    createSectionInBook({
         title,
         bookId,
     }: {
@@ -35,7 +35,7 @@ const sectionSchema = new Schema<ISection>(
 )
 
 sectionSchema.static(
-    'createSection',
+    'createSectionInBook',
     async function ({ title, bookId }: { title: string; bookId: string }) {
         const book = await Book.findById(bookId)
         if (!book) {

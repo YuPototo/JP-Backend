@@ -16,6 +16,7 @@ beforeAll(async () => {
 })
 
 afterAll(async () => {
+    await testUtils.cleanDatabase()
     await db.close()
 })
 

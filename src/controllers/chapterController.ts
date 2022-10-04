@@ -74,3 +74,31 @@ export const updateChapter: RequestHandler = async (req, res, next) => {
 
     return res.json({ chapter })
 }
+
+export const addChapter: RequestHandler = async (req, res, next) => {
+    const { title, desc, sectionId } = req.body
+
+    // check input
+    if (!title) {
+        res.status(400).json({ message: 'title 不可为空' })
+        return
+    }
+
+    if (!sectionId) {
+        res.status(400).json({ message: 'sectionId 不可为空' })
+        return
+    }
+
+    // create chapter
+    try {
+        const chapter = await Chapter.createChapterInSection({
+            title,
+            desc,
+            sectionId,
+        })
+        return res.status(201).json({ chapter })
+    } catch (err) {
+        next(err)
+        return
+    }
+}

@@ -6,6 +6,7 @@ import db from '../../utils/db/dbSingleton'
 import Chapter from '../../models/chapter'
 import testUtils from '../../utils/testUtils/testUtils'
 import { Role } from '../../models/user'
+import Section from '../../models/section'
 
 let app: Express
 
@@ -163,5 +164,82 @@ describe('PATCH /chapters/:chapterId', () => {
         const chapter = await Chapter.findById(chapterId)
         expect(chapter).not.toBeNull()
         expect(chapter?.desc).toBe('new desc')
+    })
+})
+
+describe('POST /chapters', () => {
+    let editorToken: string
+
+    beforeAll(async () => {
+        const editorUserId = await testUtils.createUser({ role: Role.Editor })
+        editorToken = await testUtils.createToken(editorUserId)
+    })
+
+    it('should require auth', async () => {
+        const res = await request(app).post('/api/v1/chapters')
+        expect(res.statusCode).toBe(401)
+    })
+
+    it('should not allow normal user to access', async () => {
+        const userId = await testUtils.createUser()
+        const token = await testUtils.createToken(userId)
+        const res = await request(app)
+            .post('/api/v1/chapters')
+            .set('Authorization', `Bearer ${token}`)
+        expect(res.statusCode).toBe(401)
+    })
+
+    it('should check input', async () => {
+        const res = await request(app)
+            .post('/api/v1/chapters')
+            .set('Authorization', `Bearer ${editorToken}`)
+
+        expect(res.statusCode).toBe(400)
+        expect(res.body.message).toBe('title 不可为空')
+
+        const res2 = await request(app)
+            .post('/api/v1/chapters')
+            .set('Authorization', `Bearer ${editorToken}`)
+            .send({ title: 'test chapter' })
+
+        expect(res2.statusCode).toBe(400)
+        expect(res2.body.message).toBe('sectionId 不可为空')
+    })
+
+    it('should check if section exists', async () => {
+        const falseId = '61502602e94950fbe7a0075d'
+        const res = await request(app)
+            .post('/api/v1/chapters')
+            .set('Authorization', `Bearer ${editorToken}`)
+            .send({ title: 'test chapter', sectionId: falseId })
+
+        expect(res.statusCode).toBe(500)
+        expect(res.body.message).toMatch(/找不到 Section/)
+    })
+
+    it('should create chapter and update section', async () => {
+        const section = await Section.create({
+            title: 'test section',
+            desc: 'test desc',
+        })
+
+        const sectionId = section.id
+
+        const res = await request(app)
+            .post('/api/v1/chapters')
+            .set('Authorization', `Bearer ${editorToken}`)
+            .send({ title: 'test chapter', sectionId: section.id })
+
+        expect(res.statusCode).toBe(201)
+        expect(res.body).toHaveProperty('chapter')
+
+        const chapter = await Chapter.findById(res.body.chapter.id)
+        expect(chapter).not.toBeNull()
+        expect(chapter?.title).toBe('test chapter')
+        expect(chapter?.sections[0].toString()).toBe(sectionId)
+
+        const updatedSection = await Section.findById(section.id)
+        expect(updatedSection).not.toBeNull()
+        expect(updatedSection?.chapters[0].toString()).toBe(chapter?.id)
     })
 })

@@ -14,10 +14,15 @@ afterAll(async () => {
 })
 
 describe('Section.createSection', () => {
+    afterAll(async () => {
+        await Book.deleteMany({})
+        await Section.deleteMany({})
+    })
+
     it('should check book exists', async () => {
         const randomMongoId = testUtils.createRandomMongoId()
         await expect(() =>
-            Section.createSection({
+            Section.createSectionInBook({
                 title: 'test title',
                 bookId: randomMongoId,
             }),
@@ -27,7 +32,7 @@ describe('Section.createSection', () => {
     it('should create section', async () => {
         const bookId = await testUtils.createBook()
 
-        const section = await Section.createSection({
+        const section = await Section.createSectionInBook({
             title: 'test title',
             bookId,
         })
@@ -49,7 +54,7 @@ describe('Section.createSection', () => {
         expect(book!.sections[0].toString()).toBe(section.id)
 
         // 再创建一个
-        const section2 = await Section.createSection({
+        const section2 = await Section.createSectionInBook({
             title: 'test title 2',
             bookId,
         })

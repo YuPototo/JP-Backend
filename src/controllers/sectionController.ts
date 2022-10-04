@@ -48,7 +48,7 @@ export const addSection: RequestHandler = async (req, res, next) => {
     }
 
     try {
-        const section = await Section.createSection({ title, bookId })
+        const section = await Section.createSectionInBook({ title, bookId })
         return res.status(201).json({ section })
     } catch (err) {
         next(err)
