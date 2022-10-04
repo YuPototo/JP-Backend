@@ -187,6 +187,7 @@ async function addSections() {
             _id: '62ee098f3ca7977c375aac40',
             title: 'section 2',
             chapters: ['62ee08fe3ca7977c375aabf8', '62ee09043ca7977c375aabfb'],
+            books: ['62e50da955ecc53ba31029aa'],
         },
         {
             _id: '62ee096e3ca7977c375aac33',
@@ -196,6 +197,7 @@ async function addSections() {
                 '62ee08f73ca7977c375aabf1',
                 '62ee08f73ca7977c375aabaa',
             ],
+            books: ['62e50da955ecc53ba31029aa'],
         },
     ])
 }

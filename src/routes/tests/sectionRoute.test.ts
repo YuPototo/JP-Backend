@@ -150,6 +150,9 @@ describe('POST /sections', () => {
 
         const section = await Section.findById(res.body.section.id)
         expect(section).not.toBeNull()
+        expect(section?.title).toBe('test')
+        expect(section?.books[0].toString()).toBe(bookId)
+        expect(section?.chapters).toEqual([])
 
         const book = await Book.findById(bookId)
         expect(book!.sections[0].toString()).toBe(section!.id)

@@ -31,12 +31,20 @@ describe('Section.createSection', () => {
             title: 'test title',
             bookId,
         })
-        expect(section.title).toBe('test title')
-        expect(section.chapters).toEqual([])
 
+        // check section
+        // @ts-ignore
+        const sectionFound = await Section.findById(section.id)
+        expect(sectionFound).not.toBeNull()
+        expect(sectionFound?.title).toBe('test title')
+        expect(sectionFound?.chapters).toEqual([])
+        expect(sectionFound?.books[0].toString()).toEqual(bookId)
+
+        /* book 里应该记录 section id */
         const book = await Book.findById(bookId)
         expect(book!.sections.length).toBe(1)
 
+        // Mongoose interface 不准确
         // @ts-ignore
         expect(book!.sections[0].toString()).toBe(section.id)
 

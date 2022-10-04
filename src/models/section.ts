@@ -6,6 +6,7 @@ const COLLECTION_NAME = 'section'
 
 export interface ISection {
     title: string
+    books: [Types.ObjectId]
     chapters: [Types.ObjectId]
 }
 
@@ -23,6 +24,9 @@ interface SectionModel extends Model<ISection> {
 const sectionSchema = new Schema<ISection>(
     {
         title: { type: String, required: true },
+        books: {
+            type: [{ type: Schema.Types.ObjectId, ref: SchemaNames.Book }],
+        },
         chapters: {
             type: [{ type: Schema.Types.ObjectId, ref: SchemaNames.Chapter }],
         },
@@ -38,9 +42,11 @@ sectionSchema.static(
             throw new Error(`找不到 Book ${bookId}`)
         }
 
-        const section = new Section({ title })
+        // create section
+        const section = new Section({ title, books: [bookId] })
         await section.save()
 
+        // update book doc
         book.sections.push(section.id)
         await book.save()
 
