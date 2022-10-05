@@ -1,4 +1,4 @@
-const defaultBookCover = 'images/covers/default_cover.png'
+const defaultBookCover = 'images/cover/default_cover.jpeg'
 
 const constants = { defaultBookCover }
 

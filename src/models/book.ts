@@ -46,7 +46,7 @@ const bookSchema = new Schema<IBook>(
         category: { type: bookCategorySchema },
         desc: { type: String, default: '' },
         weight: { type: Number, default: 0 },
-        hidden: { type: Boolean, default: false },
+        hidden: { type: Boolean, default: true },
         sections: {
             type: [{ type: Schema.Types.ObjectId, ref: SchemaNames.Section }],
             default: [],

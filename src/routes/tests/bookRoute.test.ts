@@ -312,7 +312,7 @@ describe('PATCH /books/:bookId', () => {
 
     it('should update hidden', async () => {
         const bookBefore = await Book.findById(bookId)
-        expect(bookBefore!.hidden).toBeFalsy()
+        expect(bookBefore!.hidden).toBeTruthy()
 
         const res = await request(app)
             .patch(`/api/v1/books/${bookId}`)
@@ -385,4 +385,25 @@ describe('POST /books', () => {
             cover: coverRegex,
         })
     })
+
+    it('should create a book with desc', async () => {
+        const res = await request(app)
+            .post('/api/v1/books')
+            .set('Authorization', `Bearer ${editorToken}`)
+            .send({ title: 'test two', desc: 'abc' })
+
+        expect(res.statusCode).toBe(201)
+        expect(res.body).toHaveProperty('book')
+
+        const bookId = res.body.book.id
+        const found = await Book.findById(bookId)
+        expect(found).not.toBeNull()
+
+        expect(found?.toJSON()).toMatchObject({
+            title: 'test two',
+            desc: 'abc',
+        })
+    })
+
+    it.skip('should invalidate cache', () => {})
 })

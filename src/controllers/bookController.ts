@@ -113,7 +113,7 @@ export const updateBook: RequestHandler = async (req, res, next) => {
 }
 
 export const addBooks: RequestHandler = async (req, res, next) => {
-    const { title } = req.body
+    const { title, desc } = req.body
 
     if (!title) {
         return res.status(400).json({ message: 'Title 不能为空' })
@@ -122,8 +122,10 @@ export const addBooks: RequestHandler = async (req, res, next) => {
     try {
         const book = new Book({
             title,
+            desc,
         })
         await book.save()
+        redis.del('books')
         return res.status(201).json({ book })
     } catch (err) {
         next(err)
