@@ -111,3 +111,22 @@ export const updateBook: RequestHandler = async (req, res, next) => {
 
     return res.json({ book })
 }
+
+export const addBooks: RequestHandler = async (req, res, next) => {
+    const { title } = req.body
+
+    if (!title) {
+        return res.status(400).json({ message: 'Title 不能为空' })
+    }
+
+    try {
+        const book = new Book({
+            title,
+        })
+        await book.save()
+        return res.status(201).json({ book })
+    } catch (err) {
+        next(err)
+        return
+    }
+}

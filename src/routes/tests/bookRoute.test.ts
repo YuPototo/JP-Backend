@@ -11,6 +11,7 @@ import Section from '../../models/section'
 import Chapter from '../../models/chapter'
 import testUtils from '../../utils/testUtils/testUtils'
 import { Role } from '../../models/user'
+import constants from '../../constants'
 
 // test setup
 
@@ -330,5 +331,58 @@ describe('PATCH /books/:bookId', () => {
 
     it.skip('invalidate redis cach', async () => {
         // todo
+    })
+})
+
+describe('POST /books', () => {
+    let bookId: string
+    let editorToken: string
+
+    beforeAll(async () => {
+        const editorUserId = await testUtils.createUser({ role: Role.Editor })
+        editorToken = await testUtils.createToken(editorUserId)
+    })
+
+    it('should require auth', async () => {
+        const res = await request(app).post('/api/v1/books')
+        expect(res.statusCode).toBe(401)
+    })
+
+    it('should not allow normal users to access', async () => {
+        const userId = await testUtils.createUser()
+        const token = await testUtils.createToken(userId)
+        const res = await request(app)
+            .post('/api/v1/books')
+            .set('Authorization', `Bearer ${token}`)
+        expect(res.statusCode).toBe(401)
+    })
+
+    it('should check input', async () => {
+        const res = await request(app)
+            .post('/api/v1/books')
+            .set('Authorization', `Bearer ${editorToken}`)
+
+        expect(res.statusCode).toBe(400)
+        expect(res.body.message).toBe('Title 不能为空')
+    })
+
+    it('should create book', async () => {
+        const res = await request(app)
+            .post('/api/v1/books')
+            .set('Authorization', `Bearer ${editorToken}`)
+            .send({ title: 'test one' })
+
+        expect(res.statusCode).toBe(201)
+        expect(res.body).toHaveProperty('book')
+
+        const bookId = res.body.book.id
+        const found = await Book.findById(bookId)
+        expect(found).not.toBeNull()
+
+        const coverRegex = new RegExp(constants.defaultBookCover)
+        expect(found?.toJSON()).toMatchObject({
+            title: 'test one',
+            cover: coverRegex,
+        })
     })
 })
