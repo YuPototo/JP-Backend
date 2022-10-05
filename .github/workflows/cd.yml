@@ -83,6 +83,8 @@ jobs:
             echo "WX_MERCHANT_API_KEY=${{secrets.APP_WX_MERCHANT_API_KEY}}" >> .app_env
             echo "WX_MERCHANT_NOTIFY_URL=${{secrets.APP_WX_MERCHANT_NOTIFY_URL}}" >> .app_env
             echo "WX_MERCHANT_SERIAL_NO=${{secrets.APP_WX_MERCHANT_SERIAL_NO}}" >> .app_env
+            echo "TENCENT_CLOUD_ID=${{secrets.APP_TENCENT_CLOUD_ID}}" >> .app_env
+            echo "TENCENT_CLOUD_KEY=${{secrets.APP_TENCENT_CLOUD_KEY}}" >> .app_env
           '
  
       - name: pull 并重新运行 compose
