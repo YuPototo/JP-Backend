@@ -6,7 +6,7 @@ import wxService from '../../wxService'
 
 import { createApp } from '../../app'
 import db from '../../utils/db/dbSingleton'
-import User from '../../models/user'
+import User, { Role } from '../../models/user'
 import testUtils from '../../utils/testUtils/testUtils'
 
 let app: Express
@@ -17,6 +17,7 @@ beforeAll(async () => {
 })
 
 afterAll(async () => {
+    await testUtils.cleanDatabase()
     await db.close()
 })
 
@@ -64,7 +65,7 @@ describe('微信登录：小程序 ', () => {
         expect(response.status).toBe(201)
         expect(response.body.token).toBeDefined()
 
-        const userAfter = await User.findOne({ wxUnionId })
+        const userAfter = await User.findOne({ wxUnionId, wxMiniOpenId })
         expect(userAfter).not.toBeNull()
     })
 
@@ -315,6 +316,166 @@ describe('GET /users', () => {
             quizChance: expect.any(Number),
             isMember: false,
             memberDays: -10,
+        })
+    })
+})
+
+describe('后台登录', () => {
+    beforeAll(async () => {
+        const user = await User.createNewUser('wxUnionId')
+
+        user.adminPassword = 'adminPassword'
+        user.adminUsername = 'adminUsername'
+        user.role = Role.Admin
+        await user.save()
+    })
+
+    afterAll(async () => {
+        await User.deleteMany({})
+    })
+
+    it('should check body', async () => {
+        const res = await request(app).post('/api/v1/users/login/admin')
+        expect(res.status).toBe(400)
+        expect(res.body.message).toBe('需要 username')
+
+        const res2 = await request(app).post('/api/v1/users/login/admin').send({
+            username: 'username',
+        })
+        expect(res2.status).toBe(400)
+        expect(res2.body.message).toBe('需要 password')
+
+        const res3 = await request(app).post('/api/v1/users/login/admin').send({
+            password: 'password',
+        })
+        expect(res3.status).toBe(400)
+        expect(res3.body.message).toBe('需要 username')
+    })
+
+    it('should return 404 if username not found', async () => {
+        const res = await request(app).post('/api/v1/users/login/admin').send({
+            username: 'some_username',
+            password: 'password',
+        })
+        expect(res.status).toBe(404)
+        expect(res.body.message).toBe('找不到用户')
+    })
+
+    it('should return 400 if usernamd and password not match', async () => {
+        const res = await request(app).post('/api/v1/users/login/admin').send({
+            username: 'adminUsername',
+            password: 'wrongPassWord',
+        })
+        expect(res.status).toBe(400)
+        expect(res.body.message).toBe('密码错误')
+    })
+
+    it('should return token and user info if matched', async () => {
+        const res = await request(app).post('/api/v1/users/login/admin').send({
+            username: 'adminUsername',
+            password: 'adminPassword',
+        })
+        expect(res.status).toBe(200)
+        expect(res.body).toMatchObject({
+            token: expect.any(String),
+            user: {
+                username: 'adminUsername',
+                role: Role.Admin,
+            },
+        })
+    })
+})
+
+describe('管理员开会员', () => {
+    let adminUserId: string
+    let adminToken: string
+
+    beforeAll(async () => {
+        adminUserId = await testUtils.createUser({ role: Role.Admin })
+        adminToken = await testUtils.createToken(adminUserId)
+    })
+
+    afterAll(async () => {
+        await User.deleteMany
+    })
+
+    it('should require auth', async () => {
+        const res = await request(app).post(`/api/v1/users/addMember`)
+        expect(res.statusCode).toBe(401)
+    })
+
+    it('should return 401 when normal user trys to use this url', async () => {
+        const userId = await testUtils.createUser()
+        const token = await testUtils.createToken(userId)
+        const res = await request(app)
+            .post(`/api/v1/users/addMember`)
+            .set('Authorization', `Bearer ${token}`)
+        expect(res.statusCode).toBe(401)
+    })
+
+    it('should return 401 when editor user trys to use this url', async () => {
+        const userId = await testUtils.createUser({ role: Role.Editor })
+        const token = await testUtils.createToken(userId)
+        const res = await request(app)
+            .post(`/api/v1/users/addMember`)
+            .set('Authorization', `Bearer ${token}`)
+        expect(res.statusCode).toBe(401)
+    })
+
+    it('should require userDisplayId and months', async () => {
+        const res = await request(app)
+            .post(`/api/v1/users/addMember`)
+            .set('Authorization', `Bearer ${adminToken}`)
+        expect(res.statusCode).toBe(400)
+        expect(res.body.message).toBe('需要 id')
+
+        const res2 = await request(app)
+            .post(`/api/v1/users/addMember`)
+            .set('Authorization', `Bearer ${adminToken}`)
+            .send({ userDisplayId: 'userDisplayId' })
+        expect(res2.statusCode).toBe(400)
+        expect(res2.body.message).toBe('需要 months')
+
+        const res3 = await request(app)
+            .post(`/api/v1/users/addMember`)
+            .set('Authorization', `Bearer ${adminToken}`)
+            .send({ months: 5 })
+        expect(res3.statusCode).toBe(400)
+        expect(res3.body.message).toBe('需要 id')
+    })
+
+    it('should return 404 if user not found', async () => {
+        const res = await request(app)
+            .post(`/api/v1/users/addMember`)
+            .set('Authorization', `Bearer ${adminToken}`)
+            .send({ userDisplayId: 'userDisplayId', months: 5 })
+        expect(res.statusCode).toBe(404)
+        expect(res.body.message).toBe('找不到用户')
+    })
+
+    it('should add user member months', async () => {
+        const userId = await testUtils.createUser()
+        const user = await User.findById(userId)
+        const displayId = user!.displayId
+
+        expect(user?.memberDays).toBeUndefined()
+
+        const res = await request(app)
+            .post(`/api/v1/users/addMember`)
+            .set('Authorization', `Bearer ${adminToken}`)
+            .send({ userDisplayId: displayId, months: 5 })
+        expect(res.statusCode).toBe(200)
+
+        const userAfter = await User.findById(userId)
+        const memberDays = userAfter?.memberDays
+        expect(memberDays).toBeDefined()
+        expect(memberDays! - 5 * 31).toBeLessThan(5)
+
+        // return right format
+        expect(res.body).toMatchObject({
+            displayId,
+            memberDaysBefore: 0,
+            memberDaysAfter: memberDays!,
         })
     })
 })

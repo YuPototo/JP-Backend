@@ -3,11 +3,15 @@
 import request from 'supertest'
 import { Express } from 'express-serve-static-core'
 
+import redis from '../../utils/redis/redisSingleton'
 import { createApp } from '../../app'
 import db from '../../utils/db/dbSingleton'
 import Book from '../../models/book'
 import Section from '../../models/section'
 import Chapter from '../../models/chapter'
+import testUtils from '../../utils/testUtils/testUtils'
+import { Role } from '../../models/user'
+import constants from '../../constants'
 
 // test setup
 
@@ -54,11 +58,13 @@ let app: Express
 
 beforeAll(async () => {
     await db.open()
+    await redis.open()
     app = await createApp()
 })
 
 afterAll(async () => {
     await db.close()
+    await redis.close()
 })
 
 describe('GET /books', () => {
@@ -129,6 +135,7 @@ describe('GET /books', () => {
 })
 
 describe('GET book contents', () => {
+    let bookId: string
     beforeAll(async () => {
         const chapter_1_1 = new Chapter({
             title: 'chapter 1.1',
@@ -162,6 +169,8 @@ describe('GET book contents', () => {
         })
 
         await book.save()
+
+        bookId = book.id
     })
 
     afterAll(async () => {
@@ -183,9 +192,7 @@ describe('GET book contents', () => {
     })
 
     it('should return 200 and book content', async () => {
-        const book = await Book.findOne()
-        const id = book!.id
-        const res = await request(app).get(`/api/v1/books/${id}/contents`)
+        const res = await request(app).get(`/api/v1/books/${bookId}/contents`)
         expect(res.statusCode).toBe(200)
 
         expect(res.body).toHaveProperty('sections')
@@ -205,5 +212,248 @@ describe('GET book contents', () => {
             title: 'chapter 1.1',
             id: expect.any(String),
         })
+    })
+})
+
+describe('PATCH /books/:bookId', () => {
+    let bookId: string
+    let editorToken: string
+
+    beforeAll(async () => {
+        bookId = await testUtils.createBook()
+        const editorUserId = await testUtils.createUser({ role: Role.Editor })
+        editorToken = await testUtils.createToken(editorUserId)
+    })
+
+    afterAll(async () => {
+        await Book.deleteMany({})
+    })
+
+    it('should require auth', async () => {
+        const res = await request(app).patch('/api/v1/books/abc')
+        expect(res.statusCode).toBe(401)
+    })
+
+    it('should not allow normal user to access', async () => {
+        const userId = await testUtils.createUser()
+        const token = await testUtils.createToken(userId)
+        const res = await request(app)
+            .patch(`/api/v1/books/${bookId}`)
+            .set('Authorization', `Bearer ${token}`)
+        expect(res.statusCode).toBe(401)
+    })
+
+    it('should check input', async () => {
+        const res = await request(app)
+            .patch(`/api/v1/books/${bookId}`)
+            .set('Authorization', `Bearer ${editorToken}`)
+
+        expect(res.statusCode).toBe(400)
+        expect(res.body.message).toBe('req body 为空')
+    })
+
+    it('should only allow title and desc', async () => {
+        const res = await request(app)
+            .patch(`/api/v1/books/${bookId}`)
+            .set('Authorization', `Bearer ${editorToken}`)
+            .send({ abc: 'abc' })
+
+        expect(res.statusCode).toBe(400)
+        expect(res.body.message).toBe('req body 有不允许的属性')
+    })
+
+    it('should check if title is empty', async () => {
+        const res = await request(app)
+            .patch(`/api/v1/books/${bookId}`)
+            .set('Authorization', `Bearer ${editorToken}`)
+            .send({ title: '' })
+
+        expect(res.statusCode).toBe(400)
+        expect(res.body.message).toBe('标题不可为空')
+    })
+
+    it('should check if book exists', async () => {
+        const falseId = '61502602e94950fbe7a0075d'
+        const res = await request(app)
+            .patch(`/api/v1/books/${falseId}`)
+            .set('Authorization', `Bearer ${editorToken}`)
+            .send({ title: 'new title' })
+
+        expect(res.statusCode).toBe(404)
+        expect(res.body.message).toMatch(/找不到 book/)
+    })
+
+    it('should update book title', async () => {
+        const res = await request(app)
+            .patch(`/api/v1/books/${bookId}`)
+            .set('Authorization', `Bearer ${editorToken}`)
+            .send({ title: 'new title' })
+
+        expect(res.statusCode).toBe(200)
+        expect(res.body.book).toMatchObject({
+            title: 'new title',
+            id: bookId,
+        })
+
+        const book = await Book.findById(bookId)
+        expect(book!.title).toBe('new title')
+    })
+
+    it('should update book desc', async () => {
+        const res = await request(app)
+            .patch(`/api/v1/books/${bookId}`)
+            .set('Authorization', `Bearer ${editorToken}`)
+            .send({ desc: 'new desc' })
+
+        expect(res.statusCode).toBe(200)
+        expect(res.body.book).toMatchObject({
+            desc: 'new desc',
+            id: bookId,
+        })
+
+        const book = await Book.findById(bookId)
+        expect(book!.desc).toBe('new desc')
+    })
+
+    it('should update hidden', async () => {
+        const bookBefore = await Book.findById(bookId)
+        expect(bookBefore!.hidden).toBeTruthy()
+
+        const res = await request(app)
+            .patch(`/api/v1/books/${bookId}`)
+            .set('Authorization', `Bearer ${editorToken}`)
+            .send({ hidden: true })
+
+        expect(res.statusCode).toBe(200)
+        expect(res.body.book).toMatchObject({
+            hidden: true,
+            id: bookId,
+        })
+
+        const book = await Book.findById(bookId)
+        expect(book!.hidden).toBe(true)
+    })
+
+    it.skip('invalidate redis cach', async () => {
+        // todo
+    })
+})
+
+describe('POST /books', () => {
+    let editorToken: string
+
+    beforeAll(async () => {
+        const editorUserId = await testUtils.createUser({ role: Role.Editor })
+        editorToken = await testUtils.createToken(editorUserId)
+    })
+
+    afterAll(async () => {
+        await Book.deleteMany({})
+    })
+
+    it('should require auth', async () => {
+        const res = await request(app).post('/api/v1/books')
+        expect(res.statusCode).toBe(401)
+    })
+
+    it('should not allow normal users to access', async () => {
+        const userId = await testUtils.createUser()
+        const token = await testUtils.createToken(userId)
+        const res = await request(app)
+            .post('/api/v1/books')
+            .set('Authorization', `Bearer ${token}`)
+        expect(res.statusCode).toBe(401)
+    })
+
+    it('should check input', async () => {
+        const res = await request(app)
+            .post('/api/v1/books')
+            .set('Authorization', `Bearer ${editorToken}`)
+
+        expect(res.statusCode).toBe(400)
+        expect(res.body.message).toBe('Title 不能为空')
+    })
+
+    it('should create book', async () => {
+        const res = await request(app)
+            .post('/api/v1/books')
+            .set('Authorization', `Bearer ${editorToken}`)
+            .send({ title: 'test one' })
+
+        expect(res.statusCode).toBe(201)
+        expect(res.body).toHaveProperty('book')
+
+        const bookId = res.body.book.id
+        const found = await Book.findById(bookId)
+        expect(found).not.toBeNull()
+
+        const coverRegex = new RegExp(constants.defaultBookCover)
+        expect(found?.toJSON()).toMatchObject({
+            title: 'test one',
+            cover: coverRegex,
+        })
+    })
+
+    it('should create a book with desc', async () => {
+        const res = await request(app)
+            .post('/api/v1/books')
+            .set('Authorization', `Bearer ${editorToken}`)
+            .send({ title: 'test two', desc: 'abc' })
+
+        expect(res.statusCode).toBe(201)
+        expect(res.body).toHaveProperty('book')
+
+        const bookId = res.body.book.id
+        const found = await Book.findById(bookId)
+        expect(found).not.toBeNull()
+
+        expect(found?.toJSON()).toMatchObject({
+            title: 'test two',
+            desc: 'abc',
+        })
+    })
+
+    it.skip('should invalidate cache', () => {})
+})
+
+/**
+ * Tech debts.
+ */
+describe.skip('PATCH /books/:bookId/bookCover', () => {
+    let bookId: string
+    let editorToken: string
+
+    beforeAll(async () => {
+        bookId = await testUtils.createBook()
+        const editorUserId = await testUtils.createUser({ role: Role.Editor })
+        editorToken = await testUtils.createToken(editorUserId)
+    })
+
+    it('should require auth', async () => {
+        const res = await request(app).patch('/api/v1/books/123/bookCover')
+        expect(res.statusCode).toBe(401)
+    })
+
+    it('should not allow normal user to have access', async () => {
+        const userId = await testUtils.createUser()
+        const token = await testUtils.createToken(userId)
+        const res = await request(app)
+            .patch('/api/v1/books/123/bookCover')
+            .set('Authorization', `Bearer ${token}`)
+        expect(res.statusCode).toBe(401)
+    })
+
+    it('should check if book exists', async () => {
+        const falseId = '61502602e94950fbe7a0075d'
+        const res = await request(app)
+            .patch(`/api/v1/books/${falseId}/bookCover`)
+            .set('Authorization', `Bearer ${editorToken}`)
+
+        expect(res.statusCode).toBe(404)
+        expect(res.body.message).toMatch(/找不到 book/)
+    })
+
+    it('should check input', async () => {
+        // how?
     })
 })

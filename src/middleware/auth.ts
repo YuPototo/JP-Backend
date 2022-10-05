@@ -2,7 +2,7 @@ import { RequestHandler } from 'express'
 import jwt, { JsonWebTokenError, TokenExpiredError } from 'jsonwebtoken'
 
 import config from '@/config/config'
-import User from '@/models/user'
+import User, { Role } from '@/models/user'
 import logger from '@/utils/logger/logger'
 import { getErrorMessage } from '@/utils/errorUtil/errorHandler'
 import redis from '@/utils/redis/redisSingleton'
@@ -125,6 +125,22 @@ export const optionalAuth: RequestHandler = async (req, res, next) => {
     } else {
         auth(req, res, next)
     }
+}
+
+export const authAdmin: RequestHandler = async (req, res, next) => {
+    if (req.user.role !== Role.Admin) {
+        res.status(401).send({ message: '没有权限' })
+        return
+    }
+    next()
+}
+
+export const authEditorOrAdmin: RequestHandler = async (req, res, next) => {
+    if (req.user.role !== Role.Admin && req.user.role !== Role.Editor) {
+        res.status(401).send({ message: '没有权限' })
+        return
+    }
+    next()
 }
 
 const saveTokenToRedis = async (token: string, userId: string, exp: number) => {

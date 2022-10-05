@@ -253,7 +253,7 @@ describe('DELETE notebooks/:notebookId', () => {
         expect(res2.status).toBe(200)
     })
 
-    it('shoud delete all questionSetFav records', async () => {
+    it('should delete all questionSetFav records', async () => {
         const notebookId = await testUtils.createNotebook(
             userId,
             'test notebook',

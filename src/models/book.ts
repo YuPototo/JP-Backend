@@ -1,4 +1,5 @@
 import config from '@/config/config'
+import constants from '@/constants'
 import { addCdnDomain } from '@/utils/staticAssets'
 import { Schema, model, Types } from 'mongoose'
 import { SchemaNames } from './schemaNames'
@@ -41,14 +42,14 @@ export interface IBook {
 const bookSchema = new Schema<IBook>(
     {
         title: { type: String, required: true },
+        cover: { type: String, default: constants.defaultBookCover },
+        category: { type: bookCategorySchema },
         desc: { type: String, default: '' },
-        cover: { type: String, required: true },
         weight: { type: Number, default: 0 },
-        hidden: { type: Boolean, default: false },
-        category: { type: bookCategorySchema, required: true },
+        hidden: { type: Boolean, default: true },
         sections: {
             type: [{ type: Schema.Types.ObjectId, ref: SchemaNames.Section }],
-            required: true,
+            default: [],
         },
     },
     { collection: COLLECTION_NAME },

@@ -33,3 +33,72 @@ export const getChapter: RequestHandler = async (req, res, next) => {
 
     return res.json({ chapter })
 }
+
+export const updateChapter: RequestHandler = async (req, res, next) => {
+    const chapterId = req.params.chapterId
+
+    // check input
+    const update = req.body
+
+    if (Object.values(update).length === 0) {
+        res.status(400).json({ message: 'req body 为空' })
+        return
+    }
+
+    if (update.title === '') {
+        res.status(400).json({ message: '标题不可为空' })
+        return
+    }
+
+    if (Object.keys(update).some((key) => !['title', 'desc'].includes(key))) {
+        res.status(400).json({ message: 'req body 有不允许的属性' })
+        return
+    }
+
+    // check if chapter exists
+    let chapter
+    try {
+        chapter = await Chapter.findOneAndUpdate({ _id: chapterId }, update, {
+            new: true,
+        })
+    } catch (err) {
+        next(err)
+        return
+    }
+
+    if (!chapter) {
+        res.status(404).json({ message: `找不到 chapter: ${chapterId}` })
+        logger.error(`不存在 chapter：${chapterId} `, addReqMetaData(req))
+        return
+    }
+
+    return res.json({ chapter })
+}
+
+export const addChapter: RequestHandler = async (req, res, next) => {
+    const { title, desc, sectionId } = req.body
+
+    // check input
+    if (!title) {
+        res.status(400).json({ message: 'title 不可为空' })
+        return
+    }
+
+    if (!sectionId) {
+        res.status(400).json({ message: 'sectionId 不可为空' })
+        return
+    }
+
+    // create chapter
+    try {
+        const chapter = await Chapter.createChapterInSection({
+            title,
+            desc,
+            sectionId,
+        })
+        return res.status(201).json({ chapter })
+    } catch (err) {
+        next(err)
+        return
+    }
+}

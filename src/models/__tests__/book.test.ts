@@ -1,6 +1,7 @@
 import Book from '../book'
 
 import db from '../../utils/db/dbSingleton'
+import constants from '../../constants'
 
 beforeAll(async () => {
     await db.open()
@@ -11,31 +12,32 @@ afterAll(async () => {
     await db.close()
 })
 
-describe('Book model', () => {
-    beforeAll(async () => {
+describe('create book with new keyword', () => {
+    it('should create the right default value', async () => {
+        const book = new Book({
+            title: 'test one',
+        })
+        await book.save()
+
+        expect(book).toMatchObject({
+            desc: '',
+            cover: constants.defaultBookCover,
+            hidden: true,
+        })
+    })
+
+    it('Add cdn domain to cover field when book is serialized to json ', async () => {
         const book = new Book({
             title: 'test book',
             cover: 'cover_key',
             category: { key: 'test_category' },
         })
         await book.save()
-    })
 
-    it('Add cdn domain to cover field when book is serialized to json ', async () => {
-        const book = await Book.findOne({ title: 'test book' })
-        expect(book?.toJSON()).toHaveProperty('cover')
-        expect(book?.toJSON().cover).toEqual('https://cdn.test.com/cover_key')
-    })
-
-    it('should serialze to the right format', async () => {
-        const book = await Book.findOne({ title: 'test book' })
-        expect(book?.toJSON()).toMatchObject({
-            id: expect.any(String),
-            title: 'test book',
-            desc: '',
-            cover: expect.any(String),
-            category: { key: 'test_category' },
-            hidden: expect.any(Boolean),
-        })
+        const bookFound = await Book.findOne({ title: 'test book' })
+        expect(bookFound?.toJSON()).toHaveProperty('cover')
+        expect(bookFound?.toJSON().cover).toEqual(
+            'https://cdn.test.com/cover_key',
+        )
     })
 })

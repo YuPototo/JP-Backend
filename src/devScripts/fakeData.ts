@@ -187,6 +187,7 @@ async function addSections() {
             _id: '62ee098f3ca7977c375aac40',
             title: 'section 2',
             chapters: ['62ee08fe3ca7977c375aabf8', '62ee09043ca7977c375aabfb'],
+            books: ['62e50da955ecc53ba31029aa'],
         },
         {
             _id: '62ee096e3ca7977c375aac33',
@@ -196,6 +197,7 @@ async function addSections() {
                 '62ee08f73ca7977c375aabf1',
                 '62ee08f73ca7977c375aabaa',
             ],
+            books: ['62e50da955ecc53ba31029aa'],
         },
     ])
 }
@@ -213,6 +215,7 @@ async function addChapters() {
                 '62ff846994d4a5032e425e32',
                 '62ff846994d4a5032e425e30',
             ],
+            sections: ['62ee096e3ca7977c375aac33'],
         },
         {
             _id: '62ee08f73ca7977c375aabf1',
@@ -222,6 +225,7 @@ async function addChapters() {
                 '62ff846994d4a50321428882',
                 '62ff846994d4a50321428772',
             ],
+            sections: ['62ee096e3ca7977c375aac33'],
         },
         {
             _id: '62ee08f73ca7977c375aabaa',
@@ -231,16 +235,19 @@ async function addChapters() {
                 '62ff846994d4a5032e425111',
                 '62ff846994d4a5032e428888',
             ],
+            section: ['62ee096e3ca7977c375aac33'],
         },
         {
             _id: '62ee08fe3ca7977c375aabf8',
             title: 'chapter 2.1',
             questionSets: ['62ff846994d4a5032e425e3e'],
+            section: ['62ee098f3ca7977c375aac40'],
         },
         {
             _id: '62ee09043ca7977c375aabfb',
             title: 'chapter 2.2',
             questionSets: ['62ff846994d4a5032e425e3e'],
+            section: ['62ee098f3ca7977c375aac40'],
         },
     ])
 }
