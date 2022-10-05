@@ -1,4 +1,5 @@
 import isMongoId from 'validator/lib/isMongoId'
+import multer from 'multer'
 
 import type { RequestHandler } from 'express'
 import Book, { IBook } from '@/models/book'
@@ -6,6 +7,8 @@ import { logger } from '@/utils/logger/winstonLogger'
 import { addReqMetaData } from '@/utils/logger/winstonLogger'
 import redis from '@/utils/redis/redisSingleton'
 import { getErrorMessage } from '@/utils/errorUtil/errorHandler'
+import { ImageFormatError } from '@/utils/tencentCos/cos'
+import cos from '@/utils/tencentCos/cos'
 
 export const getBooks: RequestHandler = async (req, res, next) => {
     let books: IBook[]
@@ -91,7 +94,6 @@ export const updateBook: RequestHandler = async (req, res, next) => {
         return
     }
 
-    // check if book exists
     let book
     try {
         book = await Book.findOneAndUpdate({ _id: bookId }, update, {
@@ -131,4 +133,100 @@ export const addBooks: RequestHandler = async (req, res, next) => {
         next(err)
         return
     }
+}
+
+// field name for cover would be cover
+const upload = multer({
+    limits: { fileSize: 250000 },
+    fileFilter(req, file, cb) {
+        if (!file.originalname.match(/\.(png|jpg|jpeg)$/)) {
+            return cb(
+                new ImageFormatError(
+                    'Please upload an image with format png, jpg or jpeg',
+                ),
+            )
+        }
+
+        cb(null, true)
+    },
+}).single('cover')
+
+export const uploadCoverErrorHandler: RequestHandler = (req, res, next) => {
+    upload(req, res, function (err) {
+        if (err instanceof ImageFormatError) {
+            return res
+                .status(400)
+                .json({ message: '图片必须是 png, jpg 或 jpeg 格式' })
+        } else if (err instanceof multer.MulterError) {
+            if (err.code === 'LIMIT_FILE_SIZE') {
+                return res.status(400).json({ message: '文件需要小于250kb' })
+            } else {
+                logger.error(`A unprocessed MulterError. ${err.code}`)
+                return res.status(500).json({ message: err.message })
+            }
+        } else if (err) {
+            logger.error('上传 book cover 时发生了一个未知错误')
+            logger.error(err)
+            return res.status(500).json({ message: JSON.stringify(err) })
+        }
+
+        next()
+    })
+}
+
+export const updateBookCover: RequestHandler = async (req, res, next) => {
+    const bookId = req.params.bookId
+
+    const file = req.file
+
+    if (!file) {
+        logger.error('没有上传 book cover')
+        return res.status(400).json({ message: '需要上传一个 book cover' })
+    }
+
+    // use cos methods
+    const fileKey = 'images/cover/' + file.originalname
+
+    // 确认是否存在这个对象
+    try {
+        const hasObject = await cos.hasObject(fileKey)
+        if (hasObject) {
+            return res
+                .status(400)
+                .json({ message: '服务器中已经有相同名称的文件' })
+        }
+    } catch (err) {
+        return res.status(500).json({ message: '查询对象状态失败' })
+    }
+
+    try {
+        await cos.upload(file.buffer, fileKey)
+    } catch (err) {
+        return res.status(500).json({ message: '无法把资源上传到腾讯云' })
+    }
+
+    // update book
+    const update = {
+        cover: fileKey,
+    }
+
+    let book
+
+    try {
+        book = await Book.findOneAndUpdate({ _id: bookId }, update, {
+            new: true,
+        })
+        redis.del('books')
+    } catch (err) {
+        next(err)
+        return
+    }
+
+    if (!book) {
+        res.status(404).json({ message: `找不到 bookId: ${bookId}` })
+        logger.error(`不存在 book ${bookId} `, addReqMetaData(req))
+        return
+    }
+
+    return res.json({ book })
 }

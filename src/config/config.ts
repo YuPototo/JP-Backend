@@ -59,6 +59,12 @@ interface Config {
         privateKeyFile: string
         publicKeyFile: string
     }
+
+    // 腾讯云
+    tencentCloud: {
+        id: string
+        key: string
+    }
 }
 
 const config: Config = {
@@ -110,6 +116,11 @@ const config: Config = {
         // 微信商户平台的证书
         privateKeyFile: parsedEnv.WX_MERCHANT_PRIVATE_KEY_FILE as string,
         publicKeyFile: parsedEnv.WX_MERCHANT_PUBLIC_KEY_FILE as string,
+    },
+
+    tencentCloud: {
+        id: parsedEnv.TENCENT_CLOUD_ID as string,
+        key: parsedEnv.TENCENT_CLOUD_KEY as string,
     },
 }
 

@@ -2,8 +2,8 @@
 
 import request from 'supertest'
 import { Express } from 'express-serve-static-core'
-import redis from '../../utils/redis/redisSingleton'
 
+import redis from '../../utils/redis/redisSingleton'
 import { createApp } from '../../app'
 import db from '../../utils/db/dbSingleton'
 import Book from '../../models/book'
@@ -135,6 +135,7 @@ describe('GET /books', () => {
 })
 
 describe('GET book contents', () => {
+    let bookId: string
     beforeAll(async () => {
         const chapter_1_1 = new Chapter({
             title: 'chapter 1.1',
@@ -168,6 +169,8 @@ describe('GET book contents', () => {
         })
 
         await book.save()
+
+        bookId = book.id
     })
 
     afterAll(async () => {
@@ -189,9 +192,7 @@ describe('GET book contents', () => {
     })
 
     it('should return 200 and book content', async () => {
-        const book = await Book.findOne()
-        const id = book!.id
-        const res = await request(app).get(`/api/v1/books/${id}/contents`)
+        const res = await request(app).get(`/api/v1/books/${bookId}/contents`)
         expect(res.statusCode).toBe(200)
 
         expect(res.body).toHaveProperty('sections')
@@ -222,6 +223,10 @@ describe('PATCH /books/:bookId', () => {
         bookId = await testUtils.createBook()
         const editorUserId = await testUtils.createUser({ role: Role.Editor })
         editorToken = await testUtils.createToken(editorUserId)
+    })
+
+    afterAll(async () => {
+        await Book.deleteMany({})
     })
 
     it('should require auth', async () => {
@@ -335,12 +340,15 @@ describe('PATCH /books/:bookId', () => {
 })
 
 describe('POST /books', () => {
-    let bookId: string
     let editorToken: string
 
     beforeAll(async () => {
         const editorUserId = await testUtils.createUser({ role: Role.Editor })
         editorToken = await testUtils.createToken(editorUserId)
+    })
+
+    afterAll(async () => {
+        await Book.deleteMany({})
     })
 
     it('should require auth', async () => {
@@ -406,4 +414,46 @@ describe('POST /books', () => {
     })
 
     it.skip('should invalidate cache', () => {})
+})
+
+/**
+ * Tech debts.
+ */
+describe.skip('PATCH /books/:bookId/bookCover', () => {
+    let bookId: string
+    let editorToken: string
+
+    beforeAll(async () => {
+        bookId = await testUtils.createBook()
+        const editorUserId = await testUtils.createUser({ role: Role.Editor })
+        editorToken = await testUtils.createToken(editorUserId)
+    })
+
+    it('should require auth', async () => {
+        const res = await request(app).patch('/api/v1/books/123/bookCover')
+        expect(res.statusCode).toBe(401)
+    })
+
+    it('should not allow normal user to have access', async () => {
+        const userId = await testUtils.createUser()
+        const token = await testUtils.createToken(userId)
+        const res = await request(app)
+            .patch('/api/v1/books/123/bookCover')
+            .set('Authorization', `Bearer ${token}`)
+        expect(res.statusCode).toBe(401)
+    })
+
+    it('should check if book exists', async () => {
+        const falseId = '61502602e94950fbe7a0075d'
+        const res = await request(app)
+            .patch(`/api/v1/books/${falseId}/bookCover`)
+            .set('Authorization', `Bearer ${editorToken}`)
+
+        expect(res.statusCode).toBe(404)
+        expect(res.body.message).toMatch(/找不到 book/)
+    })
+
+    it('should check input', async () => {
+        // how?
+    })
 })
