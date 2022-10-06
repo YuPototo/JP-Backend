@@ -64,4 +64,11 @@ export class ImageFormatError extends Error {
     }
 }
 
+export class AudioFormatError extends Error {
+    constructor(message: string) {
+        super(message)
+        this.name = 'AudioFormatError'
+    }
+}
+
 export default cosMethods

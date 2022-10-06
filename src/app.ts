@@ -21,6 +21,7 @@ import adRewardRouter from '@/routes/adRewardRoute'
 import goodRouter from '@/routes/goodRoute'
 import orderRouter from '@/routes/orderRoute'
 import sectionRouter from '@/routes/sectionRoute'
+import audioRouter from '@/routes/audioRoute'
 
 import { addReqMetaData } from './utils/logger/winstonLogger'
 
@@ -52,6 +53,7 @@ export function createApp(): Express {
     app.use(`${API_PREFIX}`, goodRouter)
     app.use(`${API_PREFIX}`, orderRouter)
     app.use(`${API_PREFIX}`, sectionRouter)
+    app.use(`${API_PREFIX}`, audioRouter)
 
     app.use('/check', (req, res) => {
         res.send(

@@ -1,6 +1,6 @@
 import isMongoId from 'validator/lib/isMongoId'
 import multer from 'multer'
-
+import path from 'path'
 import type { RequestHandler } from 'express'
 import Book, { IBook } from '@/models/book'
 import { logger } from '@/utils/logger/winstonLogger'
@@ -9,6 +9,7 @@ import redis from '@/utils/redis/redisSingleton'
 import { getErrorMessage } from '@/utils/errorUtil/errorHandler'
 import { ImageFormatError } from '@/utils/tencentCos/cos'
 import cos from '@/utils/tencentCos/cos'
+import { nanoid } from '@/utils/nanoid'
 
 export const getBooks: RequestHandler = async (req, res, next) => {
     let books: IBook[]
@@ -184,21 +185,14 @@ export const updateBookCover: RequestHandler = async (req, res, next) => {
         return res.status(400).json({ message: '需要上传一个 book cover' })
     }
 
+    // create file key
+    const fileBaseName = path.parse(file.originalname).name
+    const randomId = nanoid(6)
+    const extention = path.extname(file.originalname)
+    const filename = `${fileBaseName}_${randomId}${extention}`
+    const fileKey = 'images/cover/' + filename
+
     // use cos methods
-    const fileKey = 'images/cover/' + file.originalname
-
-    // 确认是否存在这个对象
-    try {
-        const hasObject = await cos.hasObject(fileKey)
-        if (hasObject) {
-            return res
-                .status(400)
-                .json({ message: '服务器中已经有相同名称的文件' })
-        }
-    } catch (err) {
-        return res.status(500).json({ message: '查询对象状态失败' })
-    }
-
     try {
         await cos.upload(file.buffer, fileKey)
     } catch (err) {
