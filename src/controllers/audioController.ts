@@ -40,7 +40,12 @@ export const uploadAudioErrorHandler: RequestHandler = (req, res, next) => {
     })
 }
 
+/**
+ * 添加听力资源
+ * 会把资源上传到 cos，并在 MongoDB 中创建一个 audio doc
+ */
 export const addAudio: RequestHandler = async (req, res, next) => {
+    logger.info('addAudio handler')
     const file = req.file
 
     if (!file) {
@@ -63,12 +68,10 @@ export const addAudio: RequestHandler = async (req, res, next) => {
     }
 
     // create audio in database
-    const transcription = req.body.transcription
     try {
         const audio = new Audio({
             title: file.originalname,
             key: fileKey,
-            transcription,
         })
         await audio.save()
         return res.status(201).json({ audio })
