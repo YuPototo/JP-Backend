@@ -137,7 +137,7 @@ export const addBooks: RequestHandler = async (req, res, next) => {
 
 // field name for cover would be cover
 const upload = multer({
-    limits: { fileSize: 250000 },
+    limits: { fileSize: 100000 }, // 100kb
     fileFilter(req, file, cb) {
         if (!file.originalname.match(/\.(png|jpg|jpeg)$/)) {
             return cb(
@@ -159,7 +159,7 @@ export const uploadCoverErrorHandler: RequestHandler = (req, res, next) => {
                 .json({ message: '图片必须是 png, jpg 或 jpeg 格式' })
         } else if (err instanceof multer.MulterError) {
             if (err.code === 'LIMIT_FILE_SIZE') {
-                return res.status(400).json({ message: '文件需要小于250kb' })
+                return res.status(400).json({ message: '文件需要小于100kb' })
             } else {
                 logger.error(`A unprocessed MulterError. ${err.code}`)
                 return res.status(500).json({ message: err.message })
