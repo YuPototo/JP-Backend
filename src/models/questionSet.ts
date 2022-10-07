@@ -6,19 +6,22 @@ import { SchemaNames } from './schemaNames'
 const COLLECTION_NAME = 'questionSet'
 
 /* Question */
+// 暂时使用 any 来表示 RichText，因为我不想花时间研究怎么写 schema
+type RichText = any
+
 interface IQuestion {
-    body?: string
-    explanation?: string
-    options: string[]
+    body?: RichText
+    explanation?: RichText
+    options: RichText[]
     answer: number
 }
 
 const questionSchema = new Schema<IQuestion>(
     {
-        body: { type: String },
-        explanation: { type: String },
+        body: { type: Schema.Types.Mixed },
+        explanation: { type: Schema.Types.Mixed },
         options: {
-            type: [String],
+            type: Schema.Types.Mixed, // 会是一个 array
             // todo: remove any
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             validate: (v: any) => Array.isArray(v) && v.length > 0,
@@ -30,17 +33,18 @@ const questionSchema = new Schema<IQuestion>(
 
 /* QuestionSet - interface */
 export interface IQuestionSet {
-    body?: string
-    explanation?: string
+    body?: RichText
+    explanation?: RichText
     questions: IQuestion[]
-    audio?: [Types.ObjectId]
+    audio?: Types.ObjectId
+    chapters: [Types.ObjectId]
 }
 
 /* QuestionSet - schema */
 const questionSetSchema = new Schema<IQuestionSet>(
     {
-        body: { type: String },
-        explanation: { type: String },
+        body: { type: Schema.Types.Mixed },
+        explanation: { type: Schema.Types.Mixed },
         questions: {
             type: [questionSchema],
             // todo: remove any
@@ -50,6 +54,9 @@ const questionSetSchema = new Schema<IQuestionSet>(
         audio: {
             type: Schema.Types.ObjectId,
             ref: SchemaNames.Audio,
+        },
+        chapters: {
+            type: [{ type: Schema.Types.ObjectId, ref: SchemaNames.Chapter }],
         },
     },
     { collection: COLLECTION_NAME },
