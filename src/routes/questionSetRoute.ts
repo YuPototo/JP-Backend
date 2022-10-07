@@ -1,9 +1,13 @@
 import { Router } from 'express'
-import { getQuestionSet } from '@/controllers/questionSetController'
-import { optionalAuth } from '@/middleware/auth'
+import {
+    getQuestionSet,
+    addQuestionSet,
+} from '@/controllers/questionSetController'
+import { auth, authEditorOrAdmin, optionalAuth } from '@/middleware/auth'
 
 const router = Router()
 
 router.route('/questionSets/:questionSetId').get(optionalAuth, getQuestionSet)
+router.route('/questionSets').post(auth, authEditorOrAdmin, addQuestionSet)
 
 export default router

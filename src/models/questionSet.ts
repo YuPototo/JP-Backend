@@ -7,6 +7,8 @@ const COLLECTION_NAME = 'questionSet'
 
 /* Question */
 // 暂时使用 any 来表示 RichText，因为我不想花时间研究怎么写 schema
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type RichText = any
 
 interface IQuestion {
