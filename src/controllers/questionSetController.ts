@@ -60,25 +60,25 @@ export const getQuestionSet: RequestHandler = async (req, res, next) => {
  * ReqBody:
  *   - questionSet
  *   - chapterId
- *   - audio: 选填 —— 如果 questionSet 有 audio，这里就需要
  */
 export const addQuestionSet: RequestHandler = async (req, res, next) => {
     logger.info('addQuestionSet', addReqMetaData(req))
 
     /* check input */
-    // chapterId
-    const chapterId = req.body.chapterId
-    if (!chapterId) {
-        res.status(400).json({ message: '缺少 chapterId' })
-        logger.error(`缺少 chapterId`, addReqMetaData(req))
-        return
-    }
 
     // question set data
     const questionSet = req.body.questionSet
     if (!questionSet) {
         res.status(400).json({ message: '缺少 questionSet' })
         logger.error(`缺少 questionSet`, addReqMetaData(req))
+        return
+    }
+
+    // chapterId
+    const chapterId = req.body.chapterId
+    if (!chapterId) {
+        res.status(400).json({ message: '缺少 chapterId' })
+        logger.error(`缺少 chapterId`, addReqMetaData(req))
         return
     }
 
@@ -91,7 +91,7 @@ export const addQuestionSet: RequestHandler = async (req, res, next) => {
 
     // check question
     for (const question of questionSet.questions) {
-        if (!question.options || !question.answer) {
+        if (!question.options || question.answer === undefined) {
             res.status(400).json({
                 message: 'question 内缺少 options 或 answer',
             })
@@ -99,18 +99,6 @@ export const addQuestionSet: RequestHandler = async (req, res, next) => {
                 `question 内缺少 options 或 answer`,
                 addReqMetaData(req),
             )
-            return
-        }
-    }
-
-    // check audio field
-    if (questionSet.audio) {
-        const audio = req.body.audio
-        if (!audio) {
-            res.status(400).json({
-                message: 'reqBody 内缺少 audio，但questionSet 里有 audio',
-            })
-            logger.error('reqBody 内缺少 audio', addReqMetaData(req))
             return
         }
     }
@@ -133,13 +121,13 @@ export const addQuestionSet: RequestHandler = async (req, res, next) => {
     // if audio is provided, check audio exists
     if (questionSet.audio) {
         try {
-            const audio = await Audio.findById(questionSet.audio)
+            const audio = await Audio.findById(questionSet.audio.id)
             if (!audio) {
-                res.status(404).json({
-                    message: `找不到 audio ${questionSet.audio}`,
+                res.status(400).json({
+                    message: `找不到 audio ${questionSet.audio.id}`,
                 })
                 logger.error(
-                    `找不到 audio: ${questionSet.audio}`,
+                    `找不到 audio: ${questionSet.audio.id}`,
                     addReqMetaData(req),
                 )
                 return
@@ -152,10 +140,21 @@ export const addQuestionSet: RequestHandler = async (req, res, next) => {
 
     /* update db */
     // create question set
-    const newQuestionSet = new QuestionSet({
-        ...questionSet,
-        chapters: [chapterId],
-    })
+
+    let newQuestionSet
+    if (questionSet.audio) {
+        newQuestionSet = new QuestionSet({
+            ...questionSet,
+            audio: questionSet.audio.id,
+            chapters: [chapterId],
+        })
+    } else {
+        newQuestionSet = new QuestionSet({
+            ...questionSet,
+            chapters: [chapterId],
+        })
+    }
+
     try {
         await newQuestionSet.save()
         logger.info('已保存 QuestionSet', addReqMetaData(req))
@@ -177,8 +176,8 @@ export const addQuestionSet: RequestHandler = async (req, res, next) => {
     // update audio, if necessary
     if (questionSet.audio) {
         try {
-            const transcription = req.body.audio.transcription
-            const audio = await Audio.findById(questionSet.audio)
+            const transcription = questionSet.audio.transcription
+            const audio = await Audio.findById(questionSet.audio.id)
             if (audio) {
                 audio.transcription = transcription
                 await audio.save()
@@ -195,4 +194,91 @@ export const addQuestionSet: RequestHandler = async (req, res, next) => {
 
     res.status(201).json({ questionSet: newQuestionSet })
     return
+}
+
+/**
+ * 更新题目
+ */
+export const updateQuestionSet: RequestHandler = async (req, res, next) => {
+    logger.info('updateQuestionSet', addReqMetaData(req))
+
+    // check questionSetId
+    const questionSetId = req.params.questionSetId
+
+    try {
+        const found = await QuestionSet.findById(questionSetId)
+        if (!found) {
+            res.status(404).json({
+                message: `找不到 questionSet: ${questionSetId}`,
+            })
+            logger.error(`找不到题目: ${questionSetId} `, addReqMetaData(req))
+            return
+        }
+    } catch (err) {
+        next(err)
+        return
+    }
+
+    // if audio is provided, check audio exists
+    const questionSetPayload = req.body.questionSet
+
+    if (questionSetPayload.audio) {
+        try {
+            const audio = await Audio.findById(questionSetPayload.audio.id)
+            if (!audio) {
+                res.status(404).json({
+                    message: `找不到 audio ${questionSetPayload.audio.id}`,
+                })
+                logger.error(
+                    `找不到 audio: ${questionSetPayload.audio.id}`,
+                    addReqMetaData(req),
+                )
+                return
+            }
+        } catch (err) {
+            next(err)
+            return
+        }
+    }
+
+    // not allow chapters
+    if (questionSetPayload.chapters) {
+        res.status(400).json({
+            message: '不允许修改 chapters',
+        })
+        return
+    }
+
+    // update db
+    try {
+        await QuestionSet.findByIdAndUpdate(questionSetId, {
+            ...questionSetPayload,
+            audio: questionSetPayload.audio?.id,
+        })
+        logger.info('已更新 QuestionSet', addReqMetaData(req))
+    } catch (err) {
+        next(err)
+        return
+    }
+
+    // update audio, if necessary
+    if (questionSetPayload.audio) {
+        try {
+            const transcription = questionSetPayload.audio.transcription
+            const audio = await Audio.findById(questionSetPayload.audio.id)
+            if (audio) {
+                audio.transcription = transcription
+                await audio.save()
+                logger.info('Audio 已更新', addReqMetaData(req))
+            } else {
+                // 前面应该已经检查过了，这里只是为了保险
+                throw Error('Audio not Found')
+            }
+        } catch (err) {
+            next(err)
+            return
+        }
+    }
+
+    res.json()
 }

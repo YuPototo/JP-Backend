@@ -108,7 +108,7 @@ export const auth: RequestHandler = async (req, res, next) => {
         const user = await User.findById(userId)
         if (!user) {
             logger.error(`Auth middleware，用户找不到：${userId}`)
-            res.status(401).send({ message: '用户不存在' })
+            res.status(401).send({ message: 'Auth middleware: 用户不存在' })
             return
         }
         req.user = user
