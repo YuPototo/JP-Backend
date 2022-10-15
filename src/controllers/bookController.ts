@@ -196,6 +196,7 @@ export const updateBookCover: RequestHandler = async (req, res, next) => {
     try {
         await cos.upload(file.buffer, fileKey)
     } catch (err) {
+        logger.error(err)
         return res.status(500).json({ message: '无法把资源上传到腾讯云' })
     }
 

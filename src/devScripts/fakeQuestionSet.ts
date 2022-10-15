@@ -442,9 +442,17 @@ function addQuestionSet8(id: string, chapterId: string) {
         },
         {
             type: 'image',
-            alt: '某个图片',
+            alt: 'question set body 里的图片',
             src: 'https://picsum.photos/250/300',
             children: [{ text: '' }],
+        },
+        {
+            type: 'paragraph',
+            children: [
+                {
+                    text: '这个题目会有图片，出现在 question set body 和选项和解析',
+                },
+            ],
         },
     ]
 
@@ -455,13 +463,13 @@ function addQuestionSet8(id: string, chapterId: string) {
                 {
                     text: '这是一个简单的解析。下面也有图片链接是不存在的。',
                 },
-                {
-                    type: 'image',
-                    alt: '解析图片',
-                    src: 'https://assets.riyu.love/images/not_exist.jpg',
-                    children: [{ text: '' }],
-                },
             ],
+        },
+        {
+            type: 'image',
+            alt: '解析图片',
+            src: 'https://assets.riyu.love/images/not_exist.jpg',
+            children: [{ text: '' }],
         },
     ]
 
