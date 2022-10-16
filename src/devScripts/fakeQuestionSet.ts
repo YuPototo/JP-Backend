@@ -1,39 +1,26 @@
 import QuestionSet from '@/models/questionSet'
 
+function createParagraph(text: string) {
+    return {
+        type: 'paragraph',
+        children: [
+            {
+                text,
+            },
+        ],
+    }
+}
+
 function addQuestionSet1(id: string, chapterId: string) {
     const bodyData = [
-        {
-            type: 'paragraph',
-            children: [
-                {
-                    text: '这是 question set 的 body。这是一个简单的题目。',
-                },
-            ],
-        },
+        createParagraph('这是 question set 的 body。这是一个简单的题目。'),
     ]
 
-    const explanationData = [
-        {
-            type: 'paragraph',
-            children: [
-                {
-                    text: '这是一个简单的解析。',
-                },
-            ],
-        },
-    ]
+    const explanationData = [createParagraph('这是一个简单的解析。')]
 
-    const optionOne = [
-        {
-            text: '这是第一个选项。',
-        },
-    ]
+    const optionOne = [createParagraph('这是一个选项')]
 
-    const optionTwo = [
-        {
-            text: '这是第二个选项。（正确）',
-        },
-    ]
+    const optionTwo = [createParagraph('这是第2个选项（正确）')]
 
     return {
         _id: id,
@@ -51,60 +38,18 @@ function addQuestionSet1(id: string, chapterId: string) {
 
 function addQuestionSet2(id: string, chapterId: string) {
     const bodyData = [
-        {
-            type: 'paragraph',
-            children: [
-                {
-                    text: '这是 question set 的 body。这题有2个 questions',
-                },
-            ],
-        },
+        createParagraph('这是 question set 的 body。这题有2个 questions'),
     ]
 
-    const explanationData = [
-        {
-            type: 'paragraph',
-            children: [
-                {
-                    text: '这是一个 question set 的解析。',
-                },
-            ],
-        },
-    ]
+    const explanationData = [createParagraph('这是一个 question set 的解析。')]
 
-    const body_1 = [
-        {
-            type: 'paragraph',
-            children: [
-                {
-                    text: '这是第1个 question 的 body。',
-                },
-            ],
-        },
-    ]
+    const body_1 = [createParagraph('这是第1个 question 的 body。')]
 
-    const explanation_1 = [
-        {
-            type: 'paragraph',
-            children: [
-                {
-                    text: '这是第1个 question 的 explanation',
-                },
-            ],
-        },
-    ]
+    const explanation_1 = [createParagraph('这是第1个 question 的 explanation')]
 
-    const option_1_1 = [
-        {
-            text: '这是第1题第一个选项。',
-        },
-    ]
+    const option_1_1 = [createParagraph('这是第1题第一个选项。')]
 
-    const option_1_2 = [
-        {
-            text: '这是第1题第二个选项。（正确答案）',
-        },
-    ]
+    const option_1_2 = [createParagraph('这是第1题第2个选项。(正确）')]
 
     const questionOne = {
         body: body_1,
@@ -113,17 +58,9 @@ function addQuestionSet2(id: string, chapterId: string) {
         explanation: explanation_1,
     }
 
-    const option_2_1 = [
-        {
-            text: '这是第2题第一个选项。（正确答案）',
-        },
-    ]
+    const option_2_1 = [createParagraph('这是第2题第一个选项。（正确答案）')]
 
-    const option_2_2 = [
-        {
-            text: '这是第2题第二个选项。',
-        },
-    ]
+    const option_2_2 = [createParagraph('这是第2题第二个选项。')]
 
     const questionTwo = {
         options: [option_2_1, option_2_2],
@@ -142,14 +79,9 @@ function addQuestionSet2(id: string, chapterId: string) {
 // 这题有图片
 function addQuestionSet3(id: string, chapterId: string) {
     const bodyData = [
-        {
-            type: 'paragraph',
-            children: [
-                {
-                    text: '这是 question set 的 body。这个题目会有图片出现在 question set body 和选项',
-                },
-            ],
-        },
+        createParagraph(
+            '这是 question set 的 body。这个题目会有图片出现在 question set body 和选项',
+        ),
         {
             type: 'image',
             alt: '',
@@ -191,39 +123,13 @@ function addQuestionSet3(id: string, chapterId: string) {
 
 // 这是一道听力题
 function addQuestionSet4(id: string, chapterId: string) {
-    const bodyData = [
-        {
-            type: 'paragraph',
-            children: [
-                {
-                    text: '这是一道听力题',
-                },
-            ],
-        },
-    ]
+    const bodyData = [createParagraph('这是一道听力题')]
 
-    const explanationData = [
-        {
-            type: 'paragraph',
-            children: [
-                {
-                    text: '这是一个简单的解析。',
-                },
-            ],
-        },
-    ]
+    const explanationData = [createParagraph('这是一个简单的解析。')]
 
-    const optionOne = [
-        {
-            text: '这是第一个选项。',
-        },
-    ]
+    const optionOne = [createParagraph('选项1')]
 
-    const optionTwo = [
-        {
-            text: '这是第二个选项。',
-        },
-    ]
+    const optionTwo = [createParagraph('选项2')]
 
     return {
         _id: id,
@@ -242,39 +148,13 @@ function addQuestionSet4(id: string, chapterId: string) {
 
 // 这是又一道听力题
 function addQuestionSet5(id: string, chapterId: string) {
-    const bodyData = [
-        {
-            type: 'paragraph',
-            children: [
-                {
-                    text: '这是又一道听力题',
-                },
-            ],
-        },
-    ]
+    const bodyData = [createParagraph('这是又一道听力题')]
 
-    const explanationData = [
-        {
-            type: 'paragraph',
-            children: [
-                {
-                    text: '这是一个简单的解析。',
-                },
-            ],
-        },
-    ]
+    const explanationData = [createParagraph('这是一个简单的解析。')]
 
-    const optionOne = [
-        {
-            text: '这是第一个选项。',
-        },
-    ]
+    const optionOne = [createParagraph('选项1')]
 
-    const optionTwo = [
-        {
-            text: '这是第二个选项。',
-        },
-    ]
+    const optionTwo = [createParagraph('选项2')]
 
     return {
         _id: id,
@@ -293,39 +173,13 @@ function addQuestionSet5(id: string, chapterId: string) {
 
 // 这道听力题的听力资源是肯定找不到的
 function addQuestionSet6(id: string, chapterId: string) {
-    const bodyData = [
-        {
-            type: 'paragraph',
-            children: [
-                {
-                    text: '这道听力题的听力资源是肯定找不到的',
-                },
-            ],
-        },
-    ]
+    const bodyData = [createParagraph('这道听力题的听力资源是肯定找不到的')]
 
-    const explanationData = [
-        {
-            type: 'paragraph',
-            children: [
-                {
-                    text: '这是一个简单的解析。',
-                },
-            ],
-        },
-    ]
+    const explanationData = [createParagraph('这是一个简单的解析。')]
 
-    const optionOne = [
-        {
-            text: '这是第一个选项。',
-        },
-    ]
+    const optionOne = [createParagraph('选项1')]
 
-    const optionTwo = [
-        {
-            text: '这是第二个选项。',
-        },
-    ]
+    const optionTwo = [createParagraph('选项2')]
 
     return {
         _id: id,
@@ -404,17 +258,9 @@ function addQuestionSet7(id: string, chapterId: string) {
         },
     ]
 
-    const optionOne = [
-        {
-            text: '这是第一个选项。',
-        },
-    ]
+    const optionOne = [createParagraph('选项1')]
 
-    const optionTwo = [
-        {
-            text: '这是第二个选项。（正确）',
-        },
-    ]
+    const optionTwo = [createParagraph('选项2 - 正确')]
 
     return {
         _id: id,
@@ -445,14 +291,6 @@ function addQuestionSet8(id: string, chapterId: string) {
             alt: 'question set body 里的图片',
             src: 'https://picsum.photos/250/300',
             children: [{ text: '' }],
-        },
-        {
-            type: 'paragraph',
-            children: [
-                {
-                    text: '这个题目会有图片，出现在 question set body 和选项和解析',
-                },
-            ],
         },
     ]
 
@@ -518,11 +356,7 @@ function addQuestionSet9(id: string, chapterId: string) {
         },
     ]
 
-    const optionOne = [
-        {
-            tex: '这是第一个选项。',
-        },
-    ]
+    const optionOne = [createParagraph('选项1')]
 
     const optionTwo = 'some bad string'
 
