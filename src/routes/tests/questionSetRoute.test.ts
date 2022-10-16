@@ -10,6 +10,7 @@ import QuestionSetFav from '../../models/questionSetFav'
 import { Role } from '../../models/user'
 import Chapter from '../../models/chapter'
 import { nanoid } from '../../utils/nanoid'
+import _ from 'lodash'
 
 // test setup
 const minimalQuestionSet = {
@@ -19,6 +20,10 @@ const minimalQuestionSet = {
             answer: 1,
         },
     ],
+}
+
+function createMinalQuestionSet() {
+    return _.cloneDeep(minimalQuestionSet)
 }
 
 let app: Express
@@ -65,7 +70,7 @@ describe('GET /questionSets/:questionSetId', () => {
     it('should return audio url if question set has audio field', async () => {
         const audio = new Audio({ key: 'test_key', title: 'test_title' })
         await audio.save()
-        const audioQuestionSetData = Object.assign(minimalQuestionSet, {
+        const audioQuestionSetData = Object.assign(createMinalQuestionSet(), {
             audio: audio._id.toString(),
         })
 
@@ -241,7 +246,7 @@ describe('POST /questionSets', () => {
             .set('Authorization', `Bearer ${editorToken}`)
             .send({
                 chapterId,
-                questionSet: Object.assign(minimalQuestionSet, {
+                questionSet: Object.assign(createMinalQuestionSet(), {
                     audio: { id: falseId },
                 }),
             })
@@ -299,7 +304,7 @@ describe('POST /questionSets', () => {
             .set('Authorization', `Bearer ${editorToken}`)
             .send({
                 chapterId,
-                questionSet: Object.assign(minimalQuestionSet, {
+                questionSet: Object.assign(createMinalQuestionSet(), {
                     audio: { id: audioId, transcription: 'new transcription' },
                 }),
             })
@@ -355,7 +360,7 @@ describe('PATCH /questionSets/:questionSetId', () => {
             .patch(`/api/v1/questionSets/${questionSetId}`)
             .set('Authorization', `Bearer ${editorToken}`)
             .send({
-                questionSet: Object.assign(minimalQuestionSet, {
+                questionSet: Object.assign(createMinalQuestionSet(), {
                     audio: {
                         id: falseId,
                     },
@@ -371,7 +376,7 @@ describe('PATCH /questionSets/:questionSetId', () => {
             .patch(`/api/v1/questionSets/${questionSetId}`)
             .set('Authorization', `Bearer ${editorToken}`)
             .send({
-                questionSet: Object.assign(minimalQuestionSet, {
+                questionSet: Object.assign(createMinalQuestionSet(), {
                     chapters: [testUtils.createRandomMongoId()],
                 }),
             })
