@@ -117,9 +117,9 @@ userSchema.set('toJSON', {
         delete ret.wxMiniOpenId
         delete ret.createdAt
         delete ret.updatedAt
+        delete ret.adminPassword
         delete ret.__v
         delete ret._id
-        delete ret.password
     },
 })
 

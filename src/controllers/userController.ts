@@ -113,6 +113,7 @@ export const wxLoginHandler: RequestHandler = async (req, res, next) => {
     // 网页版登录
     if (loginPlatform === Platform.web) {
         const { wxUnionId } = wxRes
+        logger.info(`wxUnionId: ${wxUnionId}`)
 
         let user
         try {

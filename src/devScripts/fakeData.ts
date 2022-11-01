@@ -17,11 +17,11 @@ export default async function addFakeData() {
 
     logger.warn('add data: this script can only be ran at dev environment')
 
-    await addAudios()
-    await addQuestionSets()
-    await addChapters()
-    await addSections()
-    await addBooks()
+    // await addAudios()
+    // await addQuestionSets()
+    // await addChapters()
+    // await addSections()
+    // await addBooks()
 }
 
 // books
