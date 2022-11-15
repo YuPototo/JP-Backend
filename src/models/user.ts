@@ -9,7 +9,7 @@ import { addDays, differenceInDays } from 'date-fns'
 const COLLECTION_NAME = 'user'
 
 export enum Role {
-    User = 'uer',
+    User = 'user',
     Admin = 'admin',
     Editor = 'editor',
 }
@@ -26,9 +26,9 @@ export interface IUserDoc extends Document {
     createdAt: Date
     updatedAt: Date
     quizChance: number
+    role: Role // 用户的角色
     memberDue?: Date
     wxMiniOpenId?: string // 微信小程序的 open id
-    role: Role // 用户的角色
     adminUsername?: string // admin 用户的用户名
     adminPassword?: string // admin 用户的密码
 

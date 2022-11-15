@@ -8,7 +8,7 @@ import { getErrorMessage } from './utils/errorUtil/errorHandler'
 import config from '@/config/config'
 import { createWrongRecordScheduler } from './utils/schedule/wrongRecordClean'
 
-import addFakeData from './devScripts/fakeData'
+// import addFakeData from './devScripts/fakeData'
 
 db.open()
     .then(createApp)
