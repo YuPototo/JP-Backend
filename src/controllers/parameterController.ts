@@ -8,7 +8,7 @@ export const getParameter: RequestHandler = async (req, res, next) => {
         if (!parameter) {
             return res.status(404).json({ message: `key not found for ${key}` })
         }
-        return res.json({ value: parameter.value })
+        return res.json({ key, value: parameter.value })
     } catch (err) {
         next(err)
     }

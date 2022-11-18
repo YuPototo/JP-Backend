@@ -30,5 +30,6 @@ describe('get param', () => {
         const res = await request(app).get(`/api/v1/parameters/${key}`)
         expect(res.status).toBe(200)
         expect(res.body.value).toBe(value)
+        expect(res.body.key).toBe(key)
     })
 })
