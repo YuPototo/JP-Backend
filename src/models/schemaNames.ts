@@ -13,4 +13,5 @@ export enum SchemaNames {
     AdReward = 'AdReward',
     Good = 'Good',
     Order = 'Order',
+    Parameter = 'Parameter',
 }

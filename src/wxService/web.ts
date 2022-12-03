@@ -1,7 +1,10 @@
 import config from '@/config/config'
+import { logger } from '@/utils/logger/winstonLogger'
 import fetch from 'cross-fetch'
 
 export async function getUnionIdByWebCode(loginCode: string) {
+    logger.info(`getUnionIdByWebCode: ${loginCode}`)
+
     const appId = config.wxWebApp.id
     const appSecret = config.wxWebApp.secret
 
@@ -13,7 +16,7 @@ export async function getUnionIdByWebCode(loginCode: string) {
 
     if (!resData.errcode) {
         if (resData.unionid) {
-            return resData.unionid
+            return { wxUnionId: resData.unionid }
         } else {
             throw new Error('微信 oauth2 请求返回的数据里没有 unionid')
         }

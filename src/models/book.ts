@@ -33,7 +33,7 @@ export interface IBook {
     title: string
     desc: string
     cover: string
-    weight: number
+    weight: number // 权重：确定排序，权重越高，排序越靠前
     hidden: boolean
     category: IBookCategory
     sections: [Types.ObjectId]
@@ -62,6 +62,7 @@ bookSchema.set('toJSON', {
 
         delete ret.__v
         delete ret._id
+        delete ret.sections
     },
 })
 

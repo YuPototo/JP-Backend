@@ -452,8 +452,4 @@ describe.skip('PATCH /books/:bookId/bookCover', () => {
         expect(res.statusCode).toBe(404)
         expect(res.body.message).toMatch(/找不到 book/)
     })
-
-    it('should check input', async () => {
-        // how?
-    })
 })

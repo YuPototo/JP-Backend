@@ -7,13 +7,23 @@ import QuestionSet from '../../models/questionSet'
 import Audio from '../../models/audio'
 import testUtils from '../../utils/testUtils/testUtils'
 import QuestionSetFav from '../../models/questionSetFav'
+import { Role } from '../../models/user'
+import Chapter from '../../models/chapter'
+import { nanoid } from '../../utils/nanoid'
+import _ from 'lodash'
 
 // test setup
 const minimalQuestionSet = {
-    questions: {
-        options: ['1', '2'],
-        answer: 1,
-    },
+    questions: [
+        {
+            options: ['1', '2'],
+            answer: 1,
+        },
+    ],
+}
+
+function createMinalQuestionSet() {
+    return _.cloneDeep(minimalQuestionSet)
 }
 
 let app: Express
@@ -24,7 +34,7 @@ beforeAll(async () => {
 })
 
 afterAll(async () => {
-    await QuestionSet.deleteMany({})
+    await testUtils.cleanDatabase()
     await db.close()
 })
 
@@ -60,7 +70,7 @@ describe('GET /questionSets/:questionSetId', () => {
     it('should return audio url if question set has audio field', async () => {
         const audio = new Audio({ key: 'test_key', title: 'test_title' })
         await audio.save()
-        const audioQuestionSetData = Object.assign(minimalQuestionSet, {
+        const audioQuestionSetData = Object.assign(createMinalQuestionSet(), {
             audio: audio._id.toString(),
         })
 
@@ -123,5 +133,327 @@ describe('GET questionSets with token', () => {
         expect(res.statusCode).toBe(200)
         expect(res.body).toHaveProperty('isFav')
         expect(res.body.isFav).toBeTruthy()
+    })
+})
+
+describe('POST /questionSets', () => {
+    let editorToken: string
+    let chapterId: string
+
+    beforeAll(async () => {
+        const editorUserId = await testUtils.createUser({ role: Role.Editor })
+        editorToken = await testUtils.createToken(editorUserId)
+        chapterId = await testUtils.createChapter()
+    })
+
+    /* access */
+    it('should require auth', async () => {
+        const res = await request(app).post('/api/v1/questionSets')
+        expect(res.statusCode).toBe(401)
+    })
+
+    it('should not allow normal user to have access', async () => {
+        const userId = await testUtils.createUser()
+        const token = await testUtils.createToken(userId)
+
+        const res = await request(app)
+            .post('/api/v1/questionSets')
+            .set('Authorization', `Bearer ${token}`)
+        expect(res.statusCode).toBe(401)
+    })
+
+    /* input */
+    it('should require questionSet data', async () => {
+        const res = await request(app)
+            .post('/api/v1/questionSets')
+            .set('Authorization', `Bearer ${editorToken}`)
+        expect(res.statusCode).toBe(400)
+        expect(res.body.message).toBe('缺少 questionSet')
+    })
+
+    it('should require chapterId', async () => {
+        const res = await request(app)
+            .post('/api/v1/questionSets')
+            .set('Authorization', `Bearer ${editorToken}`)
+            .send({ questionSet: minimalQuestionSet })
+        expect(res.statusCode).toBe(400)
+        expect(res.body.message).toBe('缺少 chapterId')
+    })
+
+    it('should require question in question set', async () => {
+        const res = await request(app)
+            .post('/api/v1/questionSets')
+            .set('Authorization', `Bearer ${editorToken}`)
+            .send({ questionSet: {}, chapterId: 'test' })
+        expect(res.statusCode).toBe(400)
+        expect(res.body.message).toBe('question set 内缺少 questions')
+    })
+
+    it('question should contain options', async () => {
+        const res = await request(app)
+            .post('/api/v1/questionSets')
+            .set('Authorization', `Bearer ${editorToken}`)
+            .send({
+                chapterId: 'test',
+                questionSet: { questions: [{}] },
+            })
+        expect(res.statusCode).toBe(400)
+        expect(res.body.message).toBe('question 内缺少 options 或 answer')
+
+        const res2 = await request(app)
+            .post('/api/v1/questionSets')
+            .set('Authorization', `Bearer ${editorToken}`)
+            .send({
+                chapterId: 'test',
+                questionSet: { questions: [{ answer: 2 }] },
+            })
+        expect(res2.statusCode).toBe(400)
+        expect(res2.body.message).toBe('question 内缺少 options 或 answer')
+
+        const res3 = await request(app)
+            .post('/api/v1/questionSets')
+            .set('Authorization', `Bearer ${editorToken}`)
+            .send({
+                chapterId: 'test',
+                questionSet: {
+                    questions: [{ options: [] }],
+                },
+            })
+        expect(res3.statusCode).toBe(400)
+        expect(res3.body.message).toBe('question 内缺少 options 或 answer')
+    })
+
+    // chapter should exists in db
+    it('should return 400 when chapter is not found', async () => {
+        const falseId = '61502602e94950fbe7a0075d'
+        const res = await request(app)
+            .post('/api/v1/questionSets')
+            .set('Authorization', `Bearer ${editorToken}`)
+            .send({
+                chapterId: falseId,
+                questionSet: minimalQuestionSet,
+            })
+        expect(res.statusCode).toBe(404)
+        expect(res.body.message).toMatch(/找不到 chapter/)
+    })
+
+    // if there is audio, audio should exits in db
+    it('should return 400 when audio is not found', async () => {
+        const falseId = '61502602e94950fbe7a0075d'
+
+        const res = await request(app)
+            .post('/api/v1/questionSets')
+            .set('Authorization', `Bearer ${editorToken}`)
+            .send({
+                chapterId,
+                questionSet: Object.assign(createMinalQuestionSet(), {
+                    audio: { id: falseId },
+                }),
+            })
+        expect(res.statusCode).toBe(400)
+        expect(res.body.message).toMatch(/找不到 audio/)
+    })
+
+    /* update db */
+    it('should create questionSet in db', async () => {
+        const res = await request(app)
+            .post('/api/v1/questionSets')
+            .set('Authorization', `Bearer ${editorToken}`)
+            .send({
+                chapterId,
+                questionSet: minimalQuestionSet,
+            })
+        expect(res.statusCode).toBe(201)
+        expect(res.body).toHaveProperty('questionSet')
+
+        const questionSetId = res.body.questionSet.id
+        const questionSet = await QuestionSet.findById(questionSetId)
+        expect(questionSet).not.toBeNull()
+        expect(questionSet!.chapters.map((el) => el.toString())).toContain(
+            chapterId,
+        )
+    })
+
+    it('should update chapter in db', async () => {
+        const res = await request(app)
+            .post('/api/v1/questionSets')
+            .set('Authorization', `Bearer ${editorToken}`)
+            .send({
+                chapterId,
+                questionSet: minimalQuestionSet,
+            })
+        expect(res.statusCode).toBe(201)
+
+        const chapter = await Chapter.findById(chapterId)
+        const questionSetId = res.body.questionSet.id
+        expect(chapter!.questionSets.map((el) => el.toString())).toContain(
+            questionSetId,
+        )
+    })
+
+    it('should update audio if audio is provided', async () => {
+        const key = nanoid(5)
+        await Audio.create({ key, title: 'random' })
+
+        const audio = await Audio.findOne({ key })
+        const audioId = audio!.id
+        expect(audio?.transcription).toBeUndefined()
+
+        const res = await request(app)
+            .post('/api/v1/questionSets')
+            .set('Authorization', `Bearer ${editorToken}`)
+            .send({
+                chapterId,
+                questionSet: Object.assign(createMinalQuestionSet(), {
+                    audio: { id: audioId, transcription: 'new transcription' },
+                }),
+            })
+        expect(res.statusCode).toBe(201)
+
+        const audioAfter = await Audio.findById(audioId)
+        expect(audioAfter?.transcription).toBe('new transcription')
+    })
+})
+
+// 更新题目
+describe('PATCH /questionSets/:questionSetId', () => {
+    let editorToken: string
+    let chapterId: string
+    beforeAll(async () => {
+        const editorUserId = await testUtils.createUser({ role: Role.Editor })
+        editorToken = await testUtils.createToken(editorUserId)
+        chapterId = await testUtils.createChapter()
+    })
+
+    it('should require auth', async () => {
+        const res = await request(app).patch(
+            `/api/v1/questionSets/${testUtils.createRandomMongoId()}`,
+        )
+        expect(res.statusCode).toBe(401)
+    })
+
+    it('should not allow normal user to have access', async () => {
+        const userId = await testUtils.createUser()
+        const token = await testUtils.createToken(userId)
+        const res = await request(app)
+            .patch(`/api/v1/questionSets/${testUtils.createRandomMongoId()}`)
+            .set('Authorization', `Bearer ${token}`)
+        expect(res.statusCode).toBe(401)
+    })
+
+    /* input check*/
+    it('should return 404 when questionSet is not found', async () => {
+        const falseId = '61502602e94950fbe7a0075d'
+        const res = await request(app)
+            .patch(`/api/v1/questionSets/${falseId}`)
+            .set('Authorization', `Bearer ${editorToken}`)
+            .send({ questionSet: minimalQuestionSet })
+        expect(res.statusCode).toBe(404)
+        expect(res.body.message).toMatch(/找不到 questionSet/)
+    })
+
+    it('should return 400 when audio is not found', async () => {
+        const questionSetId = await testUtils.createQuestionSet()
+        const falseId = '61502602e94950fbe7a0075d'
+
+        const res = await request(app)
+            .patch(`/api/v1/questionSets/${questionSetId}`)
+            .set('Authorization', `Bearer ${editorToken}`)
+            .send({
+                questionSet: Object.assign(createMinalQuestionSet(), {
+                    audio: {
+                        id: falseId,
+                    },
+                }),
+            })
+        expect(res.statusCode).toBe(404)
+        expect(res.body.message).toMatch(/找不到 audio/)
+    })
+
+    it('should not allow chapters field in questionSet', async () => {
+        const questionSetId = await testUtils.createQuestionSet()
+        const res = await request(app)
+            .patch(`/api/v1/questionSets/${questionSetId}`)
+            .set('Authorization', `Bearer ${editorToken}`)
+            .send({
+                questionSet: Object.assign(createMinalQuestionSet(), {
+                    chapters: [testUtils.createRandomMongoId()],
+                }),
+            })
+        expect(res.statusCode).toBe(400)
+        expect(res.body.message).toMatch(/不允许修改 chapters/)
+    })
+
+    /* update db */
+    // no audio
+    it('should update questionSet in db', async () => {
+        const questionSetId = await testUtils.createQuestionSet()
+        const res = await request(app)
+            .patch(`/api/v1/questionSets/${questionSetId}`)
+            .set('Authorization', `Bearer ${editorToken}`)
+            .send({
+                questionSet: {
+                    body: 'new body',
+                    questions: [
+                        {
+                            body: 'new body in question',
+                            options: ['new option 1', 'new option 2'],
+                            answer: 1,
+                        },
+                    ],
+                },
+            })
+        expect(res.statusCode).toBe(200)
+
+        const questionSet = await QuestionSet.findById(questionSetId)
+        expect(questionSet?.body).toBe('new body')
+        expect(questionSet?.questions[0].body).toBe('new body in question')
+        expect(questionSet?.questions[0].options).toEqual([
+            'new option 1',
+            'new option 2',
+        ])
+        expect(questionSet?.questions[0].answer).toBe(1)
+    })
+
+    // with audio
+    it('should update questionSet and audio in db', async () => {
+        const questionSetId = await testUtils.createQuestionSet()
+        const key = nanoid(5)
+        await Audio.create({ key, title: 'random' })
+
+        const audio = await Audio.findOne({ key })
+        const audioId = audio!.id
+        expect(audio?.transcription).toBeUndefined()
+
+        const res = await request(app)
+            .patch(`/api/v1/questionSets/${questionSetId}`)
+            .set('Authorization', `Bearer ${editorToken}`)
+            .send({
+                questionSet: {
+                    body: 'new body',
+                    questions: [
+                        {
+                            body: 'new body in question',
+                            options: ['new option 1', 'new option 2'],
+                            answer: 1,
+                        },
+                    ],
+                    audio: { id: audioId, transcription: 'new transcription' },
+                },
+            })
+        expect(res.statusCode).toBe(200)
+
+        const questionSet = await QuestionSet.findById(questionSetId)
+        expect(questionSet?.body).toBe('new body')
+        expect(questionSet?.questions[0].body).toBe('new body in question')
+        expect(questionSet?.questions[0].options).toEqual([
+            'new option 1',
+            'new option 2',
+        ])
+        expect(questionSet?.questions[0].answer).toBe(1)
+        expect(questionSet?.audio?.toString()).toBe(audioId)
+
+        const audioAfter = await Audio.findById(audioId)
+        expect(audioAfter?.transcription).toBe('new transcription')
     })
 })

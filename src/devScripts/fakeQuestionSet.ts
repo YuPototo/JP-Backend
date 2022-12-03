@@ -1,153 +1,87 @@
 import QuestionSet from '@/models/questionSet'
 
-function addQuestionSet1(id: string) {
+function createParagraph(text: string) {
+    return {
+        type: 'paragraph',
+        children: [
+            {
+                text,
+            },
+        ],
+    }
+}
+
+function addQuestionSet1(id: string, chapterId: string) {
     const bodyData = [
-        {
-            type: 'paragraph',
-            children: [
-                {
-                    text: '这是 question set 的 body。这是一个简单的题目。',
-                },
-            ],
-        },
+        createParagraph('这是 question set 的 body。这是一个简单的题目。'),
     ]
 
-    const explanationData = [
-        {
-            type: 'paragraph',
-            children: [
-                {
-                    text: '这是一个简单的解析。',
-                },
-            ],
-        },
-    ]
+    const explanationData = [createParagraph('这是一个简单的解析。')]
 
-    const optionOne = [
-        {
-            text: '这是第一个选项。',
-        },
-    ]
+    const optionOne = [createParagraph('这是一个选项')]
 
-    const optionTwo = [
-        {
-            text: '这是第二个选项。（正确）',
-        },
-    ]
+    const optionTwo = [createParagraph('这是第2个选项（正确）')]
 
     return {
         _id: id,
-        body: JSON.stringify(bodyData),
-        explanation: JSON.stringify(explanationData),
+        chapters: [chapterId],
+        body: bodyData,
+        explanation: explanationData,
         questions: [
             {
-                options: [JSON.stringify(optionOne), JSON.stringify(optionTwo)],
+                options: [optionOne, optionTwo],
                 answer: 1,
             },
         ],
     }
 }
 
-function addQuestionSet2(id: string) {
+function addQuestionSet2(id: string, chapterId: string) {
     const bodyData = [
-        {
-            type: 'paragraph',
-            children: [
-                {
-                    text: '这是 question set 的 body。这题有2个 questions',
-                },
-            ],
-        },
+        createParagraph('这是 question set 的 body。这题有2个 questions'),
     ]
 
-    const explanationData = [
-        {
-            type: 'paragraph',
-            children: [
-                {
-                    text: '这是一个 question set 的解析。',
-                },
-            ],
-        },
-    ]
+    const explanationData = [createParagraph('这是一个 question set 的解析。')]
 
-    const body_1 = [
-        {
-            type: 'paragraph',
-            children: [
-                {
-                    text: '这是第1个 question 的 body。',
-                },
-            ],
-        },
-    ]
+    const body_1 = [createParagraph('这是第1个 question 的 body。')]
 
-    const explanation_1 = [
-        {
-            type: 'paragraph',
-            children: [
-                {
-                    text: '这是第1个 question 的 explanation',
-                },
-            ],
-        },
-    ]
+    const explanation_1 = [createParagraph('这是第1个 question 的 explanation')]
 
-    const option_1_1 = [
-        {
-            text: '这是第1题第一个选项。',
-        },
-    ]
+    const option_1_1 = [createParagraph('这是第1题第一个选项。')]
 
-    const option_1_2 = [
-        {
-            text: '这是第1题第二个选项。（正确答案）',
-        },
-    ]
+    const option_1_2 = [createParagraph('这是第1题第2个选项。(正确）')]
 
     const questionOne = {
-        body: JSON.stringify(body_1),
-        options: [JSON.stringify(option_1_1), JSON.stringify(option_1_2)],
+        body: body_1,
+        options: [option_1_1, option_1_2],
         answer: 1,
-        explanation: JSON.stringify(explanation_1),
+        explanation: explanation_1,
     }
 
-    const option_2_1 = [
-        {
-            text: '这是第2题第一个选项。（正确答案）',
-        },
-    ]
+    const option_2_1 = [createParagraph('这是第2题第一个选项。（正确答案）')]
 
-    const option_2_2 = [
-        {
-            text: '这是第2题第二个选项。',
-        },
-    ]
+    const option_2_2 = [createParagraph('这是第2题第二个选项。')]
 
     const questionTwo = {
-        options: [JSON.stringify(option_2_1), JSON.stringify(option_2_2)],
+        options: [option_2_1, option_2_2],
         answer: 0,
     }
 
     return {
         _id: id,
-        body: JSON.stringify(bodyData),
-        explanation: JSON.stringify(explanationData),
+        chapters: [chapterId],
+        body: bodyData,
+        explanation: explanationData,
         questions: [questionOne, questionTwo],
     }
 }
 
 // 这题有图片
-function addQuestionSet3(id: string) {
+function addQuestionSet3(id: string, chapterId: string) {
     const bodyData = [
-        {
-            type: 'paragraph',
-            children: [
-                {
-                    text: '这是 question set 的 body。这个题目会有图片出现在 question set body 和选项',
-                },
-            ],
-        },
+        createParagraph(
+            '这是 question set 的 body。这个题目会有图片出现在 question set body 和选项',
+        ),
         {
             type: 'image',
             alt: '',
@@ -176,10 +110,11 @@ function addQuestionSet3(id: string) {
 
     return {
         _id: id,
-        body: JSON.stringify(bodyData),
+        chapters: [chapterId],
+        body: bodyData,
         questions: [
             {
-                options: [JSON.stringify(optionOne), JSON.stringify(optionTwo)],
+                options: [optionOne, optionTwo],
                 answer: 1,
             },
         ],
@@ -187,48 +122,23 @@ function addQuestionSet3(id: string) {
 }
 
 // 这是一道听力题
-function addQuestionSet4(id: string) {
-    const bodyData = [
-        {
-            type: 'paragraph',
-            children: [
-                {
-                    text: '这是一道听力题',
-                },
-            ],
-        },
-    ]
+function addQuestionSet4(id: string, chapterId: string) {
+    const bodyData = [createParagraph('这是一道听力题')]
 
-    const explanationData = [
-        {
-            type: 'paragraph',
-            children: [
-                {
-                    text: '这是一个简单的解析。',
-                },
-            ],
-        },
-    ]
+    const explanationData = [createParagraph('这是一个简单的解析。')]
 
-    const optionOne = [
-        {
-            text: '这是第一个选项。',
-        },
-    ]
+    const optionOne = [createParagraph('选项1')]
 
-    const optionTwo = [
-        {
-            text: '这是第二个选项。',
-        },
-    ]
+    const optionTwo = [createParagraph('选项2')]
 
     return {
         _id: id,
-        body: JSON.stringify(bodyData),
-        explanation: JSON.stringify(explanationData),
+        chapters: [chapterId],
+        body: bodyData,
+        explanation: explanationData,
         questions: [
             {
-                options: [JSON.stringify(optionOne), JSON.stringify(optionTwo)],
+                options: [optionOne, optionTwo],
                 answer: 1,
             },
         ],
@@ -237,48 +147,23 @@ function addQuestionSet4(id: string) {
 }
 
 // 这是又一道听力题
-function addQuestionSet5(id: string) {
-    const bodyData = [
-        {
-            type: 'paragraph',
-            children: [
-                {
-                    text: '这是又一道听力题',
-                },
-            ],
-        },
-    ]
+function addQuestionSet5(id: string, chapterId: string) {
+    const bodyData = [createParagraph('这是又一道听力题')]
 
-    const explanationData = [
-        {
-            type: 'paragraph',
-            children: [
-                {
-                    text: '这是一个简单的解析。',
-                },
-            ],
-        },
-    ]
+    const explanationData = [createParagraph('这是一个简单的解析。')]
 
-    const optionOne = [
-        {
-            text: '这是第一个选项。',
-        },
-    ]
+    const optionOne = [createParagraph('选项1')]
 
-    const optionTwo = [
-        {
-            text: '这是第二个选项。',
-        },
-    ]
+    const optionTwo = [createParagraph('选项2')]
 
     return {
         _id: id,
-        body: JSON.stringify(bodyData),
-        explanation: JSON.stringify(explanationData),
+        chapters: [chapterId],
+        body: bodyData,
+        explanation: explanationData,
         questions: [
             {
-                options: [JSON.stringify(optionOne), JSON.stringify(optionTwo)],
+                options: [optionOne, optionTwo],
                 answer: 1,
             },
         ],
@@ -287,48 +172,23 @@ function addQuestionSet5(id: string) {
 }
 
 // 这道听力题的听力资源是肯定找不到的
-function addQuestionSet6(id: string) {
-    const bodyData = [
-        {
-            type: 'paragraph',
-            children: [
-                {
-                    text: '这道听力题的听力资源是肯定找不到的',
-                },
-            ],
-        },
-    ]
+function addQuestionSet6(id: string, chapterId: string) {
+    const bodyData = [createParagraph('这道听力题的听力资源是肯定找不到的')]
 
-    const explanationData = [
-        {
-            type: 'paragraph',
-            children: [
-                {
-                    text: '这是一个简单的解析。',
-                },
-            ],
-        },
-    ]
+    const explanationData = [createParagraph('这是一个简单的解析。')]
 
-    const optionOne = [
-        {
-            text: '这是第一个选项。',
-        },
-    ]
+    const optionOne = [createParagraph('选项1')]
 
-    const optionTwo = [
-        {
-            text: '这是第二个选项。',
-        },
-    ]
+    const optionTwo = [createParagraph('选项2')]
 
     return {
         _id: id,
-        body: JSON.stringify(bodyData),
-        explanation: JSON.stringify(explanationData),
+        chapters: [chapterId],
+        body: bodyData,
+        explanation: explanationData,
         questions: [
             {
-                options: [JSON.stringify(optionOne), JSON.stringify(optionTwo)],
+                options: [optionOne, optionTwo],
                 answer: 1,
             },
         ],
@@ -337,7 +197,7 @@ function addQuestionSet6(id: string) {
 }
 
 // 富文本：加粗、下划线、空格和假名提示
-function addQuestionSet7(id: string) {
+function addQuestionSet7(id: string, chapterId: string) {
     const bodyData = [
         {
             type: 'paragraph',
@@ -398,24 +258,17 @@ function addQuestionSet7(id: string) {
         },
     ]
 
-    const optionOne = [
-        {
-            text: '这是第一个选项。',
-        },
-    ]
+    const optionOne = [createParagraph('选项1')]
 
-    const optionTwo = [
-        {
-            text: '这是第二个选项。（正确）',
-        },
-    ]
+    const optionTwo = [createParagraph('选项2 - 正确')]
 
     return {
         _id: id,
-        body: JSON.stringify(bodyData),
+        chapters: [chapterId],
+        body: bodyData,
         questions: [
             {
-                options: [JSON.stringify(optionOne), JSON.stringify(optionTwo)],
+                options: [optionOne, optionTwo],
                 answer: 1,
             },
         ],
@@ -423,7 +276,7 @@ function addQuestionSet7(id: string) {
 }
 
 // 富文本：图片
-function addQuestionSet8(id: string) {
+function addQuestionSet8(id: string, chapterId: string) {
     const bodyData = [
         {
             type: 'paragraph',
@@ -435,7 +288,7 @@ function addQuestionSet8(id: string) {
         },
         {
             type: 'image',
-            alt: '某个图片',
+            alt: 'question set body 里的图片',
             src: 'https://picsum.photos/250/300',
             children: [{ text: '' }],
         },
@@ -448,13 +301,13 @@ function addQuestionSet8(id: string) {
                 {
                     text: '这是一个简单的解析。下面也有图片链接是不存在的。',
                 },
-                {
-                    type: 'image',
-                    alt: '解析图片',
-                    src: 'https://assets.riyu.love/images/not_exist.jpg',
-                    children: [{ text: '' }],
-                },
             ],
+        },
+        {
+            type: 'image',
+            alt: '解析图片',
+            src: 'https://assets.riyu.love/images/not_exist.jpg',
+            children: [{ text: '' }],
         },
     ]
 
@@ -478,11 +331,12 @@ function addQuestionSet8(id: string) {
 
     return {
         _id: id,
-        body: JSON.stringify(bodyData),
-        explanation: JSON.stringify(explanationData),
+        chapters: [chapterId],
+        body: bodyData,
+        explanation: explanationData,
         questions: [
             {
-                options: [JSON.stringify(optionOne), JSON.stringify(optionTwo)],
+                options: [optionOne, optionTwo],
                 answer: 1,
             },
         ],
@@ -490,7 +344,7 @@ function addQuestionSet8(id: string) {
 }
 
 // 富文本：无法解析的文本
-function addQuestionSet9(id: string) {
+function addQuestionSet9(id: string, chapterId: string) {
     const bodyData = [
         {
             type: 'paragraph',
@@ -502,20 +356,17 @@ function addQuestionSet9(id: string) {
         },
     ]
 
-    const optionOne = [
-        {
-            tex: '这是第一个选项。',
-        },
-    ]
+    const optionOne = [createParagraph('选项1')]
 
     const optionTwo = 'some bad string'
 
     return {
         _id: id,
-        body: JSON.stringify(bodyData),
+        chapters: [chapterId],
+        body: bodyData,
         questions: [
             {
-                options: [JSON.stringify(optionOne), optionTwo],
+                options: [optionOne, optionTwo],
                 answer: 1,
             },
         ],
@@ -525,14 +376,14 @@ function addQuestionSet9(id: string) {
 // questionSets
 export async function addQuestionSets() {
     await QuestionSet.insertMany([
-        addQuestionSet1('62ff846994d4a5032e425e3e'),
-        addQuestionSet2('62ff846994d4a5032e425e31'),
-        addQuestionSet3('62ff846994d4a5032e425e32'),
-        addQuestionSet4('62ff846994d4a5032e425e30'),
-        addQuestionSet5('62ff846994d4a5032e425111'),
-        addQuestionSet6('62ff846994d4a5032e428888'),
-        addQuestionSet7('62ff846994d4a50321428881'),
-        addQuestionSet8('62ff846994d4a50321428882'),
-        addQuestionSet9('62ff846994d4a50321428772'),
+        addQuestionSet1('62ff846994d4a5032e425e3e', '62ee08ee3ca7977c375aabec'),
+        addQuestionSet2('62ff846994d4a5032e425e31', '62ee08ee3ca7977c375aabec'),
+        addQuestionSet3('62ff846994d4a5032e425e32', '62ee08ee3ca7977c375aabec'),
+        addQuestionSet4('62ff846994d4a5032e425e30', '62ee08ee3ca7977c375aabec'),
+        addQuestionSet5('62ff846994d4a5032e425111', '62ee08f73ca7977c375aabaa'),
+        addQuestionSet6('62ff846994d4a5032e428888', '62ee08f73ca7977c375aabaa'),
+        addQuestionSet7('62ff846994d4a50321428881', '62ee08f73ca7977c375aabf1'),
+        addQuestionSet8('62ff846994d4a50321428882', '62ee08f73ca7977c375aabf1'),
+        addQuestionSet9('62ff846994d4a50321428772', '62ee08f73ca7977c375aabf1'),
     ])
 }

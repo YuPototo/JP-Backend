@@ -15,7 +15,7 @@ export interface IAudio {
 /* schema */
 const audioSchema = new Schema<IAudio>(
     {
-        key: { type: String, required: true },
+        key: { type: String, required: true, unique: true },
         title: { type: String, required: true },
         transcription: { type: String },
     },

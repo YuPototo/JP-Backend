@@ -4,6 +4,7 @@ import Chapter from '@/models/chapter'
 import Notebook from '@/models/notebook'
 import QuestionSet from '@/models/questionSet'
 import Good from '@/models/good'
+import Paramter from '@/models/parameter'
 import { nanoid } from '../nanoid'
 import mongoose from 'mongoose'
 
@@ -105,6 +106,20 @@ const createGood = async (arg?: { memberDays: number }): Promise<string> => {
     return good.id
 }
 
+const createParameter = async ({
+    key,
+    value,
+}: {
+    key: string
+    value: string
+}): Promise<void> => {
+    const parameter = new Paramter({
+        key,
+        value,
+    })
+    await parameter.save()
+}
+
 const testUtils = {
     createUser,
     createBook,
@@ -115,6 +130,7 @@ const testUtils = {
     createQuestionSet,
     createRandomMongoId,
     createGood,
+    createParameter,
 }
 
 export default testUtils
