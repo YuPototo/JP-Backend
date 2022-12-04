@@ -8,6 +8,8 @@ import { getErrorMessage } from './utils/errorUtil/errorHandler'
 import config from '@/config/config'
 import { createWrongRecordScheduler } from './utils/schedule/wrongRecordClean'
 
+// this comment line is useless
+
 db.open()
     .then(createApp)
     .then((app) => {
