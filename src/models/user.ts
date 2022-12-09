@@ -95,13 +95,19 @@ userSchema.statics.createNewUser = async function (
     wxMiniOpenId?: string,
 ) {
     const displayId = await this.createDisplayId(6)
+    let user
     if (wxMiniOpenId) {
-        const user = await this.create({ displayId, wxUnionId, wxMiniOpenId })
-        return user
+        user = await this.create({ displayId, wxUnionId, wxMiniOpenId })
     } else {
-        const user = await this.create({ displayId, wxUnionId })
-        return user
+        user = await this.create({ displayId, wxUnionId })
+        user
     }
+    await Notebook.create({
+        user: user._id,
+        title: '默认笔记本',
+        isDefault: true,
+    })
+    return user
 }
 
 /* Instance Methods */
@@ -121,14 +127,6 @@ userSchema.set('toJSON', {
         delete ret.__v
         delete ret._id
     },
-})
-
-userSchema.post('save', async function () {
-    await Notebook.create({
-        user: this._id,
-        title: '默认笔记本',
-        isDefault: true,
-    })
 })
 
 userSchema.methods.createToken = function () {
